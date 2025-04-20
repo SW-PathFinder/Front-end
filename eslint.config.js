@@ -4,10 +4,10 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
+import betterHooks from "@wogns3623/eslint-plugin-better-exhaustive-deps";
 
 export default tseslint.config(
   { ignores: ["dist", "node_modules"] },
-  js.configs.recommended,
   stylistic.configs.customize({
     indent: 2,
     quotes: "double",
@@ -20,6 +20,7 @@ export default tseslint.config(
   }),
   {
     extends: [
+      js.configs.recommended,
       tseslint.configs.recommended,
     ],
     files: ["**/*.{ts,tsx}"],
@@ -30,12 +31,23 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "@wogns3623/better-exhaustive-deps": betterHooks,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
+      ],
+      "react-hooks/exhaustive-deps": "off",
+      "@wogns3623/better-exhaustive-deps/exhaustive-deps": [
+        "warn",
+        {
+          checkMemoizedVariableIsStatic: true,
+          staticHooks: {
+            useQuery: { refetch: true },
+          },
+        },
       ],
     },
   },
