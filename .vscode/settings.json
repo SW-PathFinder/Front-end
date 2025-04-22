@@ -22,5 +22,15 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.tsx": "$(capture).stories.ts"
-  }
+  },
+  "tailwindCSS.classFunctions": [
+    "classNames",
+    "clsx",
+    "twMerge",
+    "twJoin",
+    "cn",
+    "cva",
+    "cvaClassNames",
+    "cx"
+  ]
 }
