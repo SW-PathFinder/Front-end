@@ -1,7 +1,7 @@
 {
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
+    "source.fixAll.eslint": "always"
   },
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
@@ -16,6 +16,7 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "files.associations": {
-    "*.css": "tailwindcss"
-  },
+    "*.css": "tailwindcss",
+    "*.mdx": "mdx"
+  }
 }
