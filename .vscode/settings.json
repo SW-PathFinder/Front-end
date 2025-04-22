@@ -1,0 +1,36 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss",
+    "*.mdx": "mdx"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.tsx": "$(capture).stories.ts"
+  },
+  "tailwindCSS.classFunctions": [
+    "classNames",
+    "clsx",
+    "twMerge",
+    "twJoin",
+    "cn",
+    "cva",
+    "cvaClassNames",
+    "cx"
+  ]
+}
