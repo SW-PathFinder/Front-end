@@ -2,6 +2,7 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
+    "joshbolduc.story-explorer",
     "unifiedjs.vscode-mdx"
   ]
 }
