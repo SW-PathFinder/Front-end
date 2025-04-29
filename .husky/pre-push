@@ -1,0 +1,12 @@
+#!/bin/bash
+. "$(dirname "$0")/_/h"
+
+# push하려는 브랜치를 확인합니다.
+BRANCH=$(git branch --show-current)
+# 메인 브랜치(main 또는 master)인 경우 push를 막습니다.
+if [[ "$BRANCH" == "main" ]]; then
+    echo "Error: 메인 브랜치에 직접 push 할 수 없습니다."
+    exit 1
+fi
+# 다른 브랜치인 경우 push를 허용합니다.
+exit 0
