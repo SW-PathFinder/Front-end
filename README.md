@@ -4,7 +4,7 @@
 
 |Contributor|
 |:---:|
-|Doohyeon Kim|
+|Doohyun Kim|
 |Hayoung Son |
 | Jaehun Kim |
 
