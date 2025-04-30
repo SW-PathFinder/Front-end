@@ -2,11 +2,12 @@
 
 보드게임 "사보타지"를 온라인 서비스로 구현하는 프로젝트입니다.
 
-|Contributor|
-|:---:|
-|Doohyun Kim|
-|Hayoung Son |
-| Jaehun Kim |
+| Contributor |
+|:-----------:|
+| Doohyun Kim |
+| Hayoung Son |
+| Jaehun Kim  |
+| Jiwoo Park  |
 
 ## Run
 ```
@@ -21,3 +22,5 @@
 |pnpm|
 |ESLint|^9.21.0|
 |TypeScript|~5.7.2|
+|TypeScript|~5.7.2|
+|livekit-client|2.11.4|
