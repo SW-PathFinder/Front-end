@@ -22,5 +22,4 @@
 |pnpm|
 |ESLint|^9.21.0|
 |TypeScript|~5.7.2|
-|TypeScript|~5.7.2|
 |livekit-client|2.11.4|
