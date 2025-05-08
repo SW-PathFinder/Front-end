@@ -1,37 +1,14 @@
 import js from "@eslint/js";
-import stylistic from "@stylistic/eslint-plugin";
 import betterHooks from "@wogns3623/eslint-plugin-better-exhaustive-deps";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import storybook from "eslint-plugin-storybook";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-// const stylisticConfig = stylistic.configs.customize({
-//   indent: 2,
-//   quotes: "double",
-//   semi: true,
-//   blockSpacing: true,
-//   braceStyle: "1tbs",
-//   commaDangle: "always-multiline",
-//   arrowParens: true,
-//   jsx: true,
-// });
-
 export default tseslint.config(
   { ignores: ["dist", "node_modules"] },
-  // {
-  //   plugins: { "@stylistic": stylistic },
-  //   rules: {
-  //     ...stylisticConfig.rules,
-  //     "@stylistic/array-bracket-newline": ["error", { multiline: true }],
-  //     "@stylistic/array-element-newline": [
-  //       "error",
-  //       { consistent: true, multiline: true, minItems: 5 },
-  //     ],
-  //     "@stylistic/object-property-newline": ["error", { allowAllPropertiesOnSameLine: true }],
-  //     "@stylistic/multiline-ternary": ["error", "never"],
-  //   },
-  // },
+  ...storybook.configs["flat/recommended"],
   {
     extends: [js.configs.recommended, tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
