@@ -1,11 +1,10 @@
+import { Card } from "./Card";
 import type { Meta, StoryObj } from "@storybook/react";
 // import { fn } from "@storybook/test";
 
-import { Card } from "./Card";
-
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "Example/Card",
+  title: "Game/Card",
   component: Card,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
@@ -23,25 +22,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Default: Story = {
-  args: {
-    cardId: 1,
-  },
-};
+export const Default: Story = { args: { cardId: 1 } };
 
 export const Scaled: Story = { args: { cardId: 1, scale: 1.2 } };
 
-export const Rotated: Story = {
-  args: {
-    cardId: 1,
-    rotate: 45,
-  },
-};
+export const Rotated: Story = { args: { cardId: 1, rotate: 45 } };
 
-export const Translated: Story = {
-  args: {
-    cardId: 1,
-    x: 100,
-    y: 100,
-  },
-};
+export const Translated: Story = { args: { cardId: 1, x: 15, y: 20 } };

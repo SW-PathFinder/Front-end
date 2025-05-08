@@ -53,6 +53,8 @@ export default tseslint.config(
       "@wogns3623/better-exhaustive-deps": betterHooks,
     },
     rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",

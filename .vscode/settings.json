@@ -22,7 +22,7 @@
   },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "*.tsx": "$(capture).stories.ts"
+    "*.tsx": "$(capture).stories.ts, $(capture).stories.tsx"
   },
   "tailwindCSS.classFunctions": [
     "classNames",

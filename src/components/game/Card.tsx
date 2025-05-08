@@ -2,6 +2,15 @@ import { twMerge } from "tailwind-merge";
 
 export interface CardProps {
   cardId: number;
+
+  /**
+   * @default false
+   */
+  draggable?: boolean;
+
+  top?: number;
+  left?: number;
+
   x?: number;
   y?: number;
   /**
@@ -14,38 +23,42 @@ export interface CardProps {
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export const Card = (
-  { cardId, x = 0, y = 0, rotate = 0, scale = 1, className, ref }: CardProps,
-) => {
+export const Card = ({
+  cardId,
+  top = 0,
+  left = 0,
+  x = 0,
+  y = 0,
+  rotate = 0,
+  scale = 1,
+  className,
+  ref,
+}: CardProps) => {
   const transitionStyle = {
-    // translate: `${x}px ${y}px`,
+    "--tw-top": `${top}px`,
+    "--tw-left": `${left}px`,
     "--tw-translate-x": `${x}px`,
     "--tw-translate-y": `${y}px`,
-  } as React.CSSProperties;
-
-  const rotateStyle = {
+    "--tw-scale-x": scale,
+    "--tw-scale-y": scale,
     "--tw-rotate": `${rotate}deg`,
-    "--tw-scale": `${scale}`,
   } as React.CSSProperties;
 
   return (
-    <>
-      <div
-        style={transitionStyle}
-        className={twMerge("w-16 transition-all translate-3d", className)}
-        ref={ref}
-      >
-        <div
-          style={rotateStyle}
-          className={
-            twMerge(
-              "flex justify-center items-center -z-10 hover:z-10 rotate-(--tw-rotate) scale-(--tw-scale)",
-            )
-          }
-        >
-          <img src={`assets/saboteur/cards/${cardId}.png`} />
-        </div>
-      </div>
-    </>
+    <div
+      style={{
+        ...transitionStyle,
+        backgroundImage: `url(assets/saboteur/cards/${cardId}.png)`,
+      }}
+      className={twMerge(
+        "relative aspect-[2/3] w-16 bg-cover bg-center bg-no-repeat",
+        "top-(--tw-top) left-(--tw-left) translate-3d",
+        "scale-0 rotate-(--tw-rotate)",
+        className,
+      )}
+      ref={ref}
+    >
+      <img src={`assets/saboteur/cards/${cardId}.png`} />
+    </div>
   );
 };
