@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge";
 
 export interface CardProps {
-  cardId: number;
+  image: string;
 
   /**
    * @default false
@@ -24,7 +24,7 @@ export interface CardProps {
 }
 
 export const Card = ({
-  cardId,
+  image,
   top = 0,
   left = 0,
   x = 0,
@@ -48,7 +48,7 @@ export const Card = ({
     <div
       style={{
         ...transitionStyle,
-        backgroundImage: `url(assets/saboteur/cards/${cardId}.png)`,
+        backgroundImage: `url(assets/saboteur/cards/${image})`,
       }}
       className={twMerge(
         "relative aspect-[2/3] w-16 bg-cover bg-center bg-no-repeat",
@@ -58,7 +58,8 @@ export const Card = ({
       )}
       ref={ref}
     >
-      <img src={`assets/saboteur/cards/${cardId}.png`} />
+      {/* for background-image */}
+      <img src={`assets/saboteur/cards/${image}`} className="invisible" />
     </div>
   );
 };
