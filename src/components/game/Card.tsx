@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { Schema } from "../../types";
 
-export interface CardProps {
+interface CardProps {
   card: Schema.Card;
   /**
    * width of card
@@ -17,9 +17,11 @@ export interface CardProps {
   className?: string;
 }
 
-export const CARD_RATIO = 2 / 3;
+export const CARD_RATIO = 1.5;
+export const CARD_WIDTH = 64;
+export const CARD_HEIGHT = CARD_WIDTH * CARD_RATIO;
 
-export const Card = ({ card, size = 64, fixed = false, transform, style, className }: CardProps) => {
+export const Card = ({ card, size = CARD_WIDTH, fixed = false, transform, style, className }: CardProps) => {
   const [isFocusing, setIsFocusing] = useState(false);
   const { isDragging, setNodeRef, listeners, transform: dragTransform } = useDraggable({
     id: card.id,
@@ -38,6 +40,7 @@ export const Card = ({ card, size = 64, fixed = false, transform, style, classNa
   });
 
   const transformStyle = {
+    "--tw-z-index": 1,
     ...(transform && {
       "--tw-top": `${transform?.y ?? 0}px`,
       "--tw-left": `${transform?.x ?? 0}px`,
@@ -45,7 +48,7 @@ export const Card = ({ card, size = 64, fixed = false, transform, style, classNa
     }),
     ...(!fixed && isFocusing && {
       "--tw-scale": isDragging ? 1 : 1.2,
-      "--tw-z-index": 1,
+      "--tw-z-index": 2,
       "--tw-rotate": 0,
     }),
     ...(dragTransform && {

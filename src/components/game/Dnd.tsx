@@ -1,4 +1,4 @@
-import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, UniqueIdentifier, useDndContext, useDraggable, useDroppable, useSensor, useSensors, useDndMonitor, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, UniqueIdentifier, useDndContext, useDraggable, useDroppable, useSensor, useSensors, useDndMonitor, DragEndEvent, Data } from "@dnd-kit/core";
 import { useUniqueId } from "@dnd-kit/utilities";
 import { PropsWithChildren, useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -57,28 +57,29 @@ export const DndZone = ({ children }: PropsWithChildren) => {
   );
 };
 
-interface DroppableProps {
+interface DroppableProps<T extends Data> {
   id?: UniqueIdentifier;
-  dragging?: boolean;
+  data?: T;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
   className?: string;
 }
 
-export function Droppable({ id, dragging = false, className, children }: DroppableProps) {
+export function Droppable<T extends Data>({ id, data, style, className, children }: DroppableProps<T>) {
   const randomId = useUniqueId("droppable");
   id ??= randomId;
   const { isOver, setNodeRef } = useDroppable({
-    id,
+    id, data,
   });
 
   return (
     <div
       id={id as string}
       ref={setNodeRef}
+      style={style}
       className={twMerge(
         className,
         isOver && "",
-        dragging && "",
       )}
       aria-label="Droppable region"
     >

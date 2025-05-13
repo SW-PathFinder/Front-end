@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { useUniqueId } from "@dnd-kit/utilities";
 
 import { Droppable } from "./Dnd";
-import { Card, CARD_RATIO } from "./Card";
+import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Schema } from "../../types";
 
 interface HandProps {
@@ -13,20 +13,18 @@ interface HandProps {
 export const Hand = ({ cards, className }: HandProps) => {
   const id = useUniqueId("hand");
 
-  const size = 64;
-
   return (
     <Droppable
       id={id}
       className={twMerge("relative w-16", className)}
     >
       {cards.map((card, index) => {
-        const handTransform = getHandCardTransform(index, cards.length, { width: size, height: size / CARD_RATIO });
+        const handTransform = getHandCardTransform(index, cards.length, { width: CARD_WIDTH, height: CARD_HEIGHT });
 
         return (
           <Card
             card={card}
-            size={size}
+            size={CARD_WIDTH}
             transform={handTransform}
             key={card.id}
           />
