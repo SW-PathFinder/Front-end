@@ -18,9 +18,9 @@ const config = {
   // singleAttributePerLine: false,
 
   // @trivago/prettier-plugin-sort-imports
-  // importOrder: ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+  importOrder: ["^react$", "<THIRD_PARTY_MODULES>", "^[./]"],
   importOrderSeparation: true,
-  importOrderSortSpecifiers: true,
+  // importOrderSortSpecifiers: true,
 
   // prettier-plugin-tailwindcss
   tailwindStylesheet: "./src/index.css",

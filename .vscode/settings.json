@@ -18,5 +18,6 @@
     "cva",
     "cvaClassNames",
     "cx"
-  ]
+  ],
+  "prettier.configPath": "./prettier.config.js"
 }
