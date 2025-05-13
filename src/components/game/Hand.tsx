@@ -1,9 +1,9 @@
-import { twMerge } from "tailwind-merge";
 import { useUniqueId } from "@dnd-kit/utilities";
+import { twMerge } from "tailwind-merge";
 
-import { Droppable } from "./Dnd";
-import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Schema } from "../../types";
+import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
+import { Droppable } from "./Dnd";
 
 interface HandProps {
   cards: Schema.Card[];
@@ -14,12 +14,12 @@ export const Hand = ({ cards, className }: HandProps) => {
   const id = useUniqueId("hand");
 
   return (
-    <Droppable
-      id={id}
-      className={twMerge("relative w-16", className)}
-    >
+    <Droppable id={id} className={twMerge("relative w-16", className)}>
       {cards.map((card, index) => {
-        const handTransform = getHandCardTransform(index, cards.length, { width: CARD_WIDTH, height: CARD_HEIGHT });
+        const handTransform = getHandCardTransform(index, cards.length, {
+          width: CARD_WIDTH,
+          height: CARD_HEIGHT,
+        });
 
         return (
           <Card
@@ -42,7 +42,7 @@ interface HandCardTransform {
   x: number;
   y: number;
   rotate: number;
-};
+}
 
 function getHandCardTransform(
   index: number,

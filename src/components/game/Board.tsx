@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
-import { Droppable } from "./Dnd";
+
 import { twMerge } from "tailwind-merge";
-import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
+
 import { Schema } from "../../types";
+import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
+import { Droppable } from "./Dnd";
 
 interface BoardProps {
   cards: (Schema.Card | null)[][];
@@ -18,17 +20,16 @@ const BOARD_VISIBLE_COLS = 11;
 
 // TODO: 카드 드래그할때 불필요한 스크롤링 방지
 // 바깥 영역에서만 스크롤 한칸씩 되도록?
-export const Board = ({
-  cards,
-  style,
-  className,
-}: BoardProps) => {
+export const Board = ({ cards, style, className }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!boardRef.current) return;
 
-    boardRef.current.scrollTo({ top: CARD_HEIGHT * (BOARD_ROWS - BOARD_VISIBLE_ROWS) / 2, left: CARD_WIDTH * (BOARD_COLS - BOARD_VISIBLE_COLS) / 2 });
+    boardRef.current.scrollTo({
+      top: (CARD_HEIGHT * (BOARD_ROWS - BOARD_VISIBLE_ROWS)) / 2,
+      left: (CARD_WIDTH * (BOARD_COLS - BOARD_VISIBLE_COLS)) / 2,
+    });
   }, []);
 
   return (
@@ -40,7 +41,7 @@ export const Board = ({
         gridTemplateRows: `repeat(${BOARD_ROWS}, ${CARD_HEIGHT}px)`,
         ...style,
       }}
-      className={twMerge("grid overflow-scroll snap-both", className)}
+      className={twMerge("grid snap-both overflow-scroll", className)}
       ref={boardRef}
     >
       {Array.from({ length: BOARD_ROWS * BOARD_COLS }, (_, index) => {
@@ -55,17 +56,11 @@ export const Board = ({
           <Droppable
             id={id}
             style={{ gridRow: x + 1, gridColumn: y + 1 }}
-            className={`relative snap-center w-16 h-24 border border-gray-300 ${(x + y) % 2 === 0 ? "bg-gray-100" : "bg-white"}`}
+            className={`relative h-24 w-16 snap-center border border-gray-300 ${(x + y) % 2 === 0 ? "bg-gray-100" : "bg-white"}`}
             key={id}
           >
             {/* {`${x},${y}`} */}
-            {card && (
-              <Card
-                card={card}
-                size={CARD_WIDTH}
-                fixed
-              />
-            )}
+            {card && <Card card={card} size={CARD_WIDTH} fixed />}
           </Droppable>
         );
       })}

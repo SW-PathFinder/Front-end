@@ -1,25 +1,12 @@
 {
   "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always"
-  },
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": "always" },
   "editor.tabSize": 2,
-  "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
-  "files.associations": {
-    "*.css": "tailwindcss",
-    "*.mdx": "mdx"
-  },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "files.associations": { "*.css": "tailwindcss", "*.mdx": "mdx" },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.tsx": "$(capture).stories.ts, $(capture).stories.tsx"
@@ -33,5 +20,6 @@
     "cva",
     "cvaClassNames",
     "cx"
-  ]
+  ],
+  "prettier.configPath": "./prettier.config.js"
 }

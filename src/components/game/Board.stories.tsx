@@ -1,12 +1,17 @@
+import type { Meta, StoryObj } from "@storybook/react";
+
 import { Schema } from "../../types";
 import { Board, BOARD_ROWS, BOARD_COLS } from "./Board";
-import type { Meta, StoryObj } from "@storybook/react";
 import { DndZone } from "./Dnd";
+
 // import { fn } from "@storybook/test";
 
-const cards: (Schema.Card | null)[][] = Array.from({ length: BOARD_ROWS }, () => {
-  return Array.from({ length: BOARD_COLS }, () => null);
-});
+const cards: (Schema.Card | null)[][] = Array.from(
+  { length: BOARD_ROWS },
+  () => {
+    return Array.from({ length: BOARD_COLS }, () => null);
+  },
+);
 
 cards[11][7] = { id: "start", image: "start.png" };
 cards[9][15] = { id: "dest_gold", image: "dest_gold.png" };

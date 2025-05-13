@@ -1,22 +1,24 @@
 import { useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+
 // import { fn } from "@storybook/test";
 import { useDndMonitor } from "@dnd-kit/core";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { Hand } from "./Hand";
-import { DndZone, Droppable } from "./Dnd";
-import { Card } from "./Card";
 import { Schema } from "../../types";
+import { Card } from "./Card";
+import { DndZone, Droppable } from "./Dnd";
+import { Hand } from "./Hand";
 
 const HandStory = ({ cards }: { cards: Schema.Card[] }) => {
   const [hands, setHand] = useState(() => cards);
 
-  const [containers, setContainers] = useState<Array<{
-    id: string;
-    item?: Schema.Card;
-  }>>(() => Array(45).fill({}).map((_, index) => ({
-    id: `container-${index}`,
-  })));
+  const [containers, setContainers] = useState<
+    Array<{ id: string; item?: Schema.Card }>
+  >(() =>
+    Array(45)
+      .fill({})
+      .map((_, index) => ({ id: `container-${index}` })),
+  );
 
   // const { } = useDndContext();
   useDndMonitor({
@@ -24,7 +26,9 @@ const HandStory = ({ cards }: { cards: Schema.Card[] }) => {
       console.log("onDragEnd", { active, over });
       if (!over) return;
 
-      const container = containers.find((container) => container.id === over.id);
+      const container = containers.find(
+        (container) => container.id === over.id,
+      );
       if (!container || container.item) return;
 
       const activeCard = cards.find((card) => card.id === active.id);
@@ -32,8 +36,7 @@ const HandStory = ({ cards }: { cards: Schema.Card[] }) => {
 
       setContainers((prev) =>
         prev.map((c) => {
-          if (c.id === container.id)
-            return { ...c, item: activeCard };
+          if (c.id === container.id) return { ...c, item: activeCard };
           if (c.item && c.item.id === active.id)
             return { ...c, item: undefined };
           return c;
@@ -44,20 +47,20 @@ const HandStory = ({ cards }: { cards: Schema.Card[] }) => {
   });
 
   return (
-    <section className="flex flex-col justify-center items-center space-y-2">
-      <section className="grid grid-cols-9 items-center w-fit">
+    <section className="flex flex-col items-center justify-center space-y-2">
+      <section className="grid w-fit grid-cols-9 items-center">
         {containers.map((container, index) => (
-          <Droppable id={container.id} className="flex justify-center items-center w-16 h-24 border-2" key={index}>
-            {container.item && (
-              <Card card={container.item} fixed />
-            )}
+          <Droppable
+            id={container.id}
+            className="flex h-24 w-16 items-center justify-center border-2"
+            key={index}
+          >
+            {container.item && <Card card={container.item} fixed />}
           </Droppable>
         ))}
       </section>
 
-      <Hand
-        cards={hands}
-      />
+      <Hand cards={hands} />
     </section>
   );
 };

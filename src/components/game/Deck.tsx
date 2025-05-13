@@ -1,5 +1,5 @@
-import { twMerge } from "tailwind-merge";
 import { UniqueIdentifier } from "@dnd-kit/core";
+import { twMerge } from "tailwind-merge";
 
 import { Card } from "./Card";
 
@@ -12,7 +12,7 @@ export const Deck = ({ cards, className }: DeckProps) => {
   return (
     <section
       className={twMerge(
-        "flex items-center gap-2 w-96 h-28 border-2",
+        "flex h-28 w-96 items-center gap-2 border-2",
         className,
       )}
     >

@@ -1,6 +1,21 @@
-import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, UniqueIdentifier, useDndContext, useDraggable, useDroppable, useSensor, useSensors, useDndMonitor, DragEndEvent, Data } from "@dnd-kit/core";
-import { useUniqueId } from "@dnd-kit/utilities";
 import { PropsWithChildren, useCallback, useRef, useState } from "react";
+
+import {
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  UniqueIdentifier,
+  useDndContext,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  useDndMonitor,
+  DragEndEvent,
+  Data,
+} from "@dnd-kit/core";
+import { useUniqueId } from "@dnd-kit/utilities";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 
@@ -65,22 +80,23 @@ interface DroppableProps<T extends Data> {
   className?: string;
 }
 
-export function Droppable<T extends Data>({ id, data, style, className, children }: DroppableProps<T>) {
+export function Droppable<T extends Data>({
+  id,
+  data,
+  style,
+  className,
+  children,
+}: DroppableProps<T>) {
   const randomId = useUniqueId("droppable");
   id ??= randomId;
-  const { isOver, setNodeRef } = useDroppable({
-    id, data,
-  });
+  const { isOver, setNodeRef } = useDroppable({ id, data });
 
   return (
     <div
       id={id as string}
       ref={setNodeRef}
       style={style}
-      className={twMerge(
-        className,
-        isOver && "",
-      )}
+      className={twMerge(className, isOver && "")}
       aria-label="Droppable region"
     >
       {children}
@@ -97,30 +113,31 @@ interface DraggableProps {
 export function Draggable({ id, children, className }: DraggableProps) {
   const randomId = useUniqueId("draggable");
   id ??= randomId;
-  const { isDragging, setNodeRef, listeners, transform } = useDraggable({
-    id,
-  });
+  const { isDragging, setNodeRef, listeners, transform } = useDraggable({ id });
   const { droppableContainers } = useDndContext();
   const [droppedNode, setDroppedNode] = useState<HTMLElement | null>(null);
 
-  const onDragEnd = useCallback(({ active, over }: DragEndEvent) => {
-    if (active.id !== id || !over) return;
+  const onDragEnd = useCallback(
+    ({ active, over }: DragEndEvent) => {
+      if (active.id !== id || !over) return;
 
-    const droppedContainer = droppableContainers.get(over.id);
-    if (!droppedContainer) return;
+      const droppedContainer = droppableContainers.get(over.id);
+      if (!droppedContainer) return;
 
-    setDroppedNode(droppedContainer.node.current);
-  }, [id, droppableContainers]);
+      setDroppedNode(droppedContainer.node.current);
+    },
+    [id, droppableContainers],
+  );
 
-  useDndMonitor({
-    onDragEnd,
-  });
+  useDndMonitor({ onDragEnd });
 
   const transformStyle = {
-    ...(transform ? {
-      "--tw-translate-x": `${transform.x}px`,
-      "--tw-translate-y": `${transform.y}px`,
-    } : {}),
+    ...(transform
+      ? {
+          "--tw-translate-x": `${transform.x}px`,
+          "--tw-translate-y": `${transform.y}px`,
+        }
+      : {}),
   } as React.CSSProperties;
 
   const draggableNode = (
@@ -129,11 +146,7 @@ export function Draggable({ id, children, className }: DraggableProps) {
       ref={setNodeRef}
       {...listeners}
       style={transformStyle}
-      className={twMerge(
-        "translate-3d scale-3d",
-        className,
-        isDragging && "",
-      )}
+      className={twMerge("translate-3d scale-3d", className, isDragging && "")}
     >
       {children}
     </div>
