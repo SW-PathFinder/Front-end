@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Hand } from "./Hand";
-import { DndZone } from "./Dnd";
+import { DndZone, Droppable } from "./Dnd";
+import { useDndMonitor } from "@dnd-kit/core";
+import { useState } from "react";
+import { Card } from "./Card";
 // import { fn } from "@storybook/test";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -22,25 +25,75 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const cards = [
+  { id: "card-1", image: "path_1.png" },
+  { id: "card-2", image: "path_2.png" },
+  { id: "card-3", image: "path_3.png" },
+  { id: "card-4", image: "path_4.png" },
+  { id: "card-5", image: "path_5.png" },
+  { id: "card-6", image: "path_6.png" },
+];
+
 const HandStory = () => {
+  const [hands, setHand] = useState(() => cards);
+
+  const [containers, setContainers] = useState<Array<{
+    id: string;
+    item?: { id: string; image: string };
+  }>>(() => Array(45).fill({}).map((_, index) => ({
+    id: `container-${index}`,
+  })));
+
+  // const { } = useDndContext();
+  useDndMonitor({
+    onDragEnd({ active, over }) {
+      console.log("onDragEnd", { active, over });
+      if (!over) return;
+
+      const container = containers.find((container) => container.id === over.id);
+      if (!container || container.item) return;
+
+      const activeCard = cards.find((card) => card.id === active.id);
+      if (!activeCard) return;
+
+      setContainers((prev) =>
+        prev.map((c) => {
+          if (c.id === container.id)
+            return { ...c, item: activeCard };
+          if (c.item && c.item.id === active.id)
+            return { ...c, item: undefined };
+          return c;
+        }),
+      );
+      setHand((prev) => prev.filter((card) => card.id !== active.id));
+    },
+  });
+
   return (
-    <DndZone>
+    <section className="flex flex-col justify-center items-center space-y-2">
+      <section className="grid grid-cols-9 items-center w-fit">
+        {containers.map((container, index) => (
+          <Droppable id={container.id} className="flex justify-center items-center w-16 h-24 border-2" key={index}>
+            {container.item && (
+              <Card card={container.item} fixed />
+            )}
+          </Droppable>
+        ))}
+      </section>
+
       <Hand
-        cards={[
-          { id: "1", image: "path_1.png" },
-          { id: "2", image: "path_2.png" },
-          { id: "3", image: "path_3.png" },
-          { id: "4", image: "path_4.png" },
-          { id: "5", image: "path_5.png" },
-          { id: "6", image: "path_6.png" },
-        ]}
+        cards={hands}
       />
-    </DndZone>
+    </section>
   );
 };
 
 export const Default: Story = {
   args: { cards: [] },
   parameters: { layout: "centered" },
-  render: () => <HandStory />,
+  render: () => (
+    <DndZone>
+      <HandStory />
+    </DndZone>
+  ),
 };

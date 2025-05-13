@@ -22,10 +22,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Default: Story = { args: { image: "path_1.png" } };
-
-export const Scaled: Story = { args: { image: "path_2.png", scale: 1.2 } };
-
-export const Rotated: Story = { args: { image: "path_3.png", rotate: 45 } };
-
-export const Translated: Story = { args: { image: "path_4.png", x: 15, y: 20 } };
+export const Default: Story = { args: { card: { id: "path_1", image: "path_1.png" } } };
+export const Rotated: Story = { args: { card: { id: "path_2", image: "path_1.png" }, transform: { rotate: 45 } } };
+export const Translated: Story = { args: { card: { id: "path_3", image: "path_1.png" }, transform: { x: 24, y: 36 } } };
