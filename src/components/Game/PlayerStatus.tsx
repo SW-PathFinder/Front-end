@@ -1,6 +1,6 @@
 import { PLAYER_STATUS } from "@/constants/Game/status";
 import { Tools } from "@/libs/gameLogics";
-import { DummyInterface } from "@/pages/Game";
+import { DummyInterface } from "@/types";
 
 interface DummyProps {
   item: DummyInterface;

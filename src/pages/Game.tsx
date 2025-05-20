@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 
-import PlayerList from "../components/Game/PlayerList";
-import { Tools } from "../libs/gameLogics";
-
-export interface DummyInterface {
-  id: number;
-  name: string;
-  status: Record<Tools, boolean>;
-  deck: number;
-}
+import PlayerList from "@/components/Game/PlayerList";
+import { DummyInterface } from "@/types";
 
 const dummyList: DummyInterface[] = [
   {

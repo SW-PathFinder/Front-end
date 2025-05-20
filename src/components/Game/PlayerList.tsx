@@ -1,9 +1,9 @@
-import { DummyInterface } from "@/pages/Game";
+import { DummyInterface } from "@/types";
 
 import PlayerStatus from "./PlayerStatus";
 
 interface Props {
-  list: DummyInterface[];
+  list?: DummyInterface[];
 }
 
 const PlayerList = ({ list }: Props) => {
