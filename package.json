@@ -7,14 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "format": "prettier --write .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.4",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.74.3",
+    "livekit-client": "^2.11.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.5.0",
@@ -23,6 +27,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^3",
     "@eslint/js": "^9.21.0",
+    "@storybook/addon-actions": "^8.6.12",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-onboarding": "^8.6.12",
     "@storybook/addon-themes": "^8.6.12",
@@ -31,7 +36,8 @@
     "@storybook/react": "^8.6.12",
     "@storybook/react-vite": "^8.6.12",
     "@storybook/test": "^8.6.12",
-    "@stylistic/eslint-plugin": "^4.2.0",
+    "@tailwindcss/vite": "^4.1.4",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -46,18 +52,16 @@
     "eslint-plugin-storybook": "^0.12.0",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "playwright": "^1.52.0",
     "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "storybook": "^8.6.12",
     "tailwindcss": "^4.1.4",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "vitest": "^3.1.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:storybook/recommended"
-    ]
   }
 }
