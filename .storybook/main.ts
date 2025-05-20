@@ -10,5 +10,6 @@ const config: StorybookConfig = {
     "@storybook/addon-themes",
   ],
   framework: { name: "@storybook/react-vite", options: {} },
+  staticDirs: ["../public"],
 };
 export default config;
