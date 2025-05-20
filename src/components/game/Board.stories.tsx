@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Schema } from "../../types";
+import { Schema } from "@/types";
+
 import { Board, BOARD_ROWS, BOARD_COLS } from "./Board";
 import { DndZone } from "./Dnd";
 

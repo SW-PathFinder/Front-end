@@ -21,5 +21,6 @@
     "cvaClassNames",
     "cx"
   ],
-  "prettier.configPath": "./prettier.config.js"
+  "prettier.configPath": "./prettier.config.js",
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

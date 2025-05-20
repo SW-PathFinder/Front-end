@@ -1,7 +1,8 @@
 import { useUniqueId } from "@dnd-kit/utilities";
 import { twMerge } from "tailwind-merge";
 
-import { Schema } from "../../types";
+import { Schema } from "@/types";
+
 import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";
 

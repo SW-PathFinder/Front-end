@@ -18,7 +18,7 @@ const config = {
   // singleAttributePerLine: false,
 
   // @trivago/prettier-plugin-sort-imports
-  importOrder: ["^react$", "<THIRD_PARTY_MODULES>", "^[./]"],
+  importOrder: ["^react$", "<THIRD_PARTY_MODULES>", "^@/", "^[./]"],
   importOrderSeparation: true,
   // importOrderSortSpecifiers: true,
 
