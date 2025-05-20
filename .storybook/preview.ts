@@ -1,17 +1,20 @@
+import { withThemeByClassName, withThemeByDataAttribute } from "@storybook/addon-themes";
+import { initialize, mswLoader } from "msw-storybook-addon";
 import type { Preview } from "@storybook/react";
-import { withThemeByClassName } from "@storybook/addon-themes";
 
 import "../src/index.css";
 
-import { withThemeByDataAttribute } from "@storybook/addon-themes";
+/*
+ * Initializes MSW
+ * See https://github.com/mswjs/msw-storybook-addon#configuring-msw
+ * to learn how to customize it
+ */
+initialize();
 
 /* snipped for brevity */
 export const decorators = [
   withThemeByClassName({
-    themes: {
-      light: "light",
-      dark: "dark",
-    },
+    themes: { light: "light", dark: "dark" },
     defaultTheme: "light",
   }),
   withThemeByDataAttribute({
@@ -28,13 +31,9 @@ export const decorators = [
 
 const preview: Preview = {
   parameters: {
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
+    controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
   },
+  loaders: [mswLoader], // 👈 Add the MSW loader to all stories
 };
 
 export default preview;
