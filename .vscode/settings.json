@@ -8,7 +8,9 @@
   "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "files.associations": { "*.css": "tailwindcss", "*.mdx": "mdx" },
   "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.patterns": { "*.tsx": "$(capture).stories.ts" },
+  "explorer.fileNesting.patterns": {
+    "*.tsx": "$(capture).stories.ts, $(capture).stories.tsx"
+  },
   "tailwindCSS.classFunctions": [
     "classNames",
     "clsx",

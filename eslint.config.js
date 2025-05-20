@@ -19,6 +19,8 @@ export default tseslint.config(
       "@wogns3623/better-exhaustive-deps": betterHooks,
     },
     rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-namespace": "off",
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
@@ -28,6 +30,7 @@ export default tseslint.config(
       "@wogns3623/better-exhaustive-deps/exhaustive-deps": [
         "warn",
         {
+          additionalHooks: "(useDeepEqualMemo)",
           checkMemoizedVariableIsStatic: true,
           staticHooks: { useQuery: { refetch: true } },
         },
