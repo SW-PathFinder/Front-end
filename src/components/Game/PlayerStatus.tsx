@@ -33,7 +33,7 @@ const PlayerStatus = ({ item }: DummyProps) => {
             src="/assets/saboteur/cards/card_general_bg.png"
             alt="card back"
           />
-          <p>{item.deck}</p>
+          <p>{item.hand}</p>
         </div>
       </div>
     </div>

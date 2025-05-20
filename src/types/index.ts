@@ -14,5 +14,5 @@ export interface DummyInterface {
   id: number;
   name: string;
   status: Record<Tools, boolean>;
-  deck: number;
+  hand: number;
 }
