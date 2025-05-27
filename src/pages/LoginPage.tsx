@@ -45,32 +45,47 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-        <div className="mb-6 flex items-center justify-center">
-          <img src="/logo.png" alt="Logo" />
-        </div>
-        <h1 className="mb-6 text-center text-2xl font-bold">닉네임 입력</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-base-100">
+      <div className="mb-6 flex items-center justify-center">
+        <img src="/logo.png" alt="Logo" />
+      </div>
+      <div className="w-full max-w-md">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-y-4"
+        >
+          <div className="flex flex-col gap-y-2">
             <input
               type="text"
               placeholder="닉네임을 입력하세요"
               {...register("nickname", {
                 onChange: () => setServerError(null),
               })}
-              className={`w-full rounded border px-3 py-2 ${errors.nickname || serverError ? "border-red-500" : "border-gray-300"}`}
+              className={`input w-full ${errors.nickname || serverError ? "input-warning" : ""}`}
               disabled={isSubmitting}
             />
             {(errors.nickname?.message || serverError) && (
-              <p className="mt-1 text-sm text-red-600">
+              <div role="alert" className="alert alert-warning">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
                 {errors.nickname?.message || serverError}
-              </p>
+              </div>
             )}
           </div>
           <button
             type="submit"
-            className="w-full rounded bg-blue-500 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+            className="btn w-full btn-primary"
             disabled={isSubmitting}
           >
             {isSubmitting ? "확인 중..." : "확인"}
