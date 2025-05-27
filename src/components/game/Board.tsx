@@ -36,13 +36,16 @@ export const Board = ({ cards, style, className }: BoardProps) => {
   return (
     <section
       style={{
-        width: CARD_WIDTH * BOARD_VISIBLE_COLS,
-        height: CARD_HEIGHT * BOARD_VISIBLE_ROWS,
+        // width: CARD_WIDTH * BOARD_VISIBLE_COLS,
+        // height: CARD_HEIGHT * BOARD_VISIBLE_ROWS,
         gridTemplateColumns: `repeat(${BOARD_COLS}, ${CARD_WIDTH}px)`,
         gridTemplateRows: `repeat(${BOARD_ROWS}, ${CARD_HEIGHT}px)`,
         ...style,
       }}
-      className={twMerge("grid snap-both overflow-scroll", className)}
+      className={twMerge(
+        "grid h-full w-full snap-both overflow-scroll pr-[175px] pb-[70px] pl-[184px]",
+        className,
+      )}
       ref={boardRef}
     >
       {Array.from({ length: BOARD_ROWS * BOARD_COLS }, (_, index) => {
