@@ -60,7 +60,7 @@ export const Board = ({ cards, style, className }: BoardProps) => {
           <Droppable
             id={id}
             style={{ gridRow: x + 1, gridColumn: y + 1 }}
-            className={`relative h-24 w-16 snap-center border border-gray-300 ${(x + y) % 2 === 0 ? "bg-gray-100" : "bg-white"}`}
+            className={`relative h-24 w-16 snap-center border border-gray-300 ${(x + y) % 2 === 0 ? "bg-base" : "bg-base-300"}`}
             key={id}
           >
             {/* {`${x},${y}`} */}

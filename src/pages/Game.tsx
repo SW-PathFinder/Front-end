@@ -135,21 +135,11 @@ const Game = () => {
         <DndZone>
           <Board cards={dummyBoardCards} className="mb-[100px] h-9/10 w-full" />
           <div className="absolute bottom-0 flex h-[150px] w-full max-w-[480px] items-center justify-between px-4">
-            <button
-              type="button"
-              className="z-12 h-fit w-[100px] rounded-full bg-blue-500 px-4 py-2 text-white transition-colors duration-150 hover:cursor-pointer hover:bg-blue-800"
-            >
-              버리기
-            </button>
+            <button className="btn btn-primary">버리기</button>
             <div className="relative flex h-full w-full items-center justify-center">
               <Hand cards={dummyCards} className="absolute top-0" />
             </div>
-            <button
-              type="button"
-              className="z-12 h-fit w-[100px] rounded-full bg-blue-500 px-4 py-2 text-white transition-colors duration-150 hover:cursor-pointer hover:bg-blue-800"
-            >
-              회전
-            </button>
+            <button className="btn btn-primary">회전</button>
           </div>
         </DndZone>
       </div>

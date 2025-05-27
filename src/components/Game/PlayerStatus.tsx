@@ -8,7 +8,7 @@ interface DummyProps {
 
 const PlayerStatus = ({ item }: DummyProps) => {
   return (
-    <div className="flex flex-row items-center justify-between border bg-white p-1 pr-4">
+    <div className="flex flex-row items-center justify-between border p-1 pr-4">
       <div className="flex flex-col">
         <p>{item.name}</p>
         <div className="flex h-[20px] gap-4">
