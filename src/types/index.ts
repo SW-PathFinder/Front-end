@@ -15,4 +15,5 @@ export interface DummyInterface {
   name: string;
   status: Record<Tools, boolean>;
   hand: number;
+  winning?: boolean;
 }
