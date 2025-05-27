@@ -23,7 +23,7 @@ export const decorators = [
   withThemeByDataAttribute({
     themes: {
       // nameOfTheme: 'dataAttributeForTheme',
-      light: "",
+      light: "light",
       dark: "dark",
     },
     defaultTheme: "light",
