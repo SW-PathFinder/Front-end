@@ -58,7 +58,7 @@ const LobbyPage = () => {
           onClose={() => setFastMatchOpen(false)}
           mode="fastMatch"
         />
-        {/* 방 생성성 */}
+        {/* 방 생성 */}
         <RoomConditionModal
           isOpen={createOpen}
           onClose={() => setCreateOpen(false)}
