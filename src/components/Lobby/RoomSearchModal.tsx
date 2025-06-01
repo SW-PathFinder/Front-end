@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router";
+
 interface RoomSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -7,7 +9,7 @@ interface RoomSearchModalProps {
 
 const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
   const [value, setValue] = useState("");
-
+  const navigate = useNavigate();
   if (!isOpen) return null;
 
   return (
@@ -48,7 +50,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
             type="text"
             className="validator input input-xl w-full text-center"
             required
-            placeholder="Code"
+            placeholder="Enter 4 Upper letters"
             pattern="[A-Z]{4}"
             minLength={4}
             maxLength={4}
@@ -70,7 +72,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
             onClick={() => {
               if (value.length === 4) {
                 // 방 찾기 로직을 여기에 추가
-                console.log("방 찾기:", value);
+                navigate("/waiting");
                 onClose(); // 모달 닫기
               }
             }}

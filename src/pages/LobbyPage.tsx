@@ -15,44 +15,50 @@ const LobbyPage = () => {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [logoutOpen, setLogoutOpen] = useState<boolean>(false);
 
-  const { logout } = useAuth();
+  const { userId, logout } = useAuth();
   const navigate = useNavigate();
 
-  const USER_NAME = "사용자 이름";
-
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-base-300 px-4">
-      <div className="fixed top-4 right-4 z-50">
-        <div className="flex space-x-2 p-4">
+    <div className="flex h-screen flex-col items-center justify-center bg-base-300 pt-12">
+      <div className="fixed top-4 z-50 flex w-full max-w-md justify-between pt-4">
+        <div className="wrap flex h-fit w-fit justify-center">
+          <p className="text-5xl font-bold">
+            Welcome,
+            <br />
+            {userId}
+          </p>
+        </div>
+        <div className="flex gap-2">
           <RulebookButton />
           <SettingsButton />
         </div>
       </div>
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center p-4">
-          <p className="mb-12 text-center text-5xl font-bold">{USER_NAME}</p>
-        </div>
-        <div className="flex flex-col items-center gap-4">
+      <div className="my-10 flex h-full w-full max-w-md flex-col justify-between gap-10 pt-20">
+        <div className="flex h-full flex-col items-center justify-between gap-4 overflow-auto">
+          <div className="flex w-full flex-col items-center gap-4">
+            <button
+              className="btn w-full btn-accent"
+              onClick={() => setFastMatchOpen(true)}
+            >
+              빠른 매칭
+            </button>
+            <button
+              className="btn w-full btn-secondary"
+              onClick={() => {
+                setCreateOpen(true);
+              }}
+            >
+              방 생성
+            </button>
+            <button
+              className="btn w-full btn-primary"
+              onClick={() => setSearchOpen(true)}
+            >
+              방 코드 검색
+            </button>
+          </div>
           <button
-            className="btn w-full btn-accent"
-            onClick={() => setFastMatchOpen(true)}
-          >
-            빠른 매칭
-          </button>
-          <button
-            className="btn w-full btn-secondary"
-            onClick={() => setCreateOpen(true)}
-          >
-            방 생성
-          </button>
-          <button
-            className="btn w-full btn-primary"
-            onClick={() => setSearchOpen(true)}
-          >
-            방 코드 검색
-          </button>
-          <button
-            className="btn mt-16 w-full btn-soft btn-warning"
+            className="btn w-full btn-soft btn-warning"
             onClick={() => setLogoutOpen(true)}
           >
             로그아웃
@@ -61,13 +67,19 @@ const LobbyPage = () => {
         {/* 빠른 매칭 */}
         <RoomConditionModal
           isOpen={fastMatchOpen}
-          onClose={() => setFastMatchOpen(false)}
+          onClose={() => {
+            navigate("/waiting");
+            setFastMatchOpen(false);
+          }}
           mode="fastMatch"
         />
         {/* 방 생성 */}
         <RoomConditionModal
           isOpen={createOpen}
-          onClose={() => setCreateOpen(false)}
+          onClose={() => {
+            navigate("/waiting");
+            setCreateOpen(false);
+          }}
           mode="create"
         />
         <RoomSearchModal

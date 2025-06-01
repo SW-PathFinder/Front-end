@@ -4,6 +4,7 @@ import { Board, BOARD_COLS, BOARD_ROWS } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
+import { useGameSession } from "@/contexts/GameSessionContext";
 import {
   AbstractCard,
   AbstractPathCard,
@@ -15,54 +16,6 @@ import { AbstractPlayer, OtherPlayer } from "@/libs/saboteur/player";
 
 // import { fn } from "@storybook/test";
 
-const dummyList: AbstractPlayer[] = [
-  new OtherPlayer({
-    name: "Dami",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Doo Hyun",
-    status: { lantern: true, pickaxe: false, wagon: false },
-    hand: 2,
-  }),
-  new OtherPlayer({
-    name: "Jiwoo",
-    status: { lantern: true, pickaxe: true, wagon: false },
-    hand: 1,
-  }),
-  new OtherPlayer({
-    name: "Dohoon",
-    status: { lantern: false, pickaxe: true, wagon: true },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Jaehoon",
-    status: { lantern: true, pickaxe: true, wagon: false },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Namhoon",
-    status: { lantern: false, pickaxe: true, wagon: true },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Hayoung",
-    status: { lantern: true, pickaxe: false, wagon: true },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Nutria",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
-  }),
-  new OtherPlayer({
-    name: "Schott",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
-  }),
-];
-
 const dummyCards: AbstractCard.Playable[] = [
   new PathCard4Way(),
   new PathCard4Way(),
@@ -73,7 +26,17 @@ const dummyCards: AbstractCard.Playable[] = [
 ];
 
 const Game = () => {
-  const [playerList, setPlayerList] = useState<AbstractPlayer[]>([]);
+  const { participants } = useGameSession();
+
+  const dummyList: AbstractPlayer[] = participants.map(
+    (participant) =>
+      new OtherPlayer({
+        name: participant,
+        status: { lantern: true, pickaxe: true, wagon: true },
+        hand: 3,
+      }),
+  );
+
   const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
 
   const dummyBoardCards: (AbstractPathCard | null)[][] = Array.from(
@@ -92,7 +55,6 @@ const Game = () => {
   // const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setPlayerList(dummyList);
     setHand(dummyCards);
     // setIsLoading(false);
     // setError(null);
@@ -103,7 +65,7 @@ const Game = () => {
   return (
     <div className="relative flex flex-col p-3">
       <div className="absolute top-2 left-2 z-10 flex w-[180px] flex-col gap-6">
-        <PlayerList list={playerList} />
+        <PlayerList list={dummyList} />
         <div className="flex h-[60px] w-full items-center justify-center gap-6">
           <img
             className="h-full hover:cursor-pointer"
