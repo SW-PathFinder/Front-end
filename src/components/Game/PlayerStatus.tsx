@@ -1,12 +1,12 @@
-import { PLAYER_STATUS } from "@/constants/Game/status";
-import { Tools } from "@/libs/gameLogics";
-import { DummyInterface } from "@/types";
+import { AbstractPlayer } from "@/libs/saboteur/player";
+import { PLAYER_STATUS } from "@/libs/saboteur/resources";
+import { Tools } from "@/libs/saboteur/types";
 
-interface DummyProps {
-  item: DummyInterface;
+interface PlayerStatusProps {
+  item: AbstractPlayer;
 }
 
-const PlayerStatus = ({ item }: DummyProps) => {
+const PlayerStatus = ({ item }: PlayerStatusProps) => {
   return (
     <div className="flex flex-row items-center justify-between border p-1 pr-4">
       <div className="flex flex-col">
@@ -38,7 +38,7 @@ const PlayerStatus = ({ item }: DummyProps) => {
           </div>
         </div>
       </div>
-      {item?.winning && <div className="text-xl">🥳</div>}
+      {/* {item?.winning && <div className="text-xl">🥳</div>} */}
     </div>
   );
 };

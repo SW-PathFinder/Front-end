@@ -1,4 +1,4 @@
-import { Tools } from "@/libs/gameLogics";
+import { Tools } from "@/libs/saboteur/types";
 
 export const PLAYER_STATUS: Record<Tools, { enable: string; disable: string }> =
   {
@@ -10,7 +10,7 @@ export const PLAYER_STATUS: Record<Tools, { enable: string; disable: string }> =
       enable: "/status/wagon_enable.png",
       disable: "/status/wagon_disable.png",
     },
-    pick: {
+    pickaxe: {
       enable: "/status/pick_enable.png",
       disable: "/status/pick_disable.png",
     },

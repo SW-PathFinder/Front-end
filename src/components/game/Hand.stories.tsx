@@ -4,17 +4,21 @@ import { useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Schema } from "@/types";
+import {
+  AbstractCard,
+  PathCard1ABlock,
+  PathCard4Way,
+} from "@/libs/saboteur/cards";
 
 import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";
 import { Hand } from "./Hand";
 
-const HandStory = ({ cards }: { cards: Schema.Card[] }) => {
+const HandStory = ({ cards }: { cards: AbstractCard.Playable[] }) => {
   const [hands, setHand] = useState(() => cards);
 
   const [containers, setContainers] = useState<
-    Array<{ id: string; item?: Schema.Card }>
+    Array<{ id: string; item?: AbstractCard.Playable }>
   >(() =>
     Array(45)
       .fill({})
@@ -88,60 +92,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     cards: [
-      {
-        id: "card-1",
-        image: "path_1.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
-      {
-        id: "card-2",
-        image: "path_2.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
-      {
-        id: "card-3",
-        image: "path_3.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
-      {
-        id: "card-4",
-        image: "path_4.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
-      {
-        id: "card-5",
-        image: "path_5.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
-      {
-        id: "card-6",
-        image: "path_6.png",
-        type: "path",
-        pathType: "road",
-        destructible: true,
-        way: [true, true, true, true],
-        flipped: false,
-      },
+      new PathCard4Way(),
+      new PathCard4Way(),
+      new PathCard4Way(),
+      new PathCard4Way(),
+      new PathCard4Way(),
+      new PathCard1ABlock(),
     ],
   },
   parameters: { layout: "centered" },

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
-import { Schema } from "@/types";
+import { AbstractCard } from "@/libs/saboteur/cards";
 
 interface CardProps {
-  card: Schema.Card;
+  card: AbstractCard;
   /**
    * width of card
    * @default 64

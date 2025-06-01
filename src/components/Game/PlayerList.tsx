@@ -1,11 +1,10 @@
-import { DummyInterface } from "@/types";
-
 // import { curRound } from "@/utils/game";
+import { AbstractPlayer } from "@/libs/saboteur/player";
 
 import PlayerStatus from "./PlayerStatus";
 
 interface Props {
-  list?: DummyInterface[];
+  list?: AbstractPlayer[];
 }
 
 const PlayerList = ({ list }: Props) => {

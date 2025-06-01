@@ -16,13 +16,13 @@ export const Basic: Story = {
       {
         id: 1,
         name: "Player 1",
-        status: { lantern: true, pick: true, wagon: true },
+        status: { lantern: true, pickaxe: true, wagon: true },
         hand: 3,
       },
       {
         id: 2,
         name: "Player 2",
-        status: { lantern: true, pick: true, wagon: true },
+        status: { lantern: true, pickaxe: true, wagon: true },
         hand: 3,
       },
     ],

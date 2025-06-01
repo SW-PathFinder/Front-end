@@ -1,131 +1,55 @@
 import { useEffect, useState } from "react";
 
-import { Board, BOARD_ROWS, BOARD_COLS } from "@/components/Game/Board";
+import { Board, BOARD_COLS, BOARD_ROWS } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import { useGameSession } from "@/contexts/GameSessionContext";
-import { DummyInterface } from "@/types";
-import { Schema } from "@/types";
+import {
+  AbstractCard,
+  AbstractPathCard,
+  PathCard4Way,
+  PathCardDestHidden,
+  PathCardOrigin,
+} from "@/libs/saboteur/cards";
+import { AbstractPlayer, OtherPlayer } from "@/libs/saboteur/player";
 
 // import { fn } from "@storybook/test";
 
-const dummyCards: Schema.Card[] = [
-  {
-    id: "card-1",
-    image: "path_1.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
-  {
-    id: "card-2",
-    image: "path_2.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
-  {
-    id: "card-3",
-    image: "path_3.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
-  {
-    id: "card-4",
-    image: "path_4.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
-  {
-    id: "card-5",
-    image: "path_5.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
-  {
-    id: "card-6",
-    image: "path_6.png",
-    type: "path",
-    pathType: "road",
-    destructible: true,
-    way: [true, true, true, true],
-    flipped: false,
-  },
+const dummyCards: AbstractCard.Playable[] = [
+  new PathCard4Way(),
+  new PathCard4Way(),
+  new PathCard4Way(),
+  new PathCard4Way(),
+  new PathCard4Way(),
+  new PathCard4Way(),
 ];
 
 const Game = () => {
   const { participants } = useGameSession();
 
-  const dummyList: DummyInterface[] = participants.map(
-    (participant, index) => ({
-      id: index + 1,
-      name: participant,
-      status: { lantern: true, pick: true, wagon: true },
-      hand: 3,
-    }),
+  const dummyList: AbstractPlayer[] = participants.map(
+    (participant) =>
+      new OtherPlayer({
+        name: participant,
+        status: { lantern: true, pickaxe: true, wagon: true },
+        hand: 3,
+      }),
   );
 
-  const [hands, setHand] = useState<Schema.Card[]>(() => []);
+  const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
 
-  const dummyBoardCards: (Schema.Card | null)[][] = Array.from(
+  const dummyBoardCards: (AbstractPathCard | null)[][] = Array.from(
     { length: BOARD_ROWS },
     () => {
       return Array.from({ length: BOARD_COLS }, () => null);
     },
   );
 
-  dummyBoardCards[11][7] = {
-    id: "start",
-    image: "start.png",
-    type: "path",
-    pathType: "start",
-    destructible: false,
-    way: [true, true, true, true],
-    flipped: false,
-  };
-  dummyBoardCards[9][15] = {
-    id: "dest_gold",
-    image: "dest_gold.png",
-    type: "path",
-    pathType: "dest",
-    dest: "gold",
-    destructible: false,
-    way: [true, true, true, true],
-    flipped: false,
-  };
-  dummyBoardCards[11][15] = {
-    id: "dest_rock1",
-    image: "dest_rock1.png",
-    type: "path",
-    pathType: "start",
-    destructible: false,
-    way: [true, true, false, false],
-    flipped: false,
-  };
-  dummyBoardCards[13][15] = {
-    id: "dest_rock2",
-    image: "dest_rock2.png",
-    type: "path",
-    pathType: "dest",
-    dest: "rock",
-    destructible: false,
-    way: [true, false, true, false],
-    flipped: false,
-  };
+  dummyBoardCards[11][7] = new PathCardOrigin();
+  dummyBoardCards[9][15] = new PathCardDestHidden();
+  dummyBoardCards[11][15] = new PathCardDestHidden();
+  dummyBoardCards[13][15] = new PathCardDestHidden();
 
   // const [isLoading, setIsLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
