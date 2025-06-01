@@ -7,7 +7,7 @@ import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";
 
 interface HandProps {
-  cards: BaseCard[];
+  cards: BaseCard.Playable[];
   className?: string;
 }
 

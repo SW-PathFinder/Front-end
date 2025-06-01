@@ -10,11 +10,11 @@ import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";
 import { Hand } from "./Hand";
 
-const HandStory = ({ cards }: { cards: BaseCard[] }) => {
+const HandStory = ({ cards }: { cards: BaseCard.Playable[] }) => {
   const [hands, setHand] = useState(() => cards);
 
   const [containers, setContainers] = useState<
-    Array<{ id: string; item?: BaseCard }>
+    Array<{ id: string; item?: BaseCard.Playable }>
   >(() =>
     Array(45)
       .fill({})

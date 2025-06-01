@@ -1,5 +1,5 @@
 export abstract class BaseCard {
-  private static uid = 1;
+  private static uid_counter = 1;
 
   readonly id: number;
 
@@ -8,16 +8,16 @@ export abstract class BaseCard {
   abstract readonly playable: boolean;
 
   constructor() {
-    this.id = BaseCard.uid++;
+    this.id = BaseCard.uid_counter++;
   }
 }
 
 export namespace BaseCard {
-  export interface Playable {
+  export interface Playable extends BaseCard {
     playable: true;
   }
 
-  export interface NonPlayable {
+  export interface NonPlayable extends BaseCard {
     playable: false;
   }
 }

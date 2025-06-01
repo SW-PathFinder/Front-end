@@ -1,11 +1,10 @@
-import { Schema } from "@/libs/saboteur/types";
-
 // import { curRound } from "@/utils/game";
+import { AbstractPlayer } from "@/libs/saboteur/player";
 
 import PlayerStatus from "./PlayerStatus";
 
 interface Props {
-  list?: Schema.Player[];
+  list?: AbstractPlayer[];
 }
 
 const PlayerList = ({ list }: Props) => {
