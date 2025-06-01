@@ -1,0 +1,91 @@
+import { useState } from "react";
+
+interface RoomSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
+  const [value, setValue] = useState("");
+
+  if (!isOpen) return null;
+
+  return (
+    <dialog open className="modal" onCancel={onClose} onClose={onClose}>
+      <div className="relative modal-box w-1/2 min-w-md">
+        {/* 닫기 버튼 */}
+        <form method="dialog">
+          <button
+            type="button"
+            className="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
+            onClick={onClose}
+          >
+            ✕
+          </button>
+        </form>
+        <div
+          role="alert"
+          className="alert-outline mt-6 alert flex items-center justify-center alert-info font-bold"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="h-6 w-6 shrink-0 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span className="ml-2">방 코드는 4자리의 영어 알파벳입니다.</span>
+        </div>
+
+        <div className="m-4 mt-12 flex flex-col items-center">
+          <input
+            type="text"
+            className="validator input input-xl w-full text-center"
+            required
+            placeholder="Code"
+            pattern="[A-Z]{4}"
+            minLength={4}
+            maxLength={4}
+            value={value}
+            onChange={(e) => {
+              const filtered = e.target.value.replace(/[^a-zA-Z]/g, "");
+              setValue(filtered.toUpperCase());
+            }}
+          />
+          <p className="validator-hint items-start">
+            방 코드는 4자리의 영어 알파벳입니다. <br />
+            예: ABCD
+          </p>
+        </div>
+        <div className="modal-action flex justify-center">
+          <button
+            type="button"
+            className="btn w-full btn-primary"
+            onClick={() => {
+              if (value.length === 4) {
+                // 방 찾기 로직을 여기에 추가
+                console.log("방 찾기:", value);
+                onClose(); // 모달 닫기
+              }
+            }}
+          >
+            방 찾기
+          </button>
+        </div>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button type="button" onClick={onClose}>
+          close
+        </button>
+      </form>
+    </dialog>
+  );
+};
+
+export default RoomSearchModal;
