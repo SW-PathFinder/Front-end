@@ -1,5 +1,8 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { http, HttpResponse } from "msw";
+import { BrowserRouter } from "react-router";
+
+import { AuthProvider } from "@/components/Common/AuthProvider";
 
 import LoginPage from "./LoginPage";
 
@@ -7,6 +10,15 @@ const meta: Meta<typeof LoginPage> = {
   title: "Pages/LoginPage",
   component: LoginPage,
   tags: ["autodocs"],
+  decorators: [
+    (Story) => (
+      <AuthProvider>
+        <BrowserRouter>
+          <Story />
+        </BrowserRouter>
+      </AuthProvider>
+    ),
+  ],
 };
 
 export default meta;
