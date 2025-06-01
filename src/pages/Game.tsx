@@ -69,18 +69,66 @@ const dummyList: DummyInterface[] = [
   },
 ];
 
-const dummyCards = [
-  { id: "card-1", image: "path_1.png" },
-  { id: "card-2", image: "path_2.png" },
-  { id: "card-3", image: "path_3.png" },
-  { id: "card-4", image: "path_4.png" },
-  { id: "card-5", image: "path_5.png" },
-  { id: "card-6", image: "path_6.png" },
+const dummyCards: Schema.Card[] = [
+  {
+    id: "card-1",
+    image: "path_1.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
+  {
+    id: "card-2",
+    image: "path_2.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
+  {
+    id: "card-3",
+    image: "path_3.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
+  {
+    id: "card-4",
+    image: "path_4.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
+  {
+    id: "card-5",
+    image: "path_5.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
+  {
+    id: "card-6",
+    image: "path_6.png",
+    type: "path",
+    pathType: "road",
+    destructible: true,
+    way: [true, true, true, true],
+    flipped: false,
+  },
 ];
 
 const Game = () => {
   const [playerList, setPlayerList] = useState<DummyInterface[]>([]);
-  const [hands, setHand] = useState<{ id: string; image: string }[]>(() => []);
+  const [hands, setHand] = useState<Schema.Card[]>(() => []);
 
   const dummyBoardCards: (Schema.Card | null)[][] = Array.from(
     { length: BOARD_ROWS },
@@ -89,10 +137,44 @@ const Game = () => {
     },
   );
 
-  dummyBoardCards[11][7] = { id: "start", image: "start.png" };
-  dummyBoardCards[9][15] = { id: "dest_gold", image: "dest_gold.png" };
-  dummyBoardCards[11][15] = { id: "dest_rock1", image: "dest_rock1.png" };
-  dummyBoardCards[13][15] = { id: "dest_rock2", image: "dest_rock2.png" };
+  dummyBoardCards[11][7] = {
+    id: "start",
+    image: "start.png",
+    type: "path",
+    pathType: "start",
+    destructible: false,
+    way: [true, true, true, true],
+    flipped: false,
+  };
+  dummyBoardCards[9][15] = {
+    id: "dest_gold",
+    image: "dest_gold.png",
+    type: "path",
+    pathType: "dest",
+    dest: "gold",
+    destructible: false,
+    way: [true, true, true, true],
+    flipped: false,
+  };
+  dummyBoardCards[11][15] = {
+    id: "dest_rock1",
+    image: "dest_rock1.png",
+    type: "path",
+    pathType: "start",
+    destructible: false,
+    way: [true, true, false, false],
+    flipped: false,
+  };
+  dummyBoardCards[13][15] = {
+    id: "dest_rock2",
+    image: "dest_rock2.png",
+    type: "path",
+    pathType: "dest",
+    dest: "rock",
+    destructible: false,
+    way: [true, false, true, false],
+    flipped: false,
+  };
 
   // const [isLoading, setIsLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
