@@ -1,39 +1,60 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router";
 
-interface WaitingRoomProps {
-  roomCode: string;
-  capacity: number;
-  participants?: string[];
-}
-const WaitingRoom = ({
-  roomCode,
-  capacity,
-  participants = [],
-}: WaitingRoomProps) => {
+import { useGameSession } from "@/contexts/GameSessionContext";
+
+const WaitingRoom = () => {
   const navigate = useNavigate();
+  // const [participants, setParticipants] = useState<string[]>(["Plyayer1"]);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const palette = [
+    "bg-blue-300",
+    "bg-red-200",
+    "bg-yellow-200",
+    "bg-green-200",
+    "bg-purple-200",
+    "bg-cyan-200",
+    "bg-orange-200",
+    "bg-indigo-200",
+    "bg-pink-200",
+    "bg-teal-200",
+  ];
 
-  // 참가자별 고유 배경색 (최대 10명)
-  const participantColors = useMemo(() => {
-    const palette = [
-      "bg-blue-300",
-      "bg-red-200",
-      "bg-yellow-200",
-      "bg-green-200",
-      "bg-purple-200",
-      "bg-cyan-200",
-      "bg-orange-200",
-      "bg-indigo-200",
-      "bg-pink-200",
-      "bg-teal-200",
-    ];
-    return palette.slice(0, participants.length);
-  }, [participants]);
+  // const { gameId, capacity, socket } = useGameSession();
+  const { gameId, participants, setParticipants } = useGameSession();
+  const capacity = 10; // 임시로 정원 10명으로 설정
 
-  // 정원 충족 시 카운트 시작
+  // 0.5초마다 참가자 1명씩 추가 (총 10명까지)
+  useEffect(() => {
+    let count = 1;
+    setParticipants(["Player1"]);
+    const interval = setInterval(() => {
+      if (count < 10) {
+        count += 1;
+        setParticipants((prev) => [...prev, `Player${count}`]);
+      } else {
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [setParticipants]);
+
+  // useEffect(() => {
+  //   const handleParticipantsUpdate = (data: string[]) => {
+  //     setParticipants(data);
+  //   };
+
+  // socket.on("participantsUpdate", handleParticipantsUpdate);
+  //
+  // 정리 함수: 컴포넌트 언마운트 시 이벤트 제거
+  // return () => {
+  // socket.off("participantsUpdate", handleParticipantsUpdate);
+  // };
+  // }, [socket]);
+
   useEffect(() => {
     if (participants.length === capacity) {
       setCountdown(5);
@@ -52,7 +73,7 @@ const WaitingRoom = ({
   }, [countdown, navigate]);
 
   const handleCancel = () => {
-    navigate("/lobby");
+    navigate("/");
   };
 
   return (
@@ -60,7 +81,7 @@ const WaitingRoom = ({
       <div className="mb-6 w-full max-w-md rounded bg-primary p-4 shadow">
         <p className="text-center text-lg font-semibold text-white">
           현재인원 : {participants.length} | 정원 : {capacity} | 방코드 :{" "}
-          {roomCode}
+          {gameId}
         </p>
       </div>
       {/* 참가자 목록 */}
@@ -68,7 +89,7 @@ const WaitingRoom = ({
         {participants.map((name, idx) => (
           <div
             key={idx}
-            className={`rounded p-2 text-center text-black shadow ${participantColors[idx]}`}
+            className={`rounded p-2 text-center text-black shadow ${palette[idx]}`}
           >
             {idx === 0 && (
               <Crown className="mr-1 inline-block h-4 w-4 text-yellow-500" />

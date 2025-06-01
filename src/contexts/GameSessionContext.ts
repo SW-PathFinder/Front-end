@@ -1,10 +1,12 @@
-import { createContext, Provider } from "react";
-
-import { useSession } from "@/contexts/SessionContext";
+import { createContext, Provider, useContext } from "react";
 
 interface GameSessionContext {
   gameId: string;
-  socket: WebSocket;
+  capacity: number;
+  // socket: WebSocket;
+  socket: string;
+  participants: string[];
+  setParticipants: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const GameSessionContext = createContext<GameSessionContext | null>(null);
@@ -13,9 +15,9 @@ export const GameSessionProvider =
   GameSessionContext as Provider<GameSessionContext>;
 
 export const useGameSession = () => {
-  const context = useSession();
+  const context = useContext(GameSessionContext);
 
-  if (context) {
+  if (!context) {
     throw new Error(
       "useGameSession must be used within a GameSessionProvider with gameId and socket",
     );

@@ -4,70 +4,11 @@ import { Board, BOARD_ROWS, BOARD_COLS } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
+import { useGameSession } from "@/contexts/GameSessionContext";
 import { DummyInterface } from "@/types";
 import { Schema } from "@/types";
 
 // import { fn } from "@storybook/test";
-
-const dummyList: DummyInterface[] = [
-  {
-    id: 1,
-    name: "Dami",
-    status: { lantern: true, pick: true, wagon: true },
-    hand: 3,
-  },
-  {
-    id: 2,
-    name: "Doo Hyun",
-    status: { lantern: true, pick: false, wagon: false },
-    hand: 2,
-  },
-  {
-    id: 3,
-    name: "Jiwoo",
-    status: { lantern: true, pick: true, wagon: false },
-    hand: 1,
-  },
-  {
-    id: 4,
-    name: "Dohoon",
-    status: { lantern: false, pick: true, wagon: true },
-    hand: 3,
-  },
-  {
-    id: 5,
-    name: "Jaehoon",
-    status: { lantern: true, pick: true, wagon: false },
-    hand: 3,
-  },
-  {
-    id: 6,
-    name: "Namhoon",
-    status: { lantern: false, pick: true, wagon: true },
-    hand: 3,
-    winning: true,
-  },
-  {
-    id: 7,
-    name: "Hayoung",
-    status: { lantern: true, pick: false, wagon: true },
-    hand: 3,
-    winning: true,
-  },
-  {
-    id: 8,
-    name: "Nutria",
-    status: { lantern: true, pick: true, wagon: true },
-    hand: 3,
-  },
-  {
-    id: 9,
-    name: "Schott",
-    status: { lantern: true, pick: true, wagon: true },
-    hand: 3,
-    winning: true,
-  },
-];
 
 const dummyCards: Schema.Card[] = [
   {
@@ -127,7 +68,17 @@ const dummyCards: Schema.Card[] = [
 ];
 
 const Game = () => {
-  const [playerList, setPlayerList] = useState<DummyInterface[]>([]);
+  const { participants } = useGameSession();
+
+  const dummyList: DummyInterface[] = participants.map(
+    (participant, index) => ({
+      id: index + 1,
+      name: participant,
+      status: { lantern: true, pick: true, wagon: true },
+      hand: 3,
+    }),
+  );
+
   const [hands, setHand] = useState<Schema.Card[]>(() => []);
 
   const dummyBoardCards: (Schema.Card | null)[][] = Array.from(
@@ -180,7 +131,6 @@ const Game = () => {
   // const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setPlayerList(dummyList);
     setHand(dummyCards);
     // setIsLoading(false);
     // setError(null);
@@ -191,7 +141,7 @@ const Game = () => {
   return (
     <div className="relative flex flex-col p-3">
       <div className="absolute top-2 left-2 z-10 flex w-[180px] flex-col gap-6">
-        <PlayerList list={playerList} />
+        <PlayerList list={dummyList} />
         <div className="flex h-[60px] w-full items-center justify-center gap-6">
           <img
             className="h-full hover:cursor-pointer"
