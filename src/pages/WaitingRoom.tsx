@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 import { Crown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 interface WaitingRoomProps {
   roomCode: string;
