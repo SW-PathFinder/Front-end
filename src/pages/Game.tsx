@@ -19,63 +19,63 @@ const dummyList: Schema.Player[] = [
   {
     id: 1,
     name: "Dami",
-    status: { lantern: true, pick: true, wagon: true },
+    status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
   },
   {
     id: 2,
     name: "Doo Hyun",
-    status: { lantern: true, pick: false, wagon: false },
+    status: { lantern: true, pickaxe: false, wagon: false },
     hand: 2,
   },
   {
     id: 3,
     name: "Jiwoo",
-    status: { lantern: true, pick: true, wagon: false },
+    status: { lantern: true, pickaxe: true, wagon: false },
     hand: 1,
   },
   {
     id: 4,
     name: "Dohoon",
-    status: { lantern: false, pick: true, wagon: true },
+    status: { lantern: false, pickaxe: true, wagon: true },
     hand: 3,
   },
   {
     id: 5,
     name: "Jaehoon",
-    status: { lantern: true, pick: true, wagon: false },
+    status: { lantern: true, pickaxe: true, wagon: false },
     hand: 3,
   },
   {
     id: 6,
     name: "Namhoon",
-    status: { lantern: false, pick: true, wagon: true },
+    status: { lantern: false, pickaxe: true, wagon: true },
     hand: 3,
     winning: true,
   },
   {
     id: 7,
     name: "Hayoung",
-    status: { lantern: true, pick: false, wagon: true },
+    status: { lantern: true, pickaxe: false, wagon: true },
     hand: 3,
     winning: true,
   },
   {
     id: 8,
     name: "Nutria",
-    status: { lantern: true, pick: true, wagon: true },
+    status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
   },
   {
     id: 9,
     name: "Schott",
-    status: { lantern: true, pick: true, wagon: true },
+    status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
     winning: true,
   },
 ];
 
-const dummyCards: BaseCard[] = [
+const dummyCards: BaseCard.Playable[] = [
   new PathCard4Way(),
   new PathCard4Way(),
   new PathCard4Way(),
@@ -86,7 +86,7 @@ const dummyCards: BaseCard[] = [
 
 const Game = () => {
   const [playerList, setPlayerList] = useState<Schema.Player[]>([]);
-  const [hands, setHand] = useState<BaseCard[]>(() => []);
+  const [hands, setHand] = useState<BaseCard.Playable[]>(() => []);
 
   const dummyBoardCards: (PathCard | null)[][] = Array.from(
     { length: BOARD_ROWS },
