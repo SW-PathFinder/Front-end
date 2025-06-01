@@ -81,7 +81,7 @@ export const Card = ({
         setIsFocusing(false);
       }}
       style={{
-        backgroundImage: `url(assets/saboteur/cards/${card.image})`,
+        backgroundImage: `url(${card.image})`,
         width: size,
         transition: [
           "top 100ms ease-in-out",
