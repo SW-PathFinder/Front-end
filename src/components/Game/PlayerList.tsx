@@ -1,11 +1,11 @@
-import { DummyInterface } from "@/types";
+import { Schema } from "@/libs/saboteur/types";
 
 // import { curRound } from "@/utils/game";
 
 import PlayerStatus from "./PlayerStatus";
 
 interface Props {
-  list?: DummyInterface[];
+  list?: Schema.Player[];
 }
 
 const PlayerList = ({ list }: Props) => {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
-import { Schema } from "@/types";
+import { Schema } from "@/libs/saboteur/types";
 
 interface CardProps {
   card: Schema.Card;

@@ -4,12 +4,11 @@ import { Board, BOARD_ROWS, BOARD_COLS } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
-import { DummyInterface } from "@/types";
-import { Schema } from "@/types";
+import { Schema } from "@/libs/saboteur/types";
 
 // import { fn } from "@storybook/test";
 
-const dummyList: DummyInterface[] = [
+const dummyList: Schema.Player[] = [
   {
     id: 1,
     name: "Dami",
@@ -127,7 +126,7 @@ const dummyCards: Schema.Card[] = [
 ];
 
 const Game = () => {
-  const [playerList, setPlayerList] = useState<DummyInterface[]>([]);
+  const [playerList, setPlayerList] = useState<Schema.Player[]>([]);
   const [hands, setHand] = useState<Schema.Card[]>(() => []);
 
   const dummyBoardCards: (Schema.Card | null)[][] = Array.from(

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { twMerge } from "tailwind-merge";
 
-import { Schema } from "@/types";
+import { Schema } from "@/libs/saboteur/types";
 
 import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";

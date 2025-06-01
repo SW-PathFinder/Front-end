@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Schema } from "@/types";
+import { Schema } from "@/libs/saboteur/types";
 
 import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";

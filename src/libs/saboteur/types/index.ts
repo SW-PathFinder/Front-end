@@ -1,6 +1,6 @@
 import { UniqueIdentifier } from "@dnd-kit/core";
 
-import { Tools } from "@/libs/gameLogics";
+export type Tools = "lantern" | "wagon" | "pick";
 
 export namespace Schema {
   export namespace Card {
@@ -78,12 +78,12 @@ export namespace Schema {
   }
 
   export type Card = Card.Any;
-}
 
-export interface DummyInterface {
-  id: number;
-  name: string;
-  status: Record<Tools, boolean>;
-  hand: number;
-  winning?: boolean;
+  export interface Player {
+    id: number;
+    name: string;
+    status: Record<Tools, boolean>;
+    hand: number;
+    winning?: boolean;
+  }
 }
