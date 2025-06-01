@@ -4,7 +4,7 @@ import { Navigate, Outlet, useParams } from "react-router";
 
 import { GameSessionProvider } from "@/contexts/GameSessionContext";
 import { useAuthenticated } from "@/contexts/SessionContext";
-import { useSocket } from "@/contexts/SocketContext";
+import { useSocketEmitter } from "@/contexts/SocketContext";
 
 export const GameSessionLayout = () => {
   const roomId = useParams<{ roomId: string }>().roomId;
@@ -15,16 +15,18 @@ export const GameSessionLayout = () => {
 
 const GameSessionLayoutInner = ({ roomId }: { roomId: string }) => {
   const { userId } = useAuthenticated();
-  const socket = useSocket();
   const [participants, setParticipants] = useState<string[]>([]);
 
+  const joinGame = useSocketEmitter("join_game");
+  const leaveRoom = useSocketEmitter("leave_room");
+
   useEffect(() => {
-    socket.emit("join_game", { room: roomId, player: userId });
+    joinGame({ room: roomId, player: userId });
 
     return () => {
-      socket.emit("leave_room", { room: roomId, player: userId });
+      leaveRoom({ room: roomId, player: userId });
     };
-  }, [socket, roomId, userId]);
+  }, [joinGame, leaveRoom, roomId, userId]);
 
   return (
     <GameSessionProvider value={{ roomId, participants, setParticipants }}>
