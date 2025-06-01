@@ -31,7 +31,7 @@ const PlayerStatus = ({ item }: PlayerStatusProps) => {
           <div className="flex items-center gap-1">
             <img
               className="h-full"
-              src="/assets/saboteur/cards/card_general_bg.png"
+              src="/assets/saboteur/cards/bg_playable.png"
               alt="card back"
             />
             <p>{item.hand}</p>
