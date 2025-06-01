@@ -138,7 +138,7 @@ const Game = () => {
 
   dummyBoardCards[11][7] = {
     id: "start",
-    image: "start.png",
+    image: "path_origin.png",
     type: "path",
     pathType: "start",
     destructible: false,
@@ -146,8 +146,8 @@ const Game = () => {
     flipped: false,
   };
   dummyBoardCards[9][15] = {
-    id: "dest_gold",
-    image: "dest_gold.png",
+    id: "path_dest_gold",
+    image: "path_dest_gold.png",
     type: "path",
     pathType: "dest",
     dest: "gold",
@@ -156,8 +156,8 @@ const Game = () => {
     flipped: false,
   };
   dummyBoardCards[11][15] = {
-    id: "dest_rock1",
-    image: "dest_rock1.png",
+    id: "path_dest_rock1",
+    image: "path_dest_rock1.png",
     type: "path",
     pathType: "start",
     destructible: false,
@@ -165,8 +165,8 @@ const Game = () => {
     flipped: false,
   };
   dummyBoardCards[13][15] = {
-    id: "dest_rock2",
-    image: "dest_rock2.png",
+    id: "path_dest_rock2",
+    image: "path_dest_rock2.png",
     type: "path",
     pathType: "dest",
     dest: "rock",

@@ -16,7 +16,7 @@ const cards: (Schema.Card | null)[][] = Array.from(
 
 cards[11][7] = {
   id: "start",
-  image: "start.png",
+  image: "path_origin.png",
   type: "path",
   pathType: "start",
   destructible: false,
@@ -24,8 +24,8 @@ cards[11][7] = {
   flipped: false,
 };
 cards[9][15] = {
-  id: "dest_gold",
-  image: "dest_gold.png",
+  id: "path_dest_gold",
+  image: "path_dest_gold.png",
   type: "path",
   pathType: "dest",
   dest: "gold",
@@ -34,8 +34,8 @@ cards[9][15] = {
   flipped: false,
 };
 cards[11][15] = {
-  id: "dest_rock1",
-  image: "dest_rock1.png",
+  id: "path_dest_rock1",
+  image: "path_dest_rock1.png",
   type: "path",
   pathType: "start",
   destructible: false,
@@ -43,8 +43,8 @@ cards[11][15] = {
   flipped: false,
 };
 cards[13][15] = {
-  id: "dest_rock2",
-  image: "dest_rock2.png",
+  id: "path_dest_rock2",
+  image: "path_dest_rock2.png",
   type: "path",
   pathType: "dest",
   dest: "rock",
