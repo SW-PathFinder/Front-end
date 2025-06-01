@@ -1,59 +1,28 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Schema } from "@/types";
+import {
+  PathCard,
+  PathCardDestGold,
+  PathCardDestRockA,
+  PathCardDestRockB,
+  PathCardOrigin,
+} from "@/libs/saboteur/cards";
 
 import { Board, BOARD_ROWS, BOARD_COLS } from "./Board";
 import { DndZone } from "./Dnd";
 
 // import { fn } from "@storybook/test";
 
-const cards: (Schema.Card | null)[][] = Array.from(
-  { length: BOARD_ROWS },
-  () => {
-    return Array.from({ length: BOARD_COLS }, () => null);
-  },
-);
+const cards: (PathCard | null)[][] = Array.from({ length: BOARD_ROWS }, () => {
+  return Array.from({ length: BOARD_COLS }, () => null);
+});
 
-cards[11][7] = {
-  id: "start",
-  image: "start.png",
-  type: "path",
-  pathType: "start",
-  destructible: false,
-  way: [true, true, true, true],
-  flipped: false,
-};
-cards[9][15] = {
-  id: "dest_gold",
-  image: "dest_gold.png",
-  type: "path",
-  pathType: "dest",
-  dest: "gold",
-  destructible: false,
-  way: [true, true, true, true],
-  flipped: false,
-};
-cards[11][15] = {
-  id: "dest_rock1",
-  image: "dest_rock1.png",
-  type: "path",
-  pathType: "start",
-  destructible: false,
-  way: [true, true, false, false],
-  flipped: false,
-};
-cards[13][15] = {
-  id: "dest_rock2",
-  image: "dest_rock2.png",
-  type: "path",
-  pathType: "dest",
-  dest: "rock",
-  destructible: false,
-  way: [true, false, true, false],
-  flipped: false,
-};
+cards[11][7] = new PathCardOrigin();
+cards[9][15] = new PathCardDestGold();
+cards[11][15] = new PathCardDestRockA();
+cards[13][15] = new PathCardDestRockB();
 
-const BoardStory = ({ cards }: { cards: (Schema.Card | null)[][] }) => {
+const BoardStory = ({ cards }: { cards: (PathCard | null)[][] }) => {
   return (
     <DndZone>
       <Board cards={cards} />

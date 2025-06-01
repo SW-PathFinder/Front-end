@@ -1,4 +1,4 @@
-import { Tools } from "@/libs/gameLogics";
+import { Tools } from "@/libs/saboteur/types";
 
 export const PLAYER_STATUS: Record<Tools, { enable: string; disable: string }> =
   {

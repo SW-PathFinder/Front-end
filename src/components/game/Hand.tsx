@@ -1,13 +1,13 @@
 import { useUniqueId } from "@dnd-kit/utilities";
 import { twMerge } from "tailwind-merge";
 
-import { Schema } from "@/types";
+import { BaseCard } from "@/libs/saboteur/cards";
 
 import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";
 
 interface HandProps {
-  cards: Schema.Card[];
+  cards: BaseCard[];
   className?: string;
 }
 
@@ -27,7 +27,7 @@ export const Hand = ({ cards, className }: HandProps) => {
             card={card}
             size={CARD_WIDTH}
             transform={handTransform}
-            key={card.id}
+            key={index}
           />
         );
       })}
