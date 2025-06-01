@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 
 import { SessionProvider } from "@/contexts/SessionContext";
 

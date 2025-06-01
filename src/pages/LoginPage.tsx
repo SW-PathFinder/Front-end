@@ -2,8 +2,8 @@ import { useState } from "react";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
 import * as yup from "yup";
 
 import { useAuth } from "../contexts/AuthContext";

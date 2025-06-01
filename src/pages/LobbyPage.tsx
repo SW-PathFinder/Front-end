@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { RulebookButton } from "../components/Common/RulebookButton";
 import { SettingsButton } from "../components/Common/SettingsButton";
