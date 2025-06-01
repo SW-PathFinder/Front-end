@@ -120,7 +120,7 @@ const Game = () => {
       <div className="absolute top-2 right-2 z-10 flex w-[150px] flex-col items-center justify-center gap-2 bg-transparent">
         <img
           className="w-full rounded-2xl shadow-2xs"
-          src="/assets/saboteur/cards/card_general_bg.png"
+          src="/assets/saboteur/cards/bg_playable.png"
           alt="card back"
         />
         <p>남은 카드 수 : {remainingCards}장</p>
