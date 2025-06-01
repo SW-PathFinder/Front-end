@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router";
+
 interface RoomConditionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,6 +16,7 @@ const RoomConditionModal = ({
   const [minPerson, setMinPerson] = useState<number>(3);
   const [helper, setHelper] = useState<boolean>(true);
   const [publicRoom, setPublicRoom] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -103,7 +106,10 @@ const RoomConditionModal = ({
         <button
           type="button"
           className={`btn mt-4 w-full ${mode === "create" ? "btn-secondary" : "btn-accent"}`}
-          onClick={() => onClose()}
+          onClick={() => {
+            navigate("/waiting");
+            onClose();
+          }}
         >
           {mode === "create" ? "방 생성하기" : "매칭하기"}
         </button>

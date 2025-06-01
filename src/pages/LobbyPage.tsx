@@ -67,19 +67,13 @@ const LobbyPage = () => {
         {/* 빠른 매칭 */}
         <RoomConditionModal
           isOpen={fastMatchOpen}
-          onClose={() => {
-            navigate("/waiting");
-            setFastMatchOpen(false);
-          }}
+          onClose={() => setFastMatchOpen(false)}
           mode="fastMatch"
         />
         {/* 방 생성 */}
         <RoomConditionModal
           isOpen={createOpen}
-          onClose={() => {
-            navigate("/waiting");
-            setCreateOpen(false);
-          }}
+          onClose={() => setCreateOpen(false)}
           mode="create"
         />
         <RoomSearchModal
