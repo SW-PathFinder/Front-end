@@ -2,9 +2,10 @@ import { useEffect } from "react";
 
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 
-const UserAuthLayout = () => {
-  const userId = localStorage.getItem("userId");
+import { useAuth } from "@/contexts/AuthContext";
 
+export const AuthLayout = () => {
+  const { userId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -12,9 +13,8 @@ const UserAuthLayout = () => {
     if (!userId && location.pathname !== "/login") {
       navigate("/login", { state: { from: location.pathname } });
     }
+    console.log("AuthLayout useEffect", userId, location.pathname);
   }, [userId, navigate, location.pathname]);
 
-  return userId ? <Outlet /> : null;
+  return <Outlet />;
 };
-
-export default UserAuthLayout;

@@ -1,16 +1,11 @@
-import { useState, ReactNode, useEffect } from "react";
+import { useState, ReactNode } from "react";
 
 import { AuthContext } from "@/contexts/AuthContext";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
-  }, []);
+  const [userId, setUserId] = useState<string | null>(
+    localStorage.getItem("userId"),
+  );
 
   const login = (id: string) => {
     localStorage.setItem("userId", id);

@@ -2,13 +2,12 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "@/hooks/useAuth";
-
 import { RulebookButton } from "../components/Common/RulebookButton";
 import { SettingsButton } from "../components/Common/SettingsButton";
 import LogoutModal from "../components/Lobby/LogoutModal";
 import RoomConditionModal from "../components/Lobby/RoomConditionModal";
 import RoomSearchModal from "../components/Lobby/RoomSearchModal";
+import { useAuth } from "../contexts/AuthContext";
 
 const LobbyPage = () => {
   const [fastMatchOpen, setFastMatchOpen] = useState<boolean>(false);

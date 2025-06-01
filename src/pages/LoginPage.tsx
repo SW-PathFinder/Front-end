@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import * as yup from "yup";
 
-import { useAuth } from "@/hooks/useAuth";
-
+import { useAuth } from "../contexts/AuthContext";
 import { checkNicknameAvailability } from "../services/api";
 
 interface LoginFormValues {
