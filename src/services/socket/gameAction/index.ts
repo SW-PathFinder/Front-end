@@ -1,4 +1,6 @@
-abstract class AbstractSocketAction<T extends string | object> {
+abstract class AbstractSocketAction<T extends string | object = string | object>
+  implements SocketAction.Primitive
+{
   abstract readonly type: string;
   readonly data: T;
 
@@ -8,15 +10,23 @@ abstract class AbstractSocketAction<T extends string | object> {
 }
 
 export namespace SocketAction {
+  export interface Primitive {
+    type: string;
+    data: string | object;
+  }
   export abstract class AbstractRequest<
-    T extends string | object,
-  > extends AbstractSocketAction<T> {
-    toRequestData(): string {
-      return JSON.stringify({ type: this.type, data: this.data });
+      T extends string | object = string | object,
+    >
+    extends AbstractSocketAction<T>
+    implements Request.Primitive
+  {
+    toPrimitive(): Request.Primitive {
+      return { type: this.type, data: this.data };
     }
   }
 
   export namespace Request {
+    export interface Primitive extends SocketAction.Primitive {}
     export class PlacePath extends AbstractRequest<{
       x: number;
       y: number;
@@ -75,28 +85,43 @@ export namespace SocketAction {
   }
 
   export abstract class AbstractResponse<
-    T extends string | object,
-  > extends AbstractSocketAction<T> {
+      T extends string | object = string | object,
+    >
+    extends AbstractSocketAction<T>
+    implements Response.Primitive
+  {
     abstract readonly target: "all" | (string & {});
 
-    static fromResponseData<T extends string | object>(
-      type: string,
-      data: T,
-      target: string,
-    ): AbstractResponse<T> {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new responseMap[type](data as any, target) as AbstractResponse<T>;
+    static fromPrimitive<T extends Response.Primitive>(
+      primitive: T,
+    ): AbstractResponse<T["data"]> {
+      return new Response.typeToClassMap[primitive.type](
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        primitive.data as any,
+        primitive.target,
+      );
     }
   }
 
   export namespace Response {
-    abstract class AbstractBroadcastResponse<
-      T extends string | object,
-    > extends AbstractResponse<T> {
+    export interface Primitive extends SocketAction.Primitive {
+      target: "all" | (string & {});
+    }
+
+    export abstract class AbstractBroadcastResponse<
+        T extends string | object = string | object,
+      >
+      extends AbstractResponse<T>
+      implements Broadcast.Primitive
+    {
       target = "all" as const;
     }
 
     export namespace Broadcast {
+      export interface Primitive extends Response.Primitive {
+        target: "all";
+      }
+
       export class TurnChange extends AbstractBroadcastResponse<string> {
         type = "turnChange" as const;
         /** @description next player id */
@@ -165,10 +190,13 @@ export namespace SocketAction {
       >;
     }
 
-    abstract class AbstractPrivateResponse<
-      T extends string | object,
-    > extends AbstractResponse<T> {
-      target: string;
+    export abstract class AbstractPrivateResponse<
+        T extends string | object = string | object,
+      >
+      extends AbstractResponse<T>
+      implements Private.Primitive
+    {
+      readonly target: string;
 
       constructor(data: T, target: string) {
         super(data);
@@ -177,14 +205,19 @@ export namespace SocketAction {
     }
 
     export namespace Private {
+      export interface Primitive extends Response.Primitive {
+        target: string;
+      }
+
       export class DrawCard extends AbstractPrivateResponse<{ card: number }> {
         type = "drawCard" as const;
       }
 
-      export class MapResult extends AbstractPrivateResponse<{
+      export class RevealDestination extends AbstractPrivateResponse<{
         cardType: "gold" | "rock";
       }> {
-        type = "viewMap" as const;
+        // TODO: 기존 서버 타입은 viewMap인데 Broadcast의 UseMap과 구분이 불가능해서 바꿈
+        type = "reveal_dest" as const;
       }
 
       export class DiscardCard extends AbstractPrivateResponse<{
@@ -223,25 +256,25 @@ export namespace SocketAction {
       | Response.Broadcast.Actions
       | Response.Private.Actions
       | Response.Error.Actions;
-  }
 
-  type ToUnion<T> = T[keyof T];
-  const responseMap = [
-    ...Object.entries(Response.Broadcast),
-    ...Object.entries(Response.Private),
-    ...Object.entries(Response.Error),
-  ].reduce(
-    (prev, [, cls]) => {
-      prev[cls.prototype.type] = cls;
-      return prev;
-    },
-    {} as Record<
-      string,
-      ToUnion<
-        typeof Response.Broadcast &
-          typeof Response.Private &
-          typeof Response.Error
-      >
-    >,
-  );
+    type ToUnion<T> = T[keyof T];
+    export const typeToClassMap = [
+      ...Object.entries(Response.Broadcast),
+      ...Object.entries(Response.Private),
+      ...Object.entries(Response.Error),
+    ].reduce(
+      (prev, [, cls]) => {
+        prev[cls.prototype.type] = cls;
+        return prev;
+      },
+      {} as Record<
+        string,
+        ToUnion<
+          typeof Response.Broadcast &
+            typeof Response.Private &
+            typeof Response.Error
+        >
+      >,
+    );
+  }
 }

@@ -16,7 +16,7 @@ export interface EmitEvents {
   game_action: (data: {
     room: string;
     player: string;
-    action: SocketAction.Request.Actions;
+    action: SocketAction.Request.Primitive;
   }) => void;
   chat: (data: { room: string; message: string }) => void;
 }

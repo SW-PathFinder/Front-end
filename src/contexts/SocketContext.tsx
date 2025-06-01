@@ -1,4 +1,10 @@
-import { createContext, useContext, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 
 import { io, Socket } from "socket.io-client";
 
@@ -20,15 +26,42 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     return newSocket;
   }, []);
 
-  return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
-  );
+  return <SocketContext value={socket}>{children}</SocketContext>;
 };
 
-export const useSocket = () => {
+export function useSocket() {
   const context = useContext(SocketContext);
   if (!context) {
     throw new Error("useSocket must be used within a SocketProvider");
   }
   return context;
-};
+}
+
+export function useSocketEmitter<
+  K extends Exclude<keyof EmitEvents, "game_action">,
+>(event: K) {
+  const socket = useSocket();
+  return useCallback(
+    (...args: Parameters<EmitEvents[K]>) => {
+      socket.emit(event, ...args);
+    },
+    [socket, event],
+  );
+}
+
+export function useSocketListener<
+  K extends Exclude<keyof ListenEvents, "game_update" | "private_game_update">,
+>(event: K, listener: ListenEvents[K]): void;
+export function useSocketListener(
+  event: keyof ListenEvents,
+  listener: ListenEvents[keyof ListenEvents],
+) {
+  const socket = useSocket();
+
+  useEffect(() => {
+    socket.on(event, listener);
+    return () => {
+      socket.off(event, listener);
+    };
+  }, [socket, event, listener]);
+}
