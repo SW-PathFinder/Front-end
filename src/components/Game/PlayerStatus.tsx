@@ -1,8 +1,9 @@
+import { AbstractPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
-import { Schema, Tools } from "@/libs/saboteur/types";
+import { Tools } from "@/libs/saboteur/types";
 
 interface PlayerStatusProps {
-  item: Schema.Player;
+  item: AbstractPlayer;
 }
 
 const PlayerStatus = ({ item }: PlayerStatusProps) => {
@@ -37,7 +38,7 @@ const PlayerStatus = ({ item }: PlayerStatusProps) => {
           </div>
         </div>
       </div>
-      {item?.winning && <div className="text-xl">🥳</div>}
+      {/* {item?.winning && <div className="text-xl">🥳</div>} */}
     </div>
   );
 };

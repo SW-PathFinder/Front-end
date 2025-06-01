@@ -5,77 +5,65 @@ import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import {
-  BaseCard,
-  PathCard,
+  AbstractCard,
+  AbstractPathCard,
   PathCard4Way,
   PathCardDestHidden,
   PathCardOrigin,
 } from "@/libs/saboteur/cards";
-import { Schema } from "@/libs/saboteur/types";
+import { AbstractPlayer, OtherPlayer } from "@/libs/saboteur/player";
 
 // import { fn } from "@storybook/test";
 
-const dummyList: Schema.Player[] = [
-  {
-    id: 1,
+const dummyList: AbstractPlayer[] = [
+  new OtherPlayer({
     name: "Dami",
     status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
-  },
-  {
-    id: 2,
+  }),
+  new OtherPlayer({
     name: "Doo Hyun",
     status: { lantern: true, pickaxe: false, wagon: false },
     hand: 2,
-  },
-  {
-    id: 3,
+  }),
+  new OtherPlayer({
     name: "Jiwoo",
     status: { lantern: true, pickaxe: true, wagon: false },
     hand: 1,
-  },
-  {
-    id: 4,
+  }),
+  new OtherPlayer({
     name: "Dohoon",
     status: { lantern: false, pickaxe: true, wagon: true },
     hand: 3,
-  },
-  {
-    id: 5,
+  }),
+  new OtherPlayer({
     name: "Jaehoon",
     status: { lantern: true, pickaxe: true, wagon: false },
     hand: 3,
-  },
-  {
-    id: 6,
+  }),
+  new OtherPlayer({
     name: "Namhoon",
     status: { lantern: false, pickaxe: true, wagon: true },
     hand: 3,
-    winning: true,
-  },
-  {
-    id: 7,
+  }),
+  new OtherPlayer({
     name: "Hayoung",
     status: { lantern: true, pickaxe: false, wagon: true },
     hand: 3,
-    winning: true,
-  },
-  {
-    id: 8,
+  }),
+  new OtherPlayer({
     name: "Nutria",
     status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
-  },
-  {
-    id: 9,
+  }),
+  new OtherPlayer({
     name: "Schott",
     status: { lantern: true, pickaxe: true, wagon: true },
     hand: 3,
-    winning: true,
-  },
+  }),
 ];
 
-const dummyCards: BaseCard.Playable[] = [
+const dummyCards: AbstractCard.Playable[] = [
   new PathCard4Way(),
   new PathCard4Way(),
   new PathCard4Way(),
@@ -85,10 +73,10 @@ const dummyCards: BaseCard.Playable[] = [
 ];
 
 const Game = () => {
-  const [playerList, setPlayerList] = useState<Schema.Player[]>([]);
-  const [hands, setHand] = useState<BaseCard.Playable[]>(() => []);
+  const [playerList, setPlayerList] = useState<AbstractPlayer[]>([]);
+  const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
 
-  const dummyBoardCards: (PathCard | null)[][] = Array.from(
+  const dummyBoardCards: (AbstractPathCard | null)[][] = Array.from(
     { length: BOARD_ROWS },
     () => {
       return Array.from({ length: BOARD_COLS }, () => null);

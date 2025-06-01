@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
-import { BaseCard } from "@/libs/saboteur/cards";
+import { AbstractCard } from "@/libs/saboteur/cards";
 
 interface CardProps {
-  card: BaseCard;
+  card: AbstractCard;
   /**
    * width of card
    * @default 64

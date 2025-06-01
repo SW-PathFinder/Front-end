@@ -1,6 +1,6 @@
-import { BaseCard } from "@/libs/saboteur/cards/base";
+import { AbstractCard } from "@/libs/saboteur/cards/base";
 
-export abstract class PathCard extends BaseCard {
+export abstract class AbstractPathCard extends AbstractCard {
   type = "path";
   flipped: boolean = false;
   abstract readonly blocked: boolean;
@@ -24,15 +24,15 @@ export abstract class PathCard extends BaseCard {
   }
 }
 
-abstract class PathCardDestructible
-  extends PathCard
-  implements BaseCard.Playable
+abstract class AbstractDestructiblePathCard
+  extends AbstractPathCard
+  implements AbstractCard.Playable
 {
   destructible = true;
   playable = true as const;
 }
 
-abstract class PathCard4Base extends PathCardDestructible {
+abstract class PathCard4Base extends AbstractDestructiblePathCard {
   _direction = [true, true, true, true] as const;
 }
 
@@ -46,7 +46,7 @@ export class PathCard4Block extends PathCard4Way {
   blocked = true;
 }
 
-abstract class PathCard3ABase extends PathCardDestructible {
+abstract class PathCard3ABase extends AbstractDestructiblePathCard {
   _direction = [true, true, true, false] as const;
 }
 export class PathCard3AWay extends PathCard3ABase {
@@ -58,7 +58,7 @@ export class PathCard3ABlock extends PathCard3ABase {
   blocked = true;
 }
 
-abstract class PathCard3BBase extends PathCardDestructible {
+abstract class PathCard3BBase extends AbstractDestructiblePathCard {
   _direction = [true, false, true, true] as const;
 }
 export class PathCard3BWay extends PathCard3BBase {
@@ -70,7 +70,7 @@ export class PathCard3BBlock extends PathCard3BBase {
   blocked = true;
 }
 
-abstract class PathCard2ABase extends PathCardDestructible {
+abstract class PathCard2ABase extends AbstractDestructiblePathCard {
   _direction = [true, false, true, false] as const;
 }
 export class PathCard2AWay extends PathCard2ABase {
@@ -82,7 +82,7 @@ export class PathCard2ABlock extends PathCard2ABase {
   blocked = true;
 }
 
-abstract class PathCard2BBase extends PathCardDestructible {
+abstract class PathCard2BBase extends AbstractDestructiblePathCard {
   _direction = [true, false, false, true] as const;
 }
 export class PathCard2BWay extends PathCard2BBase {
@@ -94,7 +94,7 @@ export class PathCard2BBlock extends PathCard2BBase {
   blocked = true;
 }
 
-abstract class PathCard2CBase extends PathCardDestructible {
+abstract class PathCard2CBase extends AbstractDestructiblePathCard {
   _direction = [true, true, false, false] as const;
 }
 export class PathCard2CWay extends PathCard2CBase {
@@ -106,7 +106,7 @@ export class PathCard2CBlock extends PathCard2CBase {
   blocked = true;
 }
 
-abstract class PathCard2DBase extends PathCardDestructible {
+abstract class PathCard2DBase extends AbstractDestructiblePathCard {
   _direction = [false, false, true, true] as const;
 }
 export class PathCard2DWay extends PathCard2DBase {
@@ -118,34 +118,34 @@ export class PathCard2DBlock extends PathCard2DBase {
   blocked = true;
 }
 
-export class PathCard1ABlock extends PathCardDestructible {
+export class PathCard1ABlock extends AbstractDestructiblePathCard {
   image = "/cards/path/1a_block.png";
   blocked = true;
   _direction = [true, false, false, false] as const;
 }
 
-export class PathCard1BBlock extends PathCardDestructible {
+export class PathCard1BBlock extends AbstractDestructiblePathCard {
   image = "/cards/path/1b_block.png";
   blocked = true;
   _direction = [false, false, true, false] as const;
 }
 
-abstract class PathCardIndestructible
-  extends PathCard
-  implements BaseCard.NonPlayable
+abstract class AbstractIndestructiblePathCard
+  extends AbstractPathCard
+  implements AbstractCard.NonPlayable
 {
   destructible = false;
   playable = false as const;
 }
 
-export class PathCardOrigin extends PathCardIndestructible {
+export class PathCardOrigin extends AbstractIndestructiblePathCard {
   type = "origin";
   image = "/cards/path/origin.png";
   blocked = false;
   _direction = [true, true, true, true] as const;
 }
 
-abstract class PathCardDest extends PathCardIndestructible {
+abstract class PathCardDest extends AbstractIndestructiblePathCard {
   type = "dest";
   blocked = false;
 }

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import {
-  PathCard,
+  AbstractPathCard,
   PathCardDestGold,
   PathCardDestRockA,
   PathCardDestRockB,
@@ -13,16 +13,19 @@ import { DndZone } from "./Dnd";
 
 // import { fn } from "@storybook/test";
 
-const cards: (PathCard | null)[][] = Array.from({ length: BOARD_ROWS }, () => {
-  return Array.from({ length: BOARD_COLS }, () => null);
-});
+const cards: (AbstractPathCard | null)[][] = Array.from(
+  { length: BOARD_ROWS },
+  () => {
+    return Array.from({ length: BOARD_COLS }, () => null);
+  },
+);
 
 cards[11][7] = new PathCardOrigin();
 cards[9][15] = new PathCardDestGold();
 cards[11][15] = new PathCardDestRockA();
 cards[13][15] = new PathCardDestRockB();
 
-const BoardStory = ({ cards }: { cards: (PathCard | null)[][] }) => {
+const BoardStory = ({ cards }: { cards: (AbstractPathCard | null)[][] }) => {
   return (
     <DndZone>
       <Board cards={cards} />

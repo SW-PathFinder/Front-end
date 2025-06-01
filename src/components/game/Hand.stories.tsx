@@ -4,17 +4,21 @@ import { useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { BaseCard, PathCard1ABlock, PathCard4Way } from "@/libs/saboteur/cards";
+import {
+  AbstractCard,
+  PathCard1ABlock,
+  PathCard4Way,
+} from "@/libs/saboteur/cards";
 
 import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";
 import { Hand } from "./Hand";
 
-const HandStory = ({ cards }: { cards: BaseCard[] }) => {
+const HandStory = ({ cards }: { cards: AbstractCard.Playable[] }) => {
   const [hands, setHand] = useState(() => cards);
 
   const [containers, setContainers] = useState<
-    Array<{ id: string; item?: BaseCard }>
+    Array<{ id: string; item?: AbstractCard.Playable }>
   >(() =>
     Array(45)
       .fill({})
