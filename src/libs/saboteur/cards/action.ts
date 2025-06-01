@@ -10,9 +10,9 @@ export abstract class AbstractActionCard
 }
 
 const SABOTAGE_ACTION_CARD_ASSETS = {
-  pickaxe: "/cards/action/sabotage_p.png",
-  lantern: "/cards/action/sabotage_l.png",
-  wagon: "/cards/action/sabotage_w.png",
+  pickaxe: "/assets/saboteur/cards/action/sabotage_p.png",
+  lantern: "/assets/saboteur/cards/action/sabotage_l.png",
+  wagon: "/assets/saboteur/cards/action/sabotage_w.png",
 };
 export class SabotageActionCard extends AbstractActionCard {
   readonly tool: [Tools];
@@ -40,14 +40,14 @@ export class RepairActionCard extends AbstractActionCard {
   constructor(tools: AvailableRepairToolSet) {
     super();
     this.tools = tools;
-    this.image = `/cards/action/repair_${tools.map((tool) => tool[0].toLowerCase()).join("")}.png`;
+    this.image = `/assets/saboteur/cards/action/repair_${tools.map((tool) => tool[0].toLowerCase()).join("")}.png`;
   }
 }
 
 export class MapActionCard extends AbstractActionCard {
-  image = "/cards/action/map.png";
+  image = "/assets/saboteur/cards/action/map.png";
 }
 
 export class DestroyActionCard extends AbstractActionCard {
-  image = "/cards/action/destroy.png";
+  image = "/assets/saboteur/cards/action/destroy.png";
 }

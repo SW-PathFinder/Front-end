@@ -24,6 +24,6 @@ export namespace AbstractCard {
 
 export class HiddenCard extends AbstractCard implements AbstractCard.Playable {
   type = "hidden";
-  image = "/cards/bg_playable.png";
+  image = "/assets/saboteur/cards/bg_playable.png";
   playable = true as const;
 }
