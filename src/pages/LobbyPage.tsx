@@ -1,5 +1,9 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/hooks/useAuth";
+
 import { RulebookButton } from "../components/Common/RulebookButton";
 import { SettingsButton } from "../components/Common/SettingsButton";
 import LogoutModal from "../components/Lobby/LogoutModal";
@@ -11,6 +15,9 @@ const LobbyPage = () => {
   const [createOpen, setCreateOpen] = useState<boolean>(false);
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [logoutOpen, setLogoutOpen] = useState<boolean>(false);
+
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const USER_NAME = "사용자 이름";
 
@@ -73,7 +80,8 @@ const LobbyPage = () => {
           onClose={() => setLogoutOpen(false)}
           onConfirm={() => {
             // TODO: 실제 로그아웃 처리 로직
-            console.log("로그아웃 처리");
+            logout();
+            navigate("/login");
             setLogoutOpen(false);
           }}
         />

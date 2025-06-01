@@ -2,7 +2,11 @@ import { useState } from "react";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import * as yup from "yup";
+
+import { useAuth } from "@/hooks/useAuth";
 
 import { checkNicknameAvailability } from "../services/api";
 
@@ -20,21 +24,29 @@ const schema = yup.object({
 });
 
 const LoginPage = () => {
-  const [serverError, setServerError] = useState<string | null>(null);
-
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: yupResolver(schema) });
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  const { login, userId } = useAuth();
+  if (userId) {
+    return <Navigate to="/" replace />;
+  }
 
   const onSubmit = async (data: LoginFormValues): Promise<void> => {
     setServerError(null);
     try {
-      const { data: result } = await checkNicknameAvailability(data.nickname);
+      const result = await checkNicknameAvailability(data.nickname);
       if (result.isAvailable) {
         // 현재는 alert로 처리, 추후 LobbyPage로 이동하는 로직 추가 예정
         alert("닉네임 사용 가능");
+        login(data.nickname);
+        navigate("/");
       } else {
         setServerError(result.message || "이미 사용 중인 닉네임입니다.");
       }
