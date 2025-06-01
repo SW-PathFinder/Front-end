@@ -1,4 +1,5 @@
 import type { Meta } from "@storybook/react";
+
 import { RulebookButton } from "./RulebookButton";
 
 const meta: Meta<typeof RulebookButton> = {
