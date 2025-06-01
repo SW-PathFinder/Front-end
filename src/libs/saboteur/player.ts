@@ -1,4 +1,4 @@
-import { BaseCard } from "@/libs/saboteur/cards";
+import { AbstractCard } from "@/libs/saboteur/cards";
 import { Tools } from "@/libs/saboteur/types";
 
 interface AbstractPlayerOption {
@@ -47,12 +47,12 @@ export class OtherPlayer extends AbstractPlayer {
 }
 
 export class MyPlayer extends AbstractPlayer {
-  hands: BaseCard.Playable[];
+  hands: AbstractCard.Playable[];
 
   constructor({
     hands,
     ...options
-  }: AbstractPlayerOption & { hands: BaseCard.Playable[] }) {
+  }: AbstractPlayerOption & { hands: AbstractCard.Playable[] }) {
     super(options);
     this.hands = hands;
   }

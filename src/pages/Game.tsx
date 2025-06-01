@@ -5,8 +5,8 @@ import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import {
-  BaseCard,
-  PathCard,
+  AbstractCard,
+  AbstractPathCard,
   PathCard4Way,
   PathCardDestHidden,
   PathCardOrigin,
@@ -63,7 +63,7 @@ const dummyList: AbstractPlayer[] = [
   }),
 ];
 
-const dummyCards: BaseCard.Playable[] = [
+const dummyCards: AbstractCard.Playable[] = [
   new PathCard4Way(),
   new PathCard4Way(),
   new PathCard4Way(),
@@ -74,9 +74,9 @@ const dummyCards: BaseCard.Playable[] = [
 
 const Game = () => {
   const [playerList, setPlayerList] = useState<AbstractPlayer[]>([]);
-  const [hands, setHand] = useState<BaseCard.Playable[]>(() => []);
+  const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
 
-  const dummyBoardCards: (PathCard | null)[][] = Array.from(
+  const dummyBoardCards: (AbstractPathCard | null)[][] = Array.from(
     { length: BOARD_ROWS },
     () => {
       return Array.from({ length: BOARD_COLS }, () => null);

@@ -2,13 +2,13 @@ import { useEffect, useRef } from "react";
 
 import { twMerge } from "tailwind-merge";
 
-import { PathCard } from "@/libs/saboteur/cards";
+import { AbstractPathCard } from "@/libs/saboteur/cards";
 
 import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";
 
 interface BoardProps {
-  cards: (PathCard | null)[][];
+  cards: (AbstractPathCard | null)[][];
   style?: React.CSSProperties;
   className?: string;
 }

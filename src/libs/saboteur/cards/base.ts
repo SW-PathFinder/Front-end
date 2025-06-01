@@ -1,4 +1,4 @@
-export abstract class BaseCard {
+export abstract class AbstractCard {
   private static uid_counter = 1;
 
   readonly id: number;
@@ -8,21 +8,21 @@ export abstract class BaseCard {
   abstract readonly playable: boolean;
 
   constructor() {
-    this.id = BaseCard.uid_counter++;
+    this.id = AbstractCard.uid_counter++;
   }
 }
 
-export namespace BaseCard {
-  export interface Playable extends BaseCard {
+export namespace AbstractCard {
+  export interface Playable extends AbstractCard {
     playable: true;
   }
 
-  export interface NonPlayable extends BaseCard {
+  export interface NonPlayable extends AbstractCard {
     playable: false;
   }
 }
 
-export class HiddenCard extends BaseCard implements BaseCard.Playable {
+export class HiddenCard extends AbstractCard implements AbstractCard.Playable {
   type = "hidden";
   image = "/cards/bg_playable.png";
   playable = true as const;

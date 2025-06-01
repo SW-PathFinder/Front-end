@@ -1,7 +1,10 @@
-import { BaseCard } from "@/libs/saboteur/cards/base";
+import { AbstractCard } from "@/libs/saboteur/cards/base";
 import { Tools } from "@/libs/saboteur/types";
 
-export abstract class ActionCard extends BaseCard implements BaseCard.Playable {
+export abstract class AbstractActionCard
+  extends AbstractCard
+  implements AbstractCard.Playable
+{
   type = "action";
   playable = true as const;
 }
@@ -11,7 +14,7 @@ const SABOTAGE_ACTION_CARD_ASSETS = {
   lantern: "/cards/action/sabotage_l.png",
   wagon: "/cards/action/sabotage_w.png",
 };
-export class SabotageActionCard extends ActionCard {
+export class SabotageActionCard extends AbstractActionCard {
   readonly tool: [Tools];
   readonly image: string;
 
@@ -30,7 +33,7 @@ type AvailableRepairToolSet =
   | [Tools.Pickaxe, Tools.Wagon]
   | [Tools.Lantern, Tools.Wagon];
 
-export class RepairActionCard extends ActionCard {
+export class RepairActionCard extends AbstractActionCard {
   readonly tools: AvailableRepairToolSet;
   readonly image: string;
 
@@ -41,10 +44,10 @@ export class RepairActionCard extends ActionCard {
   }
 }
 
-export class MapActionCard extends ActionCard {
+export class MapActionCard extends AbstractActionCard {
   image = "/cards/action/map.png";
 }
 
-export class DestroyActionCard extends ActionCard {
+export class DestroyActionCard extends AbstractActionCard {
   image = "/cards/action/destroy.png";
 }
