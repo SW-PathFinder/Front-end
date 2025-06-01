@@ -1,6 +1,6 @@
-import { Card } from "@/libs/saboteur/cards/base";
+import { BaseCard } from "@/libs/saboteur/cards/base";
 
-abstract class PathCard extends Card {
+export abstract class PathCard extends BaseCard {
   type = "path";
   flipped: boolean = false;
   abstract readonly blocked: boolean;
@@ -24,8 +24,12 @@ abstract class PathCard extends Card {
   }
 }
 
-abstract class PathCardDestructible extends PathCard {
+abstract class PathCardDestructible
+  extends PathCard
+  implements BaseCard.Playable
+{
   destructible = true;
+  playable = true as const;
 }
 
 abstract class PathCard4Base extends PathCardDestructible {
@@ -126,8 +130,12 @@ export class PathCard1BBlock extends PathCardDestructible {
   _direction = [false, false, true, false] as const;
 }
 
-abstract class PathCardIndestructible extends PathCard {
+abstract class PathCardIndestructible
+  extends PathCard
+  implements BaseCard.NonPlayable
+{
   destructible = false;
+  playable = false as const;
 }
 
 export class PathCardOrigin extends PathCardIndestructible {
@@ -137,23 +145,27 @@ export class PathCardOrigin extends PathCardIndestructible {
   _direction = [true, true, true, true] as const;
 }
 
-export class PathCardDestGold extends PathCardIndestructible {
+abstract class PathCardDest extends PathCardIndestructible {
   type = "dest";
-  image = "/cards/path/dest_gold.png";
   blocked = false;
+}
+
+export class PathCardDestHidden extends PathCardDest {
+  image = "/cards/path/dest_hidden.png";
   _direction = [true, true, true, true] as const;
 }
 
-export class PathCardDestRock1 extends PathCardIndestructible {
-  type = "dest";
-  image = "/cards/path/dest_rock1.png";
-  blocked = false;
+export class PathCardDestGold extends PathCardDest {
+  image = "/cards/path/dest_gold.png";
+  _direction = [true, true, true, true] as const;
+}
+
+export class PathCardDestRockA extends PathCardDest {
+  image = "/cards/path/dest_rock_a.png";
   _direction = [true, false, true, false] as const;
 }
 
-export class PathCardDestRock2 extends PathCardIndestructible {
-  type = "dest";
-  image = "/cards/path/dest_rock2.png";
-  blocked = false;
+export class PathCardDestRockB extends PathCardDest {
+  image = "/cards/path/dest_rock_b.png";
   _direction = [true, false, false, true] as const;
 }
