@@ -10,17 +10,14 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-      <div className="relative w-full max-w-3/4 bg-white rounded-lg shadow-xl z-10 flex flex-col max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold text-center w-full">{title}</h2>
+      <div className="relative z-10 flex max-h-[90vh] w-full max-w-3/4 flex-col overflow-hidden rounded-lg bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b px-6 py-4">
+          <h2 className="w-full text-center text-lg font-semibold">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-xl"
+            className="text-xl text-gray-500 hover:text-gray-800"
           >
             &times;
           </button>
