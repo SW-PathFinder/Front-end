@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 
 import WaitingRoom from "./WaitingRoom";
 

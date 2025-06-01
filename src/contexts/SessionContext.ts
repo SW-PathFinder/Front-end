@@ -12,6 +12,7 @@ export const SessionProvider = SessionContext as Provider<SessionContext>;
 export const useSession = () => {
   const context = useContext(SessionContext);
   if (!context) {
+    console.log("SessionContext is null");
     throw new Error("useGameSession must be used within a GameSessionProvider");
   }
 
