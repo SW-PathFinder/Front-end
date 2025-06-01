@@ -13,8 +13,7 @@ export const AuthLayout = () => {
     if (!userId && location.pathname !== "/login") {
       navigate("/login", { state: { from: location.pathname } });
     }
-    console.log("AuthLayout useEffect", userId, location.pathname);
   }, [userId, navigate, location.pathname]);
 
-  return <Outlet />;
+  return userId ? <Outlet /> : null;
 };

@@ -1,7 +1,6 @@
 import { StrictMode } from "react";
 
 import { createRoot } from "react-dom/client";
-// import { BrowserRouter, Route, Routes } from "react-router";
 import { BrowserRouter, Route, Routes } from "react-router";
 
 import { AuthProvider } from "@/components/Common/AuthProvider";
@@ -20,12 +19,12 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<AuthLayout />}>
-            {/* <Route element={<SessionLayout />}> */}
-            <Route path="/" element={<LobbyPage />} />
-            <Route element={<GameSessionLayout />}>
-              {/* Nested route for the game page */}
-              <Route path="game" element={<Game />} />
-              {/* </Route> */}
+            <Route element={<SessionLayout />}>
+              <Route path="/" element={<LobbyPage />} />
+              <Route element={<GameSessionLayout />}>
+                {/* Nested route for the game page */}
+                <Route path="game" element={<Game />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

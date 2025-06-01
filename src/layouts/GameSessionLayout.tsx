@@ -1,19 +1,29 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Outlet } from "react-router";
+import { useNavigate } from "react-router";
 
 import { GameSessionProvider } from "@/contexts/GameSessionContext";
 import { useSession } from "@/contexts/SessionContext";
 
 export const GameSessionLayout = () => {
-  const { gameId } = useSession();
-  if (!gameId) {
-    throw new Error(
-      "GameSessionLayout must be used within a SessionProvider with gameId",
-    );
-  }
+  const navigate = useNavigate();
 
-  const socket = useMemo<WebSocket>(() => {
+  const { gameId } = useSession();
+  useEffect(() => {
+    if (!gameId) {
+      navigate("/");
+    }
+  }, [gameId, navigate]);
+
+  const socket = useMemo<WebSocket | null>(() => {
+    if (!gameId) {
+      console.error(
+        "GameSessionLayout must be used within a SessionProvider with gameId",
+      );
+      return null;
+    }
+
     const ws = new WebSocket(`ws://localhost:8080/game/${gameId}`);
 
     ws.onopen = () => {
@@ -30,6 +40,13 @@ export const GameSessionLayout = () => {
 
     return ws;
   }, [gameId]);
+
+  if (!gameId || !socket) {
+    console.error(
+      "Redirecting to / because gameId is not set or socket is not created",
+    );
+    return null;
+  }
 
   return (
     <GameSessionProvider value={{ gameId, socket }}>
