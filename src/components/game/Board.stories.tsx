@@ -14,10 +14,44 @@ const cards: (Schema.Card | null)[][] = Array.from(
   },
 );
 
-cards[11][7] = { id: "start", image: "start.png" };
-cards[9][15] = { id: "dest_gold", image: "dest_gold.png" };
-cards[11][15] = { id: "dest_rock1", image: "dest_rock1.png" };
-cards[13][15] = { id: "dest_rock2", image: "dest_rock2.png" };
+cards[11][7] = {
+  id: "start",
+  image: "start.png",
+  type: "path",
+  pathType: "start",
+  destructible: false,
+  way: [true, true, true, true],
+  flipped: false,
+};
+cards[9][15] = {
+  id: "dest_gold",
+  image: "dest_gold.png",
+  type: "path",
+  pathType: "dest",
+  dest: "gold",
+  destructible: false,
+  way: [true, true, true, true],
+  flipped: false,
+};
+cards[11][15] = {
+  id: "dest_rock1",
+  image: "dest_rock1.png",
+  type: "path",
+  pathType: "start",
+  destructible: false,
+  way: [true, true, false, false],
+  flipped: false,
+};
+cards[13][15] = {
+  id: "dest_rock2",
+  image: "dest_rock2.png",
+  type: "path",
+  pathType: "dest",
+  dest: "rock",
+  destructible: false,
+  way: [true, false, true, false],
+  flipped: false,
+};
 
 const BoardStory = ({ cards }: { cards: (Schema.Card | null)[][] }) => {
   return (
