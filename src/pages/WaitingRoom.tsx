@@ -22,8 +22,8 @@ const WaitingRoom = () => {
     "bg-teal-200",
   ];
 
-  // const { gameId, capacity, socket } = useGameSession();
-  const { gameId, participants, setParticipants } = useGameSession();
+  // const { roomId, capacity, socket } = useGameSession();
+  const { roomId, participants, setParticipants } = useGameSession();
   const capacity = 10; // 임시로 정원 10명으로 설정
 
   // 0.5초마다 참가자 1명씩 추가 (총 10명까지)
@@ -81,7 +81,7 @@ const WaitingRoom = () => {
       <div className="mb-6 w-full max-w-md rounded bg-primary p-4 shadow">
         <p className="text-center text-lg font-semibold text-white">
           현재인원 : {participants.length} | 정원 : {capacity} | 방코드 :{" "}
-          {gameId}
+          {roomId}
         </p>
       </div>
       {/* 참가자 목록 */}

@@ -4,7 +4,7 @@ interface FailureEvent {
   success: false;
   message: string;
 }
-export interface EmitEvents {
+export interface ListenEvents {
   username_result: (
     data: { success: true; username: string } | FailureEvent,
   ) => void;
@@ -29,4 +29,6 @@ export interface EmitEvents {
 
   game_update: (data: SocketAction.Response.Actions) => void;
   private_game_update: (data: SocketAction.Response.Actions) => void;
+
+  error: (data: { message: string }) => void;
 }

@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/react";
 import { http, HttpResponse } from "msw";
 import { BrowserRouter } from "react-router";
 
-import { AuthProvider } from "@/components/Common/AuthProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import LoginPage from "./LoginPage";
 

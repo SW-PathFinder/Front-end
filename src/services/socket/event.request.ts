@@ -1,6 +1,6 @@
 import { SocketAction } from "@/services/socket/gameAction";
 
-export interface ListenEvents {
+export interface EmitEvents {
   set_username: (data: { username: string }) => void;
   create_room: (data: {
     max_players: number;

@@ -48,12 +48,15 @@ export class OtherPlayer extends AbstractPlayer {
 
 export class MyPlayer extends AbstractPlayer {
   hands: AbstractCard.Playable[];
+  gold: number;
 
   constructor({
     hands,
+    gold = 0,
     ...options
-  }: AbstractPlayerOption & { hands: AbstractCard.Playable[] }) {
+  }: AbstractPlayerOption & { hands: AbstractCard.Playable[]; gold?: number }) {
     super(options);
+    this.gold = gold;
     this.hands = hands;
   }
 
