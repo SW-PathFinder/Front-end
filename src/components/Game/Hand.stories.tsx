@@ -4,11 +4,7 @@ import { useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import {
-  AbstractCard,
-  PathCard1ABlock,
-  PathCard4Way,
-} from "@/libs/saboteur/cards";
+import { AbstractCard, PathCard } from "@/libs/saboteur/cards";
 
 import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";
@@ -92,12 +88,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     cards: [
-      new PathCard4Way(),
-      new PathCard4Way(),
-      new PathCard4Way(),
-      new PathCard4Way(),
-      new PathCard4Way(),
-      new PathCard1ABlock(),
+      new PathCard.Way4(),
+      new PathCard.Way4(),
+      new PathCard.Way4(),
+      new PathCard.Way4(),
+      new PathCard.Way4(),
+      new PathCard.Block1A(),
     ],
   },
   parameters: { layout: "centered" },
