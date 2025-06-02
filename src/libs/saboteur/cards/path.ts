@@ -20,6 +20,10 @@ export namespace CardinalDirection {
   export function rotateHalf(direction: number) {
     return ((direction << 2) & 0b1100) | ((direction >> 2) & 0b0011);
   }
+
+  export function includes(subset: Any, direction: Any): boolean {
+    return (direction & subset) === subset;
+  }
 }
 type CardinalDirection = CardinalDirection.Any;
 
@@ -48,7 +52,9 @@ export namespace PathCard {
     }
 
     isConnected(from: CardinalDirection, to: CardinalDirection): boolean {
-      return this.roads.some((subset) => subset & (from | to));
+      return this.roads.some((subset) =>
+        CardinalDirection.includes(subset, from | to),
+      );
     }
   }
 
