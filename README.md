@@ -16,12 +16,19 @@
   pnpm run dev
 ```
 
+## .env 구성
+
+```
+  .env.example 내용 채우기
+  .env 정보의 경우 front slack에 공유됨
+```
+
 ## Skill Stack
 
-| Tool / Library | Version |
-| :------------: | :-----: |
-|      Vite      | ^6.2.0  |
-|      pnpm      |
-|     ESLint     | ^9.21.0 |
-|   TypeScript   | ~5.7.2  |
-| livekit-client | 2.11.4  |
+|  Tool / Library  | Version |
+| :--------------: | :-----: |
+|       Vite       | ^6.2.0  |
+|       pnpm       |
+|      ESLint      | ^9.21.0 |
+|    TypeScript    | ~5.7.2  |
+| openvidu-browser | 2.31.0  |
