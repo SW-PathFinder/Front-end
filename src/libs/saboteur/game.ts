@@ -1,4 +1,4 @@
-import { AbstractPathCard } from "@/libs/saboteur/cards";
+import { PathCard } from "@/libs/saboteur/cards";
 import { AbstractPlayer } from "@/libs/saboteur/player";
 
 interface GameOptions {
@@ -6,7 +6,7 @@ interface GameOptions {
   players?: AbstractPlayer[];
 
   turn?: number;
-  board?: (AbstractPathCard | null)[][];
+  board?: (PathCard.Abstract | null)[][];
 }
 
 export const BOARD_ROWS = 23;
@@ -16,7 +16,7 @@ export class GameState {
   round: number;
   turn: number = 0;
   players: AbstractPlayer[];
-  board: (AbstractPathCard | null)[][];
+  board: (PathCard.Abstract | null)[][];
   private currentPlayerIndex: number = 0;
 
   constructor({

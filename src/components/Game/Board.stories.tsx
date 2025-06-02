@@ -1,31 +1,25 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import {
-  AbstractPathCard,
-  PathCardDestGold,
-  PathCardDestRockA,
-  PathCardDestRockB,
-  PathCardOrigin,
-} from "@/libs/saboteur/cards";
+import { PathCard } from "@/libs/saboteur/cards";
 
 import { Board, BOARD_ROWS, BOARD_COLS } from "./Board";
 import { DndZone } from "./Dnd";
 
 // import { fn } from "@storybook/test";
 
-const cards: (AbstractPathCard | null)[][] = Array.from(
+const cards: (PathCard.Abstract | null)[][] = Array.from(
   { length: BOARD_ROWS },
   () => {
     return Array.from({ length: BOARD_COLS }, () => null);
   },
 );
 
-cards[11][7] = new PathCardOrigin();
-cards[9][15] = new PathCardDestGold();
-cards[11][15] = new PathCardDestRockA();
-cards[13][15] = new PathCardDestRockB();
+cards[11][7] = new PathCard.Origin();
+cards[9][15] = new PathCard.DestGold();
+cards[11][15] = new PathCard.DestRockA();
+cards[13][15] = new PathCard.DestRockB();
 
-const BoardStory = ({ cards }: { cards: (AbstractPathCard | null)[][] }) => {
+const BoardStory = ({ cards }: { cards: (PathCard.Abstract | null)[][] }) => {
   return (
     <DndZone>
       <Board cards={cards} />

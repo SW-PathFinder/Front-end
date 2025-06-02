@@ -6,24 +6,18 @@ import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import { useGameSession } from "@/contexts/GameSessionContext";
-import {
-  AbstractCard,
-  AbstractPathCard,
-  PathCard4Way,
-  PathCardDestHidden,
-  PathCardOrigin,
-} from "@/libs/saboteur/cards";
+import { AbstractCard, PathCard } from "@/libs/saboteur/cards";
 import { AbstractPlayer, OtherPlayer } from "@/libs/saboteur/player";
 
 // import { fn } from "@storybook/test";
 
 const dummyCards: AbstractCard.Playable[] = [
-  new PathCard4Way(),
-  new PathCard4Way(),
-  new PathCard4Way(),
-  new PathCard4Way(),
-  new PathCard4Way(),
-  new PathCard4Way(),
+  new PathCard.Way4(),
+  new PathCard.Way4(),
+  new PathCard.Way4(),
+  new PathCard.Way4(),
+  new PathCard.Way4(),
+  new PathCard.Way4(),
 ];
 
 const Game = () => {
@@ -40,17 +34,17 @@ const Game = () => {
 
   const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
 
-  const dummyBoardCards: (AbstractPathCard | null)[][] = Array.from(
+  const dummyBoardCards: (PathCard.Abstract | null)[][] = Array.from(
     { length: BOARD_ROWS },
     () => {
       return Array.from({ length: BOARD_COLS }, () => null);
     },
   );
 
-  dummyBoardCards[11][7] = new PathCardOrigin();
-  dummyBoardCards[9][15] = new PathCardDestHidden();
-  dummyBoardCards[11][15] = new PathCardDestHidden();
-  dummyBoardCards[13][15] = new PathCardDestHidden();
+  dummyBoardCards[11][7] = new PathCard.Origin();
+  dummyBoardCards[9][15] = new PathCard.DestHidden();
+  dummyBoardCards[11][15] = new PathCard.DestHidden();
+  dummyBoardCards[13][15] = new PathCard.DestHidden();
 
   // const [isLoading, setIsLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
