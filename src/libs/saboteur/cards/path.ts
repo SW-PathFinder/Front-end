@@ -1,5 +1,12 @@
 import { AbstractCard } from "@/libs/saboteur/cards/base";
 
+export enum CardinalDirection {
+  East = "east",
+  West = "west",
+  South = "south",
+  North = "north",
+}
+
 export namespace PathCard {
   export abstract class Abstract extends AbstractCard {
     type = "path";
@@ -13,7 +20,7 @@ export namespace PathCard {
       south: boolean,
       north: boolean,
     ];
-    get direction() {
+    protected get direction() {
       if (!this.flipped) return this._direction;
 
       return [
@@ -22,6 +29,30 @@ export namespace PathCard {
         this._direction[3],
         this._direction[2],
       ] as const;
+    }
+
+    // protected abstract readonly subsets: Direction[][];
+
+    isOpen(direction: CardinalDirection): boolean {
+      switch (direction) {
+        case CardinalDirection.East:
+          return this.direction[0];
+        case CardinalDirection.West:
+          return this.direction[1];
+        case CardinalDirection.South:
+          return this.direction[2];
+        case CardinalDirection.North:
+          return this.direction[3];
+        default:
+          throw new Error("Invalid direction");
+      }
+    }
+
+    isConnected(from: CardinalDirection, to: CardinalDirection): boolean {
+      if (!this.isOpen(from) || !this.isOpen(to)) return false;
+      if (this.blocked) return false;
+
+      return true;
     }
   }
 
