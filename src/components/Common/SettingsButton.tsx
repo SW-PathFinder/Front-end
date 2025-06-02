@@ -6,8 +6,12 @@ export const SettingsButton = () => {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="btn rounded btn-neutral">
-        설정
+      <button onClick={() => setOpen(true)}>
+        <img
+          className="h-16 w-16 hover:cursor-pointer"
+          src="/buttons/setting_button.svg"
+          alt="settings"
+        />
       </button>
       {open && (
         <div className="modal-open modal" onClick={() => setOpen(false)}>

@@ -5,8 +5,12 @@ export const RulebookButton = () => {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="rounde btn btn-info">
-        룰북 보기
+      <button onClick={() => setOpen(true)}>
+        <img
+          className="h-16 w-16 hover:cursor-pointer"
+          src="/buttons/rule_button.svg"
+          alt="rule book"
+        />
       </button>
       {open && (
         <div className="modal-open modal" onClick={() => setOpen(false)}>

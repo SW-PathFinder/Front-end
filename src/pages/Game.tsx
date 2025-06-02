@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { RulebookButton } from "@/components/Common/RulebookButton";
 import { Board, BOARD_COLS, BOARD_ROWS } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
@@ -67,11 +68,7 @@ const Game = () => {
       <div className="absolute top-2 left-2 z-10 flex w-[180px] flex-col gap-6">
         <PlayerList list={dummyList} />
         <div className="flex h-[60px] w-full items-center justify-center gap-6">
-          <img
-            className="h-full hover:cursor-pointer"
-            src="/buttons/rule_button.svg"
-            alt="rule book"
-          />
+          <RulebookButton />
           <img
             className="h-full hover:cursor-pointer"
             src="/buttons/emoji_button.svg"
