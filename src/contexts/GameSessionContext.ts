@@ -1,10 +1,7 @@
 import { createContext, Provider, useContext } from "react";
 
 interface GameSessionContext {
-  gameId: string;
-  capacity: number;
-  // socket: WebSocket;
-  socket: string;
+  roomId: string;
   participants: string[];
   setParticipants: React.Dispatch<React.SetStateAction<string[]>>;
 }

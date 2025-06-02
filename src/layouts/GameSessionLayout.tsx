@@ -1,63 +1,35 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Outlet } from "react-router";
-import { useNavigate } from "react-router";
+import { Navigate, Outlet, useParams } from "react-router";
 
 import { GameSessionProvider } from "@/contexts/GameSessionContext";
-import { useSession } from "@/contexts/SessionContext";
+import { useAuthenticated } from "@/contexts/SessionContext";
+import { useSocketEmitter } from "@/contexts/SocketContext";
 
 export const GameSessionLayout = () => {
-  const navigate = useNavigate();
+  const roomId = useParams<{ roomId: string }>().roomId;
+  if (!roomId) return <Navigate to={{ pathname: "/" }} replace />;
+
+  return <GameSessionLayoutInner roomId={roomId}></GameSessionLayoutInner>;
+};
+
+const GameSessionLayoutInner = ({ roomId }: { roomId: string }) => {
+  const { userId } = useAuthenticated();
   const [participants, setParticipants] = useState<string[]>([]);
 
-  // const { gameId, capacity } = useSession();
-  /** DUMMY */
-  const gameId = "12345";
-  const capacity = 10;
-  const socket = "hi";
+  const joinGame = useSocketEmitter("join_game");
+  const leaveRoom = useSocketEmitter("leave_room");
 
   useEffect(() => {
-    if (!gameId) {
-      navigate("/");
-    }
-  }, [gameId, navigate]);
+    joinGame({ room: roomId, player: userId });
 
-  // const socket = useMemo<WebSocket | null>(() => {
-  //   if (!gameId) {
-  //     console.error(
-  //       "GameSessionLayout must be used within a SessionProvider with gameId",
-  //     );
-  //     return null;
-  //   }
-
-  //   const ws = new WebSocket(`ws://localhost:8080/game/${gameId}`);
-
-  //   ws.onopen = () => {
-  //     console.log("WebSocket connection established");
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log("WebSocket connection closed");
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error("WebSocket error:", error);
-  //   };
-
-  //   return ws;
-  // }, [gameId]);
-
-  if (!gameId || capacity == null || !socket) {
-    console.error(
-      "Redirecting to / because gameId is not set or socket is not created",
-    );
-    return null;
-  }
+    return () => {
+      leaveRoom({ room: roomId, player: userId });
+    };
+  }, [joinGame, leaveRoom, roomId, userId]);
 
   return (
-    <GameSessionProvider
-      value={{ gameId, capacity, socket, participants, setParticipants }}
-    >
+    <GameSessionProvider value={{ roomId, participants, setParticipants }}>
       <Outlet />
     </GameSessionProvider>
   );

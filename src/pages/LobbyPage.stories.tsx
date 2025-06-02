@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { BrowserRouter } from "react-router";
 
-import { AuthProvider } from "@/components/Common/AuthProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import LobbyPage from "./LobbyPage";
 

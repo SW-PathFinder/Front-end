@@ -1,18 +1,18 @@
 import { createContext, Provider, useContext } from "react";
 
-interface SessionContext {
-  gameId: string | null;
+interface AuthenticatedContext {
+  userId: string;
   capacity: number | null;
-  setGameId: (gameId: string | null) => void;
   setCapacity: (capacity: number | null) => void;
 }
 
-const SessionContext = createContext<SessionContext | null>(null);
+const AuthenticatedContext = createContext<AuthenticatedContext | null>(null);
 
-export const SessionProvider = SessionContext as Provider<SessionContext>;
+export const AuthenticatedProvider =
+  AuthenticatedContext as Provider<AuthenticatedContext>;
 
-export const useSession = () => {
-  const context = useContext(SessionContext);
+export const useAuthenticated = () => {
+  const context = useContext(AuthenticatedContext);
   if (!context) {
     throw new Error("useGameSession must be used within a GameSessionProvider");
   }
