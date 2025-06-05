@@ -92,18 +92,11 @@ export namespace SocketAction {
   {
     id: number;
     readonly target: "all" | (string & {});
-    requestId?: string;
 
-    constructor(
-      data: T,
-      target: "all" | (string & {}),
-      id: number,
-      requestId?: string,
-    ) {
+    constructor(data: T, target: "all" | (string & {}), id: number) {
       super(data);
       this.id = id;
       this.target = target;
-      this.requestId = requestId;
     }
 
     static fromPrimitive<T extends Response.Primitive>(
@@ -114,7 +107,6 @@ export namespace SocketAction {
         primitive.data as any,
         primitive.target,
         primitive.id,
-        primitive.requestId,
       );
     }
   }
@@ -122,7 +114,7 @@ export namespace SocketAction {
   export namespace Response {
     export interface Primitive extends SocketAction.Primitive {
       id: number;
-      requestId?: string;
+      // requestId?: string;
       target: "all" | (string & {});
     }
 
@@ -222,8 +214,8 @@ export namespace SocketAction {
     {
       readonly target: string;
 
-      constructor(data: T, target: string, id: number, requestId?: string) {
-        super(data, target, id, requestId);
+      constructor(data: T, target: string, id: number) {
+        super(data, target, id);
         this.target = target;
       }
     }
