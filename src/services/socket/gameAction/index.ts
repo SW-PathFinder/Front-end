@@ -90,7 +90,21 @@ export namespace SocketAction {
     extends AbstractSocketAction<T>
     implements Response.Primitive
   {
-    abstract readonly target: "all" | (string & {});
+    id: number;
+    readonly target: "all" | (string & {});
+    requestId?: string;
+
+    constructor(
+      data: T,
+      target: "all" | (string & {}),
+      id: number,
+      requestId?: string,
+    ) {
+      super(data);
+      this.id = id;
+      this.target = target;
+      this.requestId = requestId;
+    }
 
     static fromPrimitive<T extends Response.Primitive>(
       primitive: T,
@@ -99,12 +113,16 @@ export namespace SocketAction {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primitive.data as any,
         primitive.target,
+        primitive.id,
+        primitive.requestId,
       );
     }
   }
 
   export namespace Response {
     export interface Primitive extends SocketAction.Primitive {
+      id: number;
+      requestId?: string;
       target: "all" | (string & {});
     }
 
@@ -198,8 +216,8 @@ export namespace SocketAction {
     {
       readonly target: string;
 
-      constructor(data: T, target: string) {
-        super(data);
+      constructor(data: T, target: string, id: number, requestId?: string) {
+        super(data, target, id, requestId);
         this.target = target;
       }
     }
