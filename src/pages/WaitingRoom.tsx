@@ -1,42 +1,45 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { useGameSession } from "@/contexts/GameSessionContext";
+import { useSocket } from "@/contexts/SocketContext";
+
+const palette = [
+  "bg-blue-300",
+  "bg-red-200",
+  "bg-yellow-200",
+  "bg-green-200",
+  "bg-purple-200",
+  "bg-cyan-200",
+  "bg-orange-200",
+  "bg-indigo-200",
+  "bg-pink-200",
+  "bg-teal-200",
+];
 
 const WaitingRoom = () => {
-  const navigate = useNavigate();
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const palette = [
-    "bg-blue-300",
-    "bg-red-200",
-    "bg-yellow-200",
-    "bg-green-200",
-    "bg-purple-200",
-    "bg-cyan-200",
-    "bg-orange-200",
-    "bg-indigo-200",
-    "bg-pink-200",
-    "bg-teal-200",
-  ];
+  // const navigate = useNavigate();
+  // const [countdown, setCountdown] = useState<number | null>(null);
 
+  const socket = useSocket();
   const { roomId, capacity, participants, setParticipants } = useGameSession();
 
-  // 0.5초마다 참가자 1명씩 추가 (총 10명까지) DUMMY
-  useEffect(() => {
-    let count = participants.length;
-    const interval = setInterval(() => {
-      if (count < capacity) {
-        count += 1;
-        setParticipants((prev) => [...prev, `Player${count}`]);
-      } else {
-        clearInterval(interval);
-      }
-    }, 500);
+  // // 0.5초마다 참가자 1명씩 추가 (총 10명까지) DUMMY
+  // useEffect(() => {
+  //   let count = participants.length;
+  //   const interval = setInterval(() => {
+  //     if (count < capacity) {
+  //       count += 1;
+  //       setParticipants((prev) => [...prev, `Player${count}`]);
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 500);
 
-    return () => clearInterval(interval);
-  }, [capacity, participants.length, setParticipants]);
+  //   return () => clearInterval(interval);
+  // }, [capacity, participants.length, setParticipants]);
 
   // useEffect(() => {
   //   const handleParticipantsUpdate = (data: string[]) => {
@@ -51,26 +54,30 @@ const WaitingRoom = () => {
   // };
   // }, [socket]);
 
-  useEffect(() => {
-    if (participants.length === capacity) {
-      setCountdown(5);
-    }
-  }, [participants, capacity]);
+  // useEffect(() => {
+  //   if (participants.length === capacity) {
+  //     setCountdown(5);
+  //   }
+  // }, [participants, capacity]);
 
-  // 카운트 처리 및 자동 시작
-  useEffect(() => {
-    if (countdown == null) return;
-    if (countdown > 0) {
-      const id = setTimeout(() => setCountdown((prev) => prev! - 1), 1000);
-      return () => clearTimeout(id);
-    }
-    // 카운트 종료 시 게임 페이지로 이동
-    navigate(`/game/${roomId}`);
-  }, [countdown, navigate, roomId]);
+  // // 카운트 처리 및 자동 시작
+  // useEffect(() => {
+  //   if (countdown == null) return;
+  //   if (countdown > 0) {
+  //     const id = setTimeout(() => setCountdown((prev) => prev! - 1), 1000);
+  //     return () => clearTimeout(id);
+  //   }
+  //   // 카운트 종료 시 게임 페이지로 이동
+  //   navigate(`/game/${roomId}`);
+  // }, [countdown, navigate, roomId]);
 
-  const handleCancel = () => {
-    navigate("/");
-  };
+  // const handleCancel = () => {
+  //   navigate("/");
+  // };
+
+  const gameRoom = useMemo(() => {
+    new HSSaboteurRoomAdapter(socket, roomId);
+  }, [socket, roomId]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-base-100 p-6">

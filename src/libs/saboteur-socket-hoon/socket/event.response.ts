@@ -1,7 +1,10 @@
 import { SocketAction } from "./gameAction";
 
-interface BaseFailableListenEvent {
+interface BaseListenEvent {
   id: number;
+}
+
+interface BaseFailableListenEvent extends BaseListenEvent {
   success: boolean;
   requestId?: string;
 }
@@ -38,8 +41,7 @@ export interface ListenEvents {
 
   join_room_result: FailableListenEvent<{ room: RoomData }>;
 
-  player_joined: {
-    id: number;
+  player_joined: BaseListenEvent & {
     /** @description joined player id */
     player: string;
     /** @description player ids in the room */
@@ -50,8 +52,7 @@ export interface ListenEvents {
     player_count: number;
   };
 
-  player_left: {
-    id: number;
+  player_left: BaseListenEvent & {
     /** @description left player id */
     player: string;
     /** @description player ids in the room */
@@ -62,15 +63,14 @@ export interface ListenEvents {
     player_count: number;
   };
 
-  host_changed: {
-    id: number;
+  host_changed: BaseListenEvent & {
     /** @description new host player id */
     new_host: string;
   };
 
-  countdown_started: { id: number; seconds: number; message: string };
+  countdown_started: BaseListenEvent & { seconds: number; message: string };
 
-  countdown_tick: { id: number; seconds_left: number; message: string };
+  countdown_tick: BaseListenEvent & { seconds_left: number; message: string };
 
   game_update: SocketAction.Response.Broadcast.Primitive;
   private_game_update: SocketAction.Response.Private.Primitive;

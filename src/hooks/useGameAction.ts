@@ -13,7 +13,7 @@ export function useGameActionEmitter() {
   return useCallback(
     (action: SocketAction.Request.Actions) => {
       socket.emit("game_action", {
-        action: action.toPrimitive(),
+        action: action.toPrimitive() as SocketAction.Request.Actions,
         room: roomId,
         player: userId,
         requestId: crypto.randomUUID(),

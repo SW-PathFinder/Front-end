@@ -2,10 +2,7 @@ import { useState } from "react";
 
 import type { Meta } from "@storybook/react";
 
-import {
-  SabotageActionCard,
-  RepairActionCard,
-} from "@/libs/saboteur/cards/action";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import { OtherPlayer, type AbstractPlayer } from "@/libs/saboteur/player";
 import { Tools } from "@/libs/saboteur/types";
 
@@ -21,55 +18,55 @@ export default meta;
 
 const dummyList: AbstractPlayer[] = [
   new OtherPlayer({
-    name: "Dami",
+    id: "Dami",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Doo Hyun",
+    id: "Doo Hyun",
     status: { lantern: true, pickaxe: false, mineCart: false },
     handCount: 2,
   }),
   new OtherPlayer({
-    name: "Jiwoo",
+    id: "Jiwoo",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 1,
   }),
   new OtherPlayer({
-    name: "Dohoon",
+    id: "Dohoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Jaehoon",
+    id: "Jaehoon",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Namhoon",
+    id: "Namhoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Hayoung",
+    id: "Hayoung",
     status: { lantern: true, pickaxe: false, mineCart: true },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Nutria",
+    id: "Nutria",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
   new OtherPlayer({
-    name: "Schott",
+    id: "Schott",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
 ];
 
-const card1 = new RepairActionCard([Tools.Lantern, Tools.MineCart]);
+const card1 = new SaboteurCard.Action.Repair([Tools.Lantern, Tools.MineCart]);
 
-const card2 = new SabotageActionCard(Tools.MineCart);
+const card2 = new SaboteurCard.Action.Sabotage(Tools.MineCart);
 
 export const Default = () => {
   const [mode, setMode] = useState<"repair" | "sabotage" | null>(null);

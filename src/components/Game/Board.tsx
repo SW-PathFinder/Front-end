@@ -1,14 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
 import { GameBoard } from "@/libs/saboteur/board";
-import {
-  AbstractCard,
-  CardinalDirection,
-  PathCard,
-} from "@/libs/saboteur/cards";
+import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
 import {
   Card,
@@ -19,12 +15,12 @@ import {
 } from "./Card";
 
 interface BoardProps {
-  cards: (PathCard.Abstract | null)[][];
+  cards: (SaboteurCard.Path.Abstract | null)[][];
   onDropCard?: (
     x: number,
     y: number,
-    card: AbstractCard,
-    prevCard: PathCard.Abstract | null,
+    card: SaboteurCard.Abstract,
+    prevCard: SaboteurCard.Path.Abstract | null,
   ) => void;
   style?: React.CSSProperties;
   className?: string;
@@ -114,7 +110,7 @@ export const Board = ({ onDropCard, style, className }: BoardProps) => {
 export interface BoardSlotData {
   x: number;
   y: number;
-  card: PathCard.Abstract | null;
+  card: SaboteurCard.Path.Abstract | null;
 }
 
 const BoardSlot = ({
@@ -126,7 +122,7 @@ const BoardSlot = ({
 }: {
   x: number;
   y: number;
-  card: PathCard.Abstract | null;
+  card: SaboteurCard.Path.Abstract | null;
   style?: React.CSSProperties;
   className?: string;
 }) => {

@@ -13,7 +13,7 @@ export interface EmitEvents {
   search_room_by_code: BaseEmitEvent<{ room_code: string }>;
 
   join_game: BaseEmitEvent<{ room: string; player: string }>;
-  leave_room: BaseEmitEvent<{ room: string; player: string }>;
+  leave_room: { room: string; player: string };
 
   game_action: BaseEmitEvent<{
     room: string;

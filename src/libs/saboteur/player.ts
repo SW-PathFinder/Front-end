@@ -1,25 +1,30 @@
+import { GamePlayer } from "@/libs/gameSession";
 import { AbstractCard } from "@/libs/saboteur/cards";
-import { Tools } from "@/libs/saboteur/types";
+import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 interface AbstractPlayerOption {
-  name: string;
-  status: Record<Tools, boolean>;
+  id: string;
+  status?: Record<Tools, boolean>;
 }
 
-export abstract class AbstractPlayer {
+export abstract class AbstractPlayer implements GamePlayer {
+  readonly uid: number = AbstractPlayer.uid_counter++;
   private static uid_counter = 1;
-  readonly id: number = AbstractPlayer.uid_counter++;
 
-  name: string;
+  readonly id: string;
   abstract readonly handCount: number;
   readonly status: Record<Tools, boolean>;
 
   constructor({
-    name,
+    id,
     status = { lantern: true, pickaxe: true, mineCart: false },
   }: AbstractPlayerOption) {
-    this.name = name;
+    this.id = id;
     this.status = status;
+  }
+
+  get name(): string {
+    return this.id;
   }
 
   someToolIsAvailable(tools: Tools[]): boolean {
@@ -38,7 +43,7 @@ export abstract class AbstractPlayer {
 }
 
 export class OtherPlayer extends AbstractPlayer {
-  handCount: number = 0;
+  handCount: number;
 
   constructor({
     handCount,
@@ -50,17 +55,24 @@ export class OtherPlayer extends AbstractPlayer {
 }
 
 export class MyPlayer extends AbstractPlayer {
+  role: PlayerRole;
   hands: AbstractCard.Playable[];
   gold: number;
 
   constructor({
+    role,
     hands,
     gold = 0,
     ...options
-  }: AbstractPlayerOption & { hands: AbstractCard.Playable[]; gold?: number }) {
+  }: AbstractPlayerOption & {
+    role: PlayerRole;
+    hands: AbstractCard.Playable[];
+    gold?: number;
+  }) {
     super(options);
-    this.gold = gold;
+    this.role = role;
     this.hands = hands;
+    this.gold = gold;
   }
 
   get handCount() {

@@ -4,17 +4,17 @@ import { useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { AbstractCard, PathCard } from "@/libs/saboteur/cards";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 
 import { Card } from "./Card";
 import { DndZone, Droppable } from "./Dnd";
 import { Hand } from "./Hand";
 
-const HandStory = ({ cards }: { cards: AbstractCard.Playable[] }) => {
+const HandStory = ({ cards }: { cards: SaboteurCard.Abstract.Playable[] }) => {
   const [hands, setHand] = useState(() => cards);
 
   const [containers, setContainers] = useState<
-    Array<{ id: string; item?: AbstractCard.Playable }>
+    Array<{ id: string; item?: SaboteurCard.Abstract.Playable }>
   >(() =>
     Array(45)
       .fill({})
@@ -88,12 +88,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     cards: [
-      new PathCard.Way4(),
-      new PathCard.Way4(),
-      new PathCard.Way4(),
-      new PathCard.Way4(),
-      new PathCard.Way4(),
-      new PathCard.Block1A(),
+      new SaboteurCard.Path.Way4(),
+      new SaboteurCard.Path.Way4(),
+      new SaboteurCard.Path.Way4(),
+      new SaboteurCard.Path.Way4(),
+      new SaboteurCard.Path.Way4(),
+      new SaboteurCard.Path.Block1A(),
     ],
   },
   parameters: { layout: "centered" },

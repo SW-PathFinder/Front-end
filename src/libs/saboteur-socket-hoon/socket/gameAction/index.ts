@@ -1,3 +1,5 @@
+import { PlayerRole } from "@/libs/saboteur/types";
+
 abstract class AbstractSocketAction<T extends string | object = string | object>
   implements SocketAction.Primitive
 {
@@ -8,6 +10,8 @@ abstract class AbstractSocketAction<T extends string | object = string | object>
     this.data = data;
   }
 }
+
+type Prettify<T> = { [K in keyof T]: T[K] };
 
 export namespace SocketAction {
   export interface Primitive {
@@ -133,11 +137,18 @@ export namespace SocketAction {
 
     export namespace Broadcast {
       export interface Primitive extends Response.Primitive {
-        target: "all";
+        target: "all" | (string & {});
+      }
+
+      export class GameStart extends AbstractBroadcastResponse<{
+        /** @description player ids in the game */
+        players: string[];
+      }> {
+        type = "game_started" as const;
       }
 
       export class TurnChange extends AbstractBroadcastResponse<string> {
-        type = "turnChange" as const;
+        type = "turn_change" as const;
         /** @description next player id */
         declare data;
       }
@@ -193,8 +204,8 @@ export namespace SocketAction {
       }
 
       export class RoundEnd extends AbstractBroadcastResponse<{
-        winner: "worker" | "saboteur";
-        roles: { [playerId: string]: "worker" | "saboteur" };
+        winner: PlayerRole;
+        roles: { [playerId: string]: PlayerRole };
       }> {
         type = "round_end" as const;
       }
@@ -227,6 +238,14 @@ export namespace SocketAction {
     export namespace Private {
       export interface Primitive extends Response.Primitive {
         target: string;
+      }
+
+      export class RoundStart extends AbstractPrivateResponse<{
+        hand: { cardId: number; reverse?: boolean }[];
+        role: PlayerRole;
+        currentRound: number;
+      }> {
+        type = "roundStart" as const;
       }
 
       export class DrawCard extends AbstractPrivateResponse<{ card: number }> {
@@ -311,5 +330,20 @@ export namespace SocketAction {
         >
       >,
     );
+  }
+
+  export type Actions = Request.Actions | Response.Actions;
+
+  export function isType<T extends Actions["type"]>(type: T) {
+    return (action: Actions): action is Extract<Actions, { type: T }> => {
+      return action.type === type;
+    };
+  }
+  export function isPrimitiveType<T extends Actions["type"]>(type: T) {
+    return (
+      action: Primitive,
+    ): action is Prettify<Extract<Actions, { type: T }>> => {
+      return action.type === type;
+    };
   }
 }

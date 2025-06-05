@@ -1,16 +1,13 @@
 import { useMemo, useState } from "react";
 
-import {
-  RepairActionCard,
-  SabotageActionCard,
-} from "@/libs/saboteur/cards/action";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import { AbstractPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 type EquipmentModalProps = {
   playerlist: AbstractPlayer[];
-  card: SabotageActionCard | RepairActionCard;
+  card: SaboteurCard.Action.Sabotage | SaboteurCard.Action.Repair;
   handNum: number;
   onClose: () => void;
 };
@@ -28,7 +25,7 @@ const EquipmentModal = ({
   onClose,
 }: EquipmentModalProps) => {
   const [mode] = useState<"repair" | "sabotage">(
-    card instanceof SabotageActionCard ? "sabotage" : "repair",
+    card instanceof SaboteurCard.Action.Sabotage ? "sabotage" : "repair",
   );
   const [validationMsg, setValidationMsg] = useState<string>("");
   const [canUse, setCanUse] = useState<boolean>(false);
@@ -36,21 +33,21 @@ const EquipmentModal = ({
 
   const toolsName = useMemo(() => {
     if (mode === "repair") {
-      return (card as RepairActionCard).tools
+      return (card as SaboteurCard.Action.Repair).tools
         .map((tool) => TOOL_LABEL[tool])
         .join(", ");
     } else {
-      return TOOL_LABEL[(card as SabotageActionCard).tool[0]];
+      return TOOL_LABEL[(card as SaboteurCard.Action.Sabotage).tool[0]];
     }
   }, [card, mode]);
 
   const handleClickPlayer = (player: AbstractPlayer) => {
     let usable = false;
     if (mode === "repair") {
-      const repairCard = card as RepairActionCard;
+      const repairCard = card as SaboteurCard.Action.Repair;
       usable = repairCard.tools.some((t) => player.status[t] === false);
     } else {
-      const sabotageCard = card as SabotageActionCard;
+      const sabotageCard = card as SaboteurCard.Action.Sabotage;
       usable = player.status[sabotageCard.tool[0]] === true;
     }
     setCanUse(usable);
@@ -59,7 +56,7 @@ const EquipmentModal = ({
       const actionObjectName =
         mode === "repair"
           ? toolsName
-          : TOOL_LABEL[(card as SabotageActionCard).tool[0]];
+          : TOOL_LABEL[(card as SaboteurCard.Action.Sabotage).tool[0]];
       setValidationMsg(
         `${actionObjectName} ${
           mode === "repair" ? "수리" : "파괴"
