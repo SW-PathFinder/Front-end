@@ -134,7 +134,7 @@ export class GameBoard {
       visited.add(key);
 
       for (const direction of CardinalDirection.adjacentList) {
-        const [nextX, nextY] = CardinalDirection.moveCoordinates(
+        const [nextX, nextY] = CardinalDirection.moveTo(
           [currentX, currentY],
           direction,
         );
@@ -178,7 +178,7 @@ export class GameBoard {
     }[] = [];
 
     for (const direction of CardinalDirection.adjacentList) {
-      const newCoord = CardinalDirection.moveCoordinates([x, y], direction);
+      const newCoord = CardinalDirection.moveTo([x, y], direction);
       const adjacentCard = this.grid.get(...newCoord);
       if (adjacentCard)
         adjacentCards.push({ direction, coord: newCoord, card: adjacentCard });
