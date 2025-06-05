@@ -82,13 +82,14 @@ export function useSocketRequest<
 
       socket.emit(requestEvent, ...([{ ...data, requestId }] as any));
 
-      return new Promise<Parameters<ListenEvents[Res]>[0]>(
+      return new Promise<Parameters<ListenEvents[Res]>[0] & { success: true }>(
         (resolve, reject) => {
           const listener = (data: Parameters<ListenEvents[Res]>[0]) => {
+            console.log("Socket response received:", data);
             if (!data.requestId || data.requestId !== requestId) return;
 
             if (data.success) {
-              resolve(data);
+              resolve(data as any);
             } else {
               reject(new Error(data.message || "Request failed"));
             }

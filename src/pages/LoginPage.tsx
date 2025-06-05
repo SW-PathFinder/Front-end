@@ -6,8 +6,9 @@ import { useNavigate } from "react-router";
 import { Navigate } from "react-router";
 import * as yup from "yup";
 
+import { useSocketRequest } from "@/contexts/SocketContext";
+
 import { useAuth } from "../contexts/AuthContext";
-import { checkNicknameAvailability } from "../services/api";
 
 interface LoginFormValues {
   nickname: string;
@@ -32,6 +33,8 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
+  const setUserName = useSocketRequest("set_username", "username_result");
+
   const { login, userId } = useAuth();
   if (userId) {
     return <Navigate to="/" replace />;
@@ -40,18 +43,17 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormValues): Promise<void> => {
     setServerError(null);
     try {
-      const result = await checkNicknameAvailability(data.nickname);
-      if (result.isAvailable) {
-        // 현재는 alert로 처리, 추후 LobbyPage로 이동하는 로직 추가 예정
-        alert("닉네임 사용 가능");
-        login(data.nickname);
-        navigate("/");
-      } else {
-        setServerError(result.message || "이미 사용 중인 닉네임입니다.");
-      }
+      await setUserName({ username: data.nickname });
+      alert("닉네임 사용 가능");
+      login(data.nickname);
+      navigate("/");
     } catch (error) {
-      setServerError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
       console.error(error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+      setServerError(message);
     }
   };
 
