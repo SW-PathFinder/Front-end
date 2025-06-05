@@ -27,8 +27,8 @@ const Game = () => {
     (participant) =>
       new OtherPlayer({
         name: participant,
-        status: { lantern: true, pickaxe: true, wagon: true },
-        hand: 3,
+        status: { lantern: true, pickaxe: true, mineCart: true },
+        handCount: 3,
       }),
   );
 

@@ -34,7 +34,7 @@ const PlayerStatus = ({ item }: PlayerStatusProps) => {
               src="/assets/saboteur/cards/bg_playable.png"
               alt="card back"
             />
-            <p>{item.hand}</p>
+            <p>{item.handCount}</p>
           </div>
         </div>
       </div>

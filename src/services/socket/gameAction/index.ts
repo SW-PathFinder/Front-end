@@ -79,6 +79,10 @@ export namespace SocketAction {
       type = "reversePath" as const;
     }
 
+    export class PlayerState extends AbstractRequest<{}> {
+      type = "playerState" as const;
+    }
+
     export type Actions = InstanceType<
       (typeof SocketAction.Request)[keyof typeof SocketAction.Request]
     >;
@@ -92,18 +96,11 @@ export namespace SocketAction {
   {
     id: number;
     readonly target: "all" | (string & {});
-    requestId?: string;
 
-    constructor(
-      data: T,
-      target: "all" | (string & {}),
-      id: number,
-      requestId?: string,
-    ) {
+    constructor(data: T, target: "all" | (string & {}), id: number) {
       super(data);
       this.id = id;
       this.target = target;
-      this.requestId = requestId;
     }
 
     static fromPrimitive<T extends Response.Primitive>(
@@ -114,7 +111,6 @@ export namespace SocketAction {
         primitive.data as any,
         primitive.target,
         primitive.id,
-        primitive.requestId,
       );
     }
   }
@@ -122,7 +118,7 @@ export namespace SocketAction {
   export namespace Response {
     export interface Primitive extends SocketAction.Primitive {
       id: number;
-      requestId?: string;
+      // requestId?: string;
       target: "all" | (string & {});
     }
 
@@ -222,8 +218,8 @@ export namespace SocketAction {
     {
       readonly target: string;
 
-      constructor(data: T, target: string, id: number, requestId?: string) {
-        super(data, target, id, requestId);
+      constructor(data: T, target: string, id: number) {
+        super(data, target, id);
         this.target = target;
       }
     }
@@ -254,6 +250,27 @@ export namespace SocketAction {
         gold: number;
       }> {
         type = "getGold" as const;
+      }
+
+      export class PlayerState extends AbstractPrivateResponse<{
+        // round state
+        round: number;
+        // 내꺼
+        gold: number;
+
+        // personal turn state
+        hands: { cardId: number; reverse?: boolean }[];
+
+        // global turn state
+        currentPlayerId: string;
+        board: { x: number; y: number; cardId: number; reverse: boolean }[];
+        players: {
+          playerId: string;
+          tool: { mineCart: boolean; pickaxe: boolean; lantern: boolean };
+          handCount: number;
+        }[];
+      }> {
+        type = "playerState" as const;
       }
 
       export type Actions = InstanceType<

@@ -22,54 +22,54 @@ export default meta;
 const dummyList: AbstractPlayer[] = [
   new OtherPlayer({
     name: "Dami",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
+    status: { lantern: true, pickaxe: true, mineCart: true },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Doo Hyun",
-    status: { lantern: true, pickaxe: false, wagon: false },
-    hand: 2,
+    status: { lantern: true, pickaxe: false, mineCart: false },
+    handCount: 2,
   }),
   new OtherPlayer({
     name: "Jiwoo",
-    status: { lantern: true, pickaxe: true, wagon: false },
-    hand: 1,
+    status: { lantern: true, pickaxe: true, mineCart: false },
+    handCount: 1,
   }),
   new OtherPlayer({
     name: "Dohoon",
-    status: { lantern: false, pickaxe: true, wagon: true },
-    hand: 3,
+    status: { lantern: false, pickaxe: true, mineCart: true },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Jaehoon",
-    status: { lantern: true, pickaxe: true, wagon: false },
-    hand: 3,
+    status: { lantern: true, pickaxe: true, mineCart: false },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Namhoon",
-    status: { lantern: false, pickaxe: true, wagon: true },
-    hand: 3,
+    status: { lantern: false, pickaxe: true, mineCart: true },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Hayoung",
-    status: { lantern: true, pickaxe: false, wagon: true },
-    hand: 3,
+    status: { lantern: true, pickaxe: false, mineCart: true },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Nutria",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
+    status: { lantern: true, pickaxe: true, mineCart: true },
+    handCount: 3,
   }),
   new OtherPlayer({
     name: "Schott",
-    status: { lantern: true, pickaxe: true, wagon: true },
-    hand: 3,
+    status: { lantern: true, pickaxe: true, mineCart: true },
+    handCount: 3,
   }),
 ];
 
-const card1 = new RepairActionCard([Tools.Lantern, Tools.Wagon]);
+const card1 = new RepairActionCard([Tools.Lantern, Tools.MineCart]);
 
-const card2 = new SabotageActionCard(Tools.Wagon);
+const card2 = new SabotageActionCard(Tools.MineCart);
 
 export const Default = () => {
   const [mode, setMode] = useState<"repair" | "sabotage" | null>(null);
