@@ -184,6 +184,12 @@ export namespace SocketAction {
         type = "viewMap" as const;
       }
 
+      export class DiscardCard extends AbstractBroadcastResponse<{
+        handNum: number;
+      }> {
+        type = "discard" as const;
+      }
+
       export class FoundRock extends AbstractBroadcastResponse<
         [x: number, y: number]
       > {
@@ -235,13 +241,7 @@ export namespace SocketAction {
         cardType: "gold" | "rock";
       }> {
         // TODO: 기존 서버 타입은 viewMap인데 Broadcast의 UseMap과 구분이 불가능해서 바꿈
-        type = "reveal_dest" as const;
-      }
-
-      export class DiscardCard extends AbstractPrivateResponse<{
-        handNum: number;
-      }> {
-        type = "discard" as const;
+        type = "revealDest" as const;
       }
 
       export class RotatePathCard extends AbstractPrivateResponse<{
