@@ -17,7 +17,7 @@ type EquipmentModalProps = {
 
 const TOOL_LABEL: Record<Tools, string> = {
   lantern: "랜턴",
-  wagon: "광차",
+  mineCart: "광차",
   pickaxe: "곡괭이",
 };
 

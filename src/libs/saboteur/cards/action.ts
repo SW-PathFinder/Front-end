@@ -12,7 +12,7 @@ export abstract class AbstractActionCard
 const SABOTAGE_ACTION_CARD_ASSETS = {
   pickaxe: "/assets/saboteur/cards/action/sabotage_p.png",
   lantern: "/assets/saboteur/cards/action/sabotage_l.png",
-  wagon: "/assets/saboteur/cards/action/sabotage_w.png",
+  mineCart: "/assets/saboteur/cards/action/sabotage_w.png",
 };
 export class SabotageActionCard extends AbstractActionCard {
   readonly tool: [Tools];
@@ -28,10 +28,10 @@ export class SabotageActionCard extends AbstractActionCard {
 type AvailableRepairToolSet =
   | [Tools.Pickaxe]
   | [Tools.Lantern]
-  | [Tools.Wagon]
+  | [Tools.MineCart]
   | [Tools.Pickaxe, Tools.Lantern]
-  | [Tools.Pickaxe, Tools.Wagon]
-  | [Tools.Lantern, Tools.Wagon];
+  | [Tools.Pickaxe, Tools.MineCart]
+  | [Tools.Lantern, Tools.MineCart];
 
 export class RepairActionCard extends AbstractActionCard {
   readonly tools: AvailableRepairToolSet;

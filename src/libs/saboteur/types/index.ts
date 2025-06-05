@@ -1,5 +1,5 @@
 export enum Tools {
   Lantern = "lantern",
-  Wagon = "wagon",
+  MineCart = "mineCart",
   Pickaxe = "pickaxe",
 }
