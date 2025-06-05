@@ -1,9 +1,12 @@
 import { createContext, Provider, useContext } from "react";
 
-interface GameSessionContext {
+export interface GameSessionContext {
   roomId: string;
   participants: string[];
+  capacity: number;
   setParticipants: React.Dispatch<React.SetStateAction<string[]>>;
+  setRoomId: React.Dispatch<React.SetStateAction<string>>;
+  setCapacity: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GameSessionContext = createContext<GameSessionContext | null>(null);

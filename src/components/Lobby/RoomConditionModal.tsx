@@ -2,6 +2,10 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router";
 
+import { useGameSession } from "@/contexts/GameSessionContext";
+import { useSocketRequest } from "@/contexts/SocketContext";
+import { setRoomSession } from "@/libs/game/sessionUtils";
+
 interface RoomConditionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,10 +17,45 @@ const RoomConditionModal = ({
   onClose,
   mode,
 }: RoomConditionModalProps) => {
-  const [minPerson, setMinPerson] = useState<number>(3);
+  const [playerNum, setPlayerNum] = useState<number>(3);
   const [helper, setHelper] = useState<boolean>(true);
-  const [publicRoom, setPublicRoom] = useState<boolean>(true);
+  const [isPublic, setIsPublic] = useState<boolean>(true);
   const navigate = useNavigate();
+  const { setRoomId, setCapacity, setParticipants } = useGameSession();
+
+  const matchRoom = useSocketRequest("quick_match", "quick_match_result");
+  const createRoom = useSocketRequest("create_room", "room_created");
+
+  const clickMatch = async () => {
+    try {
+      const result = await matchRoom({
+        max_players: playerNum,
+        card_helper: helper,
+      });
+      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+
+      navigate(`/waiting/${result.room.room_id}`);
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const clickCreate = async () => {
+    try {
+      const result = await createRoom({
+        max_players: playerNum,
+        is_public: isPublic,
+        card_helper: helper,
+      });
+      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+
+      navigate(`/waiting/${result.room.room_id}`);
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -62,14 +101,14 @@ const RoomConditionModal = ({
             <div className="flex items-center">
               <button
                 className="btn btn-circle btn-ghost"
-                onClick={() => setMinPerson((prev) => Math.max(prev - 1, 3))}
+                onClick={() => setPlayerNum((prev) => Math.max(prev - 1, 3))}
               >
                 -
               </button>
-              <p className="mx-4 text-lg font-bold">{minPerson}명</p>
+              <p className="mx-4 text-lg font-bold">{playerNum}명</p>
               <button
                 className="btn btn-circle btn-ghost"
-                onClick={() => setMinPerson((prev) => Math.min(prev + 1, 10))}
+                onClick={() => setPlayerNum((prev) => Math.min(prev + 1, 10))}
               >
                 +
               </button>
@@ -96,8 +135,8 @@ const RoomConditionModal = ({
               <input
                 type="checkbox"
                 className="checkbox checkbox-xl checkbox-primary"
-                checked={publicRoom}
-                onChange={(e) => setPublicRoom(e.target.checked)}
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
               />
             </label>
           </div>
@@ -106,10 +145,7 @@ const RoomConditionModal = ({
         <button
           type="button"
           className={`btn mt-4 w-full ${mode === "create" ? "btn-secondary" : "btn-accent"}`}
-          onClick={() => {
-            navigate("/waiting");
-            onClose();
-          }}
+          onClick={mode === "create" ? clickCreate : clickMatch}
         >
           {mode === "create" ? "방 생성하기" : "매칭하기"}
         </button>
@@ -123,5 +159,4 @@ const RoomConditionModal = ({
     </dialog>
   );
 };
-
 export default RoomConditionModal;

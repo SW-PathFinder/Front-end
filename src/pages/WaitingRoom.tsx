@@ -7,7 +7,6 @@ import { useGameSession } from "@/contexts/GameSessionContext";
 
 const WaitingRoom = () => {
   const navigate = useNavigate();
-  // const [participants, setParticipants] = useState<string[]>(["Plyayer1"]);
   const [countdown, setCountdown] = useState<number | null>(null);
   const palette = [
     "bg-blue-300",
@@ -22,16 +21,13 @@ const WaitingRoom = () => {
     "bg-teal-200",
   ];
 
-  // const { roomId, capacity, socket } = useGameSession();
-  const { roomId, participants, setParticipants } = useGameSession();
-  const capacity = 10; // 임시로 정원 10명으로 설정
+  const { roomId, capacity, participants, setParticipants } = useGameSession();
 
-  // 0.5초마다 참가자 1명씩 추가 (총 10명까지)
+  // 0.5초마다 참가자 1명씩 추가 (총 10명까지) DUMMY
   useEffect(() => {
-    let count = 1;
-    setParticipants(["Player1"]);
+    let count = participants.length;
     const interval = setInterval(() => {
-      if (count < 10) {
+      if (count < capacity) {
         count += 1;
         setParticipants((prev) => [...prev, `Player${count}`]);
       } else {
@@ -40,7 +36,7 @@ const WaitingRoom = () => {
     }, 500);
 
     return () => clearInterval(interval);
-  }, [setParticipants]);
+  }, [capacity, participants.length, setParticipants]);
 
   // useEffect(() => {
   //   const handleParticipantsUpdate = (data: string[]) => {
@@ -69,8 +65,8 @@ const WaitingRoom = () => {
       return () => clearTimeout(id);
     }
     // 카운트 종료 시 게임 페이지로 이동
-    navigate("/game");
-  }, [countdown, navigate]);
+    navigate(`/game/${roomId}`);
+  }, [countdown, navigate, roomId]);
 
   const handleCancel = () => {
     navigate("/");
