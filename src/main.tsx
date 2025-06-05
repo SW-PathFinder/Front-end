@@ -21,13 +21,11 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-
             <Route path="/" element={<AuthenticatedLayout />}>
-              <Route index element={<LobbyPage />} />
-              <Route path=":gameId" element={<GameSessionLayout />}>
-                <Route path="waiting" element={<WaitingRoom />} />
-                {/* Nested route for the game page */}
-                <Route path="game" element={<Game />} />
+              <Route element={<GameSessionLayout />}>
+                <Route index element={<LobbyPage />} />
+                <Route path="waiting/:roomId" element={<WaitingRoom />} />
+                <Route path="game/:roomId" element={<Game />} />
               </Route>
             </Route>
           </Routes>

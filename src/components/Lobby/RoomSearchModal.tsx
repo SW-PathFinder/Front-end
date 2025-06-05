@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-import { useNavigate } from "react-router";
+import { useGameSession } from "@/contexts/GameSessionContext";
+import { useSocketRequest } from "@/contexts/SocketContext";
+import { setRoomSession } from "@/libs/game/sessionUtils";
 
 interface RoomSearchModalProps {
   isOpen: boolean;
@@ -9,7 +11,23 @@ interface RoomSearchModalProps {
 
 const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
   const [value, setValue] = useState("");
-  const navigate = useNavigate();
+
+  const { setRoomId, setCapacity, setParticipants } = useGameSession();
+
+  const searchRoom = useSocketRequest(
+    "search_room_by_code",
+    "room_search_result",
+  );
+
+  const clickSearch = async () => {
+    try {
+      const result = await searchRoom({ room_code: value });
+      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -71,9 +89,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
             className="btn w-full btn-primary"
             onClick={() => {
               if (value.length === 4) {
-                // 방 찾기 로직을 여기에 추가
-                navigate("/waiting");
-                onClose(); // 모달 닫기
+                clickSearch();
               }
             }}
           >
