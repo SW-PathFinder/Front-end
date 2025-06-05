@@ -9,7 +9,7 @@ interface CardProps {
   card: AbstractCard;
   /**
    * width of card
-   * @default 64
+   * @default 60
    */
   size?: number;
   /** @default false */
@@ -19,9 +19,13 @@ interface CardProps {
   className?: string;
 }
 
-export const CARD_RATIO = 1.5;
-export const CARD_WIDTH = 64;
-export const CARD_HEIGHT = CARD_WIDTH * CARD_RATIO;
+export const CARD_WIDTH = 60;
+export const CARD_HEIGHT = 97;
+export const CARD_RATIO = CARD_WIDTH / CARD_HEIGHT;
+
+export interface DraggableCardData {
+  card: AbstractCard;
+}
 
 export const Card = ({
   card,
@@ -83,6 +87,7 @@ export const Card = ({
       style={{
         backgroundImage: `url(${card.image})`,
         width: size,
+        aspectRatio: CARD_RATIO,
         transition: [
           "top 100ms ease-in-out",
           "left 100ms ease-in-out",
@@ -94,7 +99,8 @@ export const Card = ({
         ...style,
       }}
       className={twMerge(
-        "absolute aspect-[2/3] origin-center bg-cover bg-center bg-no-repeat",
+        "absolute origin-center bg-cover bg-center bg-no-repeat",
+        "rounded-sm",
         "top-(--tw-top) left-(--tw-left) z-(--tw-z-index)",
         "translate-3d",
         "rotate-(--tw-rotate)",
@@ -102,7 +108,7 @@ export const Card = ({
         className,
       )}
     >
-      <img src={`assets/saboteur/cards/${card.image}`} className="invisible" />
+      {/* <img src={`${card.image}`} className="invisible" /> */}
     </div>
   );
 };

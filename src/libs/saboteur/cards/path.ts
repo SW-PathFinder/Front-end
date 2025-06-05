@@ -1,39 +1,20 @@
 import { AbstractCard } from "@/libs/saboteur/cards/base";
-
-export namespace CardinalDirection {
-  export const None = 0b0000;
-  export const East = 0b0001;
-  export const South = 0b0010;
-  export const West = 0b0100;
-  export const North = 0b1000;
-  export const All = 0b1111;
-
-  export type Any =
-    | typeof East
-    | typeof South
-    | typeof West
-    | typeof North
-    | typeof All
-    | typeof None
-    | (number & { _any?: true });
-
-  export function rotateHalf(direction: number) {
-    return ((direction << 2) & 0b1100) | ((direction >> 2) & 0b0011);
-  }
-
-  export function includes(subset: Any, direction: Any): boolean {
-    return (direction & subset) === subset;
-  }
-}
-type CardinalDirection = CardinalDirection.Any;
+import { CardinalDirection } from "@/libs/saboteur/cards/direction";
 
 export namespace PathCard {
   export abstract class Abstract extends AbstractCard {
     type = "path";
-    flipped: boolean = false;
+    flipped: boolean;
     abstract readonly destructible: boolean;
 
     protected abstract readonly _roads: readonly CardinalDirection[];
+    protected abstract readonly _images: string[];
+    private imageIdx: number | null = null;
+
+    constructor(flipped: boolean = false) {
+      super();
+      this.flipped = flipped;
+    }
 
     protected get roads(): readonly CardinalDirection[] {
       if (!this.flipped) return this._roads;
@@ -47,13 +28,32 @@ export namespace PathCard {
       );
     }
 
-    isOpen(direction: CardinalDirection): boolean {
+    get image() {
+      if (!this.imageIdx)
+        this.imageIdx = Math.floor(Math.random() * this._images.length);
+      return this._images[this.imageIdx];
+    }
+
+    isOpen(direction: CardinalDirection.Adjacent): boolean {
       return !!(this.openDirections & direction);
     }
 
-    isConnected(from: CardinalDirection, to: CardinalDirection): boolean {
+    isConnected(
+      from: CardinalDirection.Any,
+      to: CardinalDirection.Any,
+    ): boolean {
       return this.roads.some((subset) =>
         CardinalDirection.includes(subset, from | to),
+      );
+    }
+
+    canConnectWith(
+      card: PathCard.Abstract,
+      direction: CardinalDirection.Adjacent,
+    ): boolean {
+      return (
+        this.isOpen(direction) &&
+        card.isOpen(CardinalDirection.rotateHalf(direction))
       );
     }
   }
@@ -67,12 +67,18 @@ export namespace PathCard {
   }
 
   export class Way4 extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/4way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/16.png",
+      "/assets/saboteur/cards/path/17.png",
+      "/assets/saboteur/cards/path/25.png",
+      "/assets/saboteur/cards/path/26.png",
+      "/assets/saboteur/cards/path/28.png",
+    ];
     protected _roads = [CardinalDirection.All] as const;
   }
 
   export class Block4 extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/4block.png";
+    protected _images = ["/assets/saboteur/cards/path/15.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
@@ -82,14 +88,20 @@ export namespace PathCard {
   }
 
   export class Way3A extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/3a_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/1.png",
+      "/assets/saboteur/cards/path/34.png",
+      "/assets/saboteur/cards/path/36.png",
+      "/assets/saboteur/cards/path/37.png",
+      "/assets/saboteur/cards/path/39.png",
+    ];
     protected _roads = [
       CardinalDirection.All ^ CardinalDirection.North,
     ] as const;
   }
 
   export class Block3A extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/3a_block.png";
+    protected _images = ["/assets/saboteur/cards/path/38.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
@@ -98,14 +110,20 @@ export namespace PathCard {
   }
 
   export class Way3B extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/3b_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/13.png",
+      "/assets/saboteur/cards/path/18.png",
+      "/assets/saboteur/cards/path/19.png",
+      "/assets/saboteur/cards/path/21.png",
+      "/assets/saboteur/cards/path/30.png",
+    ];
     protected _roads = [
       CardinalDirection.All ^ CardinalDirection.West,
     ] as const;
   }
 
   export class Block3B extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/3b_block.png";
+    protected _images = ["/assets/saboteur/cards/path/29.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.South,
@@ -114,14 +132,19 @@ export namespace PathCard {
   }
 
   export class Way2A extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2a_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/0.png",
+      "/assets/saboteur/cards/path/3.png",
+      "/assets/saboteur/cards/path/40.png",
+      "/assets/saboteur/cards/path/43.png",
+    ];
     protected _roads = [
       CardinalDirection.East | CardinalDirection.South,
     ] as const;
   }
 
   export class Block2A extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2a_block.png";
+    protected _images = ["/assets/saboteur/cards/path/5.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.South,
@@ -129,14 +152,20 @@ export namespace PathCard {
   }
 
   export class Way2B extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2b_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/4.png",
+      "/assets/saboteur/cards/path/10.png",
+      "/assets/saboteur/cards/path/24.png",
+      "/assets/saboteur/cards/path/33.png",
+      "/assets/saboteur/cards/path/41.png",
+    ];
     protected _roads = [
       CardinalDirection.East | CardinalDirection.North,
     ] as const;
   }
 
   export class Block2B extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2b_block.png";
+    protected _images = ["/assets/saboteur/cards/path/2.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.North,
@@ -144,14 +173,18 @@ export namespace PathCard {
   }
 
   export class Way2C extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2c_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/9.png",
+      "/assets/saboteur/cards/path/20.png",
+      "/assets/saboteur/cards/path/35.png",
+    ];
     protected _roads = [
       CardinalDirection.East | CardinalDirection.West,
     ] as const;
   }
 
   export class Block2C extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2c_block.png";
+    protected _images = ["/assets/saboteur/cards/path/42.png"];
     protected _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
@@ -159,14 +192,19 @@ export namespace PathCard {
   }
 
   export class Way2D extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2d_way.png";
+    protected _images = [
+      "/assets/saboteur/cards/path/11.png",
+      "/assets/saboteur/cards/path/12.png",
+      "/assets/saboteur/cards/path/22.png",
+      "/assets/saboteur/cards/path/23.png",
+    ];
     protected _roads = [
       CardinalDirection.South | CardinalDirection.North,
     ] as const;
   }
 
   export class Block2D extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/2d_block.png";
+    protected _images = ["/assets/saboteur/cards/path/32.png"];
     protected _roads = [
       CardinalDirection.South,
       CardinalDirection.North,
@@ -174,12 +212,12 @@ export namespace PathCard {
   }
 
   export class Block1A extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/1a_block.png";
+    protected _images = ["/assets/saboteur/cards/path/31.png"];
     protected _roads = [CardinalDirection.East] as const;
   }
 
   export class Block1B extends AbstractCommon {
-    image = "/assets/saboteur/cards/path/1b_block.png";
+    protected _images = ["/assets/saboteur/cards/path/7.png"];
     protected _roads = [CardinalDirection.South] as const;
   }
 
@@ -193,7 +231,7 @@ export namespace PathCard {
 
   export class Origin extends AbstractSpecial {
     type = "origin";
-    image = "/assets/saboteur/cards/path/origin.png";
+    protected _images = ["/assets/saboteur/cards/path/27.png"];
     protected _roads = [CardinalDirection.All] as const;
   }
 
@@ -202,24 +240,24 @@ export namespace PathCard {
   }
 
   export class DestHidden extends AbstractDest {
-    image = "/assets/saboteur/cards/path/dest_hidden.png";
+    protected _images = ["/assets/saboteur/cards/bg_playable.png"];
     protected _roads = [CardinalDirection.All] as const;
   }
 
   export class DestGold extends AbstractDest {
-    image = "/assets/saboteur/cards/path/dest_gold.png";
+    protected _images = ["/assets/saboteur/cards/path/14.png"];
     protected _roads = [CardinalDirection.All] as const;
   }
 
   export class DestRockA extends AbstractDest {
-    image = "/assets/saboteur/cards/path/dest_rock_a.png";
+    protected _images = ["/assets/saboteur/cards/path/8.png"];
     protected _roads = [
       CardinalDirection.East | CardinalDirection.South,
     ] as const;
   }
 
   export class DestRockB extends AbstractDest {
-    image = "/assets/saboteur/cards/path/dest_rock_b.png";
+    protected _images = ["/assets/saboteur/cards/path/6.png"];
     protected _roads = [
       CardinalDirection.East | CardinalDirection.North,
     ] as const;

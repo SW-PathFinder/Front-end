@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { PathCard } from "@/libs/saboteur/cards";
+
 import { Card } from "./Card";
 import { DndZone } from "./Dnd";
 
@@ -26,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {
-  args: { card: { id: "path_1", image: "path_1.png" } },
+  args: { card: new PathCard.Way3A() },
   render: (args) => (
     <DndZone>
       <Card {...args} />
@@ -34,10 +36,7 @@ export const Default: Story = {
   ),
 };
 export const Rotated: Story = {
-  args: {
-    card: { id: "path_2", image: "path_1.png" },
-    transform: { rotate: 45 },
-  },
+  args: { card: new PathCard.Way3A(), transform: { rotate: 45 } },
   render: (args) => (
     <DndZone>
       <Card {...args} />
@@ -45,10 +44,7 @@ export const Rotated: Story = {
   ),
 };
 export const Translated: Story = {
-  args: {
-    card: { id: "path_3", image: "path_1.png" },
-    transform: { x: 24, y: 36 },
-  },
+  args: { card: new PathCard.Way3A(), transform: { x: 24, y: 36 } },
   render: (args) => (
     <DndZone>
       <Card {...args} />
