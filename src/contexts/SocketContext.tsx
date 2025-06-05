@@ -7,14 +7,16 @@ import {
   useMemo,
 } from "react";
 
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 
-import { EmitEvents } from "@/services/socket/event.request";
-import { ListenEvents } from "@/services/socket/event.response";
+import {
+  EmitEvents,
+  HSSaboteurSocket,
+  ListenEvents,
+  ResponsibleListenEventType,
+} from "@/libs/saboteur-socket-hoon";
 
-const SocketContext = createContext<Socket<ListenEvents, EmitEvents> | null>(
-  null,
-);
+const SocketContext = createContext<HSSaboteurSocket | null>(null);
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const socket = useMemo(() => {
     const newSocket = io(import.meta.env.VITE_SOCKET_URL);
@@ -43,8 +45,8 @@ export function useSocketEmitter<
 >(event: K) {
   const socket = useSocket();
   return useCallback(
-    (...args: Parameters<EmitEvents[K]>) => {
-      socket.emit(event, ...args);
+    (data: EmitEvents[K]) => {
+      socket.emit(event, ...([data] as any));
     },
     [socket, event],
   );
@@ -55,7 +57,7 @@ export function useSocketListener<
 >(event: K, listener: ListenEvents[K]): void;
 export function useSocketListener(
   event: keyof ListenEvents,
-  listener: ListenEvents[keyof ListenEvents],
+  listener: (data: ListenEvents[keyof ListenEvents]) => void,
 ) {
   const socket = useSocket();
 
@@ -68,23 +70,20 @@ export function useSocketListener(
 }
 
 export function useSocketRequest<
-  Req extends Exclude<keyof EmitEvents, "game_action">,
-  Res extends Exclude<
-    keyof ListenEvents,
-    "game_update" | "private_game_update"
-  >,
->(requestEvent: Req, responseEvent: Res) {
+  ReqType extends Exclude<keyof EmitEvents, "game_action">,
+  ResType extends ResponsibleListenEventType,
+>(requestEvent: ReqType, responseEvent: ResType) {
   const socket = useSocket();
 
   return useCallback(
-    async (data: Omit<Parameters<EmitEvents[Req]>[0], "requestId">) => {
+    async (data: Omit<EmitEvents[ReqType], "requestId">) => {
       const requestId = crypto.randomUUID();
 
       socket.emit(requestEvent, ...([{ ...data, requestId }] as any));
 
-      return new Promise<Parameters<ListenEvents[Res]>[0] & { success: true }>(
+      return new Promise<ListenEvents[ResType] & { success: true }>(
         (resolve, reject) => {
-          const listener = (data: Parameters<ListenEvents[Res]>[0]) => {
+          const listener = (data: ListenEvents[ResType]) => {
             console.log("Socket response received:", data);
             if (!data.requestId || data.requestId !== requestId) return;
 

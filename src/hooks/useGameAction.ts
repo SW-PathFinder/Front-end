@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { useAuthenticated } from "@/contexts/SessionContext";
 import { useSocket } from "@/contexts/SocketContext";
-import { SocketAction } from "@/services/socket/gameAction";
+import { SocketAction } from "@/libs/saboteur-socket-hoon";
 
 export function useGameActionEmitter() {
   const socket = useSocket();
