@@ -6,9 +6,9 @@ export const PLAYER_STATUS: Record<Tools, { enable: string; disable: string }> =
       enable: "/status/lantern_enable.png",
       disable: "/status/lantern_disable.png",
     },
-    wagon: {
-      enable: "/status/wagon_enable.png",
-      disable: "/status/wagon_disable.png",
+    mineCart: {
+      enable: "/status/mineCart_enable.png",
+      disable: "/status/mineCart_disable.png",
     },
     pickaxe: {
       enable: "/status/pick_enable.png",

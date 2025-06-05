@@ -11,12 +11,12 @@ export abstract class AbstractPlayer {
   readonly id: number = AbstractPlayer.uid_counter++;
 
   name: string;
-  abstract readonly hand: number;
+  abstract readonly handCount: number;
   readonly status: Record<Tools, boolean>;
 
   constructor({
     name,
-    status = { lantern: true, pickaxe: true, wagon: false },
+    status = { lantern: true, pickaxe: true, mineCart: false },
   }: AbstractPlayerOption) {
     this.name = name;
     this.status = status;
@@ -38,11 +38,14 @@ export abstract class AbstractPlayer {
 }
 
 export class OtherPlayer extends AbstractPlayer {
-  hand: number = 0;
+  handCount: number = 0;
 
-  constructor({ hand, ...options }: AbstractPlayerOption & { hand: number }) {
+  constructor({
+    handCount,
+    ...options
+  }: AbstractPlayerOption & { handCount: number }) {
     super(options);
-    this.hand = hand;
+    this.handCount = handCount;
   }
 }
 
@@ -60,7 +63,7 @@ export class MyPlayer extends AbstractPlayer {
     this.hands = hands;
   }
 
-  get hand() {
+  get handCount() {
     return this.hands.length;
   }
 }

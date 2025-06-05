@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
 
+import { OtherPlayer } from "@/libs/saboteur/player";
+
 import PlayerList from "./PlayerList";
 
 const meta: Meta<typeof PlayerList> = {
@@ -13,18 +15,16 @@ type Story = StoryObj<typeof PlayerList>;
 export const Basic: Story = {
   args: {
     list: [
-      {
-        id: 1,
+      new OtherPlayer({
         name: "Player 1",
-        status: { lantern: true, pickaxe: true, wagon: true },
-        hand: 3,
-      },
-      {
-        id: 2,
+        status: { lantern: true, pickaxe: true, mineCart: true },
+        handCount: 3,
+      }),
+      new OtherPlayer({
         name: "Player 2",
-        status: { lantern: true, pickaxe: true, wagon: true },
-        hand: 3,
-      },
+        status: { lantern: true, pickaxe: true, mineCart: true },
+        handCount: 3,
+      }),
     ],
   },
 };
