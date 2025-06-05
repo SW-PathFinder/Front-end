@@ -16,6 +16,7 @@ export function useGameActionEmitter() {
         action: action.toPrimitive(),
         room: roomId,
         player: userId,
+        requestId: crypto.randomUUID(),
       });
     },
     [socket, userId, roomId],

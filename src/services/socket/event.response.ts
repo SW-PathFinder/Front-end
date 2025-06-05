@@ -34,5 +34,6 @@ export interface ListenEvents {
   game_update: (data: SocketAction.Response.Broadcast.Primitive) => void;
   private_game_update: (data: SocketAction.Response.Private.Primitive) => void;
 
-  error: (data: { id: number; message: string; requestId?: string }) => void;
+  // error: (data: { id: number;
+  // success: false; message: string; requestId?: string }) => void;
 }

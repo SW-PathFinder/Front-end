@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createContext,
   useCallback,
@@ -64,4 +65,41 @@ export function useSocketListener(
       socket.off(event, listener);
     };
   }, [socket, event, listener]);
+}
+
+export function useSocketRequest<
+  Req extends Exclude<keyof EmitEvents, "game_action">,
+  Res extends Exclude<
+    keyof ListenEvents,
+    "game_update" | "private_game_update"
+  >,
+>(requestEvent: Req, responseEvent: Res) {
+  const socket = useSocket();
+
+  return useCallback(
+    async (data: Omit<Parameters<EmitEvents[Req]>[0], "requestId">) => {
+      const requestId = crypto.randomUUID();
+
+      socket.emit(requestEvent, ...([{ ...data, requestId }] as any));
+
+      return new Promise<Parameters<ListenEvents[Res]>[0]>(
+        (resolve, reject) => {
+          const listener = (data: Parameters<ListenEvents[Res]>[0]) => {
+            if (!data.requestId || data.requestId !== requestId) return;
+
+            if (data.success) {
+              resolve(data);
+            } else {
+              reject(new Error(data.message || "Request failed"));
+            }
+
+            socket.off(responseEvent, listener as any);
+          };
+
+          socket.on(responseEvent, listener as any);
+        },
+      );
+    },
+    [socket, requestEvent, responseEvent],
+  );
 }
