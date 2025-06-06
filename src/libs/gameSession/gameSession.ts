@@ -1,31 +1,8 @@
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
-export interface GamePlayer {
-  id: string;
-  name: string;
-}
+import { GameRoomPlayer } from "./gameRoom";
 
-/**
- * adapter를 밖
- */
-export interface GameRoom {
-  getGameSession(): GameSession | null;
-}
-
-export interface GameRoomAdapter {
-  onPlayerJoin(callback: (player: GamePlayer) => void): UnsubscribeCallback;
-  onPlayerLeave(callback: (player: GamePlayer) => void): UnsubscribeCallback;
-
-  leaveRoom(): void;
-
-  onGameSessionReady(callback: () => void): UnsubscribeCallback;
-
-  onGameSessionStart(
-    callback: (gameSession: GameSession) => void,
-  ): UnsubscribeCallback;
-
-  // createGameSession(): GameSession | null;
-}
+export interface GameSessionPlayer extends GameRoomPlayer {}
 
 export interface GameSession {
   // /**
@@ -34,11 +11,11 @@ export interface GameSession {
   //  */
   // id: string;
 
-  players: GamePlayer[];
+  readonly players: GameSessionPlayer[];
 }
 
 export interface GameSessionAdapter extends EventTarget {
-  // onGameSessionEnd(
-  //   callback: (gameSession: GameSession) => void,
-  // ): UnsubscribeCallback;
+  onGameSessionEnd(
+    callback: (gameSession: GameSession) => void,
+  ): UnsubscribeCallback;
 }

@@ -1,9 +1,9 @@
-import { AbstractPlayer } from "@/libs/saboteur/player";
+import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 interface PlayerStatusProps {
-  item: AbstractPlayer;
+  item: AbstractSaboteurPlayer;
 }
 
 const PlayerStatus = ({ item }: PlayerStatusProps) => {

@@ -1,13 +1,14 @@
-import { GamePlayer, GameRoomAdapter } from "@/libs/gameSession";
+import { GameRoomPlayer } from "@/libs/gameSession";
+import { SaboteurRoomAdapter, SaboteurSession } from "@/libs/saboteur/game";
 import {
-  PlayableCardId,
-  transformIdToCard,
-} from "@/libs/saboteur-socket-hoon/card";
-import { HSSaboteurSessionAdapter } from "@/libs/saboteur-socket-hoon/gameSession";
-import { SaboteurSession } from "@/libs/saboteur/game";
-import { AbstractPlayer, MyPlayer, OtherPlayer } from "@/libs/saboteur/player";
+  AbstractSaboteurPlayer,
+  MySaboteurPlayer,
+  OtherSaboteurPlayer,
+} from "@/libs/saboteur/player";
 import { onOncePromise, UnsubscribeCallback } from "@/libs/socket-io";
 
+import { PlayableCardId, transformIdToCard } from "./card";
+import { HSSaboteurSessionAdapter } from "./gameSession";
 import { HSSaboteurSocket, ListenEvents, SocketAction } from "./socket";
 
 const handSizePerPlayerCountMap: Record<number, number> = {
@@ -21,18 +22,20 @@ const handSizePerPlayerCountMap: Record<number, number> = {
   10: 4,
 };
 
-export class HSSaboteurRoomAdapter implements GameRoomAdapter {
+export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   private socket: HSSaboteurSocket;
   private roomId: string;
-  private player: GamePlayer;
+  private player: GameRoomPlayer;
 
-  constructor(socket: HSSaboteurSocket, roomId: string, player: GamePlayer) {
+  private gameSession: SaboteurSession | null = null;
+
+  constructor(socket: HSSaboteurSocket, roomId: string, playerId: string) {
     this.socket = socket;
     this.roomId = roomId;
-    this.player = player;
+    this.player = { id: playerId, name: playerId };
   }
 
-  onPlayerJoin(callback: (player: GamePlayer) => void) {
+  onPlayerJoin(callback: (player: GameRoomPlayer) => void) {
     const listener = (data: ListenEvents["player_joined"]) => {
       callback({ id: data.player, name: data.player });
     };
@@ -43,7 +46,7 @@ export class HSSaboteurRoomAdapter implements GameRoomAdapter {
     };
   }
 
-  onPlayerLeave(callback: (player: GamePlayer) => void) {
+  onPlayerLeave(callback: (player: GameRoomPlayer) => void) {
     const listener = (data: ListenEvents["player_left"]) => {
       callback({ id: data.player, name: data.player });
     };
@@ -62,7 +65,6 @@ export class HSSaboteurRoomAdapter implements GameRoomAdapter {
   }
 
   onGameSessionReady(callback: () => void): UnsubscribeCallback {
-    throw new Error("Method not implemented.");
     const listener = (data: ListenEvents["countdown_started"]) => {
       callback();
     };
@@ -96,11 +98,14 @@ export class HSSaboteurRoomAdapter implements GameRoomAdapter {
         );
       });
 
-      const players: AbstractPlayer[] = playerIds.map((playerId) => {
+      const players: AbstractSaboteurPlayer[] = playerIds.map((playerId) => {
         if (playerId === this.player.id) {
-          return new MyPlayer({ id: playerId, role, hands }); // MyPlayer
+          return new MySaboteurPlayer({ id: playerId, role, hands }); // MyPlayer
         }
-        return new OtherPlayer({ id: playerId, handCount: maxHandSize }); // OtherPlayer
+        return new OtherSaboteurPlayer({
+          id: playerId,
+          handCount: maxHandSize,
+        }); // OtherPlayer
       });
 
       const firstPlayerIndex = players.findIndex(
@@ -115,6 +120,10 @@ export class HSSaboteurRoomAdapter implements GameRoomAdapter {
         firstPlayerIndex,
       });
 
+      this.gameSession = session;
+
+      // this.adapter.onGameSessionEnd;
+
       callback(session);
     };
 
@@ -123,5 +132,9 @@ export class HSSaboteurRoomAdapter implements GameRoomAdapter {
     return () => {
       this.socket.off("game_update", listener);
     };
+  }
+
+  getGameSession(): SaboteurSession | null {
+    return this.gameSession;
   }
 }

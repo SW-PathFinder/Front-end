@@ -1,7 +1,6 @@
 import { GameSessionAdapter } from "@/libs/gameSession";
-import { GameBoard } from "@/libs/saboteur/board";
-import { AbstractCard } from "@/libs/saboteur/cards";
-import { AbstractPlayer, MyPlayer } from "@/libs/saboteur/player";
+import { SaboteurSession } from "@/libs/saboteur/game";
+import { UnsubscribeCallback } from "@/libs/socket-io";
 
 type RequestActionType =
   | "dig"
@@ -51,4 +50,9 @@ export interface SaboteurSessionAdapter
     actionType: PublicResponseActionType | PrivateResponseActionType,
     callback: (gameState: {}) => void,
   ): void;
+
+  /** @todo add callback argument */
+  onGameSessionEnd(
+    callback: (gameSession: SaboteurSession) => void,
+  ): UnsubscribeCallback;
 }

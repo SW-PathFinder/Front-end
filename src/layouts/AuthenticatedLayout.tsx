@@ -1,13 +1,10 @@
-import { useState } from "react";
-
 import { Navigate, Outlet, useLocation } from "react-router";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { AuthenticatedProvider } from "@/contexts/SessionContext";
+import { AuthenticatedProvider } from "@/contexts/AuthenticatedContext";
 
 export const AuthenticatedLayout = () => {
   const { userId } = useAuth();
-  const [capacity, setCapacity] = useState<number | null>(null);
   const location = useLocation();
 
   if (!userId) {
@@ -21,7 +18,7 @@ export const AuthenticatedLayout = () => {
   }
 
   return (
-    <AuthenticatedProvider value={{ userId, capacity, setCapacity }}>
+    <AuthenticatedProvider userId={userId}>
       <Outlet />
     </AuthenticatedProvider>
   );

@@ -1,10 +1,10 @@
 // import { curRound } from "@/utils/game";
-import { AbstractPlayer } from "@/libs/saboteur/player";
+import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 
 import PlayerStatus from "./PlayerStatus";
 
 interface Props {
-  list?: AbstractPlayer[];
+  list?: AbstractSaboteurPlayer[];
 }
 
 const PlayerList = ({ list }: Props) => {

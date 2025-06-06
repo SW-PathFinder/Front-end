@@ -3,7 +3,10 @@ import { useState } from "react";
 import type { Meta } from "@storybook/react";
 
 import { SaboteurCard } from "@/libs/saboteur/cards";
-import { OtherPlayer, type AbstractPlayer } from "@/libs/saboteur/player";
+import {
+  OtherSaboteurPlayer,
+  type AbstractSaboteurPlayer,
+} from "@/libs/saboteur/player";
 import { Tools } from "@/libs/saboteur/types";
 
 import EquipmentModal from "./EquipmentModal";
@@ -16,48 +19,48 @@ const meta: Meta<typeof EquipmentModal> = {
 
 export default meta;
 
-const dummyList: AbstractPlayer[] = [
-  new OtherPlayer({
+const dummyList: AbstractSaboteurPlayer[] = [
+  new OtherSaboteurPlayer({
     id: "Dami",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Doo Hyun",
     status: { lantern: true, pickaxe: false, mineCart: false },
     handCount: 2,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Jiwoo",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 1,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Dohoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Jaehoon",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Namhoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Hayoung",
     status: { lantern: true, pickaxe: false, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Nutria",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
+  new OtherSaboteurPlayer({
     id: "Schott",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,

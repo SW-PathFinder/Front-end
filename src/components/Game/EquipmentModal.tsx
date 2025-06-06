@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 
 import { SaboteurCard } from "@/libs/saboteur/cards";
-import { AbstractPlayer } from "@/libs/saboteur/player";
+import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 type EquipmentModalProps = {
-  playerlist: AbstractPlayer[];
+  playerlist: AbstractSaboteurPlayer[];
   card: SaboteurCard.Action.Sabotage | SaboteurCard.Action.Repair;
   handNum: number;
   onClose: () => void;
@@ -41,7 +41,7 @@ const EquipmentModal = ({
     }
   }, [card, mode]);
 
-  const handleClickPlayer = (player: AbstractPlayer) => {
+  const handleClickPlayer = (player: AbstractSaboteurPlayer) => {
     let usable = false;
     if (mode === "repair") {
       const repairCard = card as SaboteurCard.Action.Repair;

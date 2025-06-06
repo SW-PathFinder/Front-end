@@ -1,4 +1,4 @@
-import { GamePlayer } from "@/libs/gameSession";
+import { GameSessionPlayer } from "@/libs/gameSession";
 import { AbstractCard } from "@/libs/saboteur/cards";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
@@ -7,8 +7,8 @@ interface AbstractPlayerOption {
   status?: Record<Tools, boolean>;
 }
 
-export abstract class AbstractPlayer implements GamePlayer {
-  readonly uid: number = AbstractPlayer.uid_counter++;
+export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
+  readonly uid: number = AbstractSaboteurPlayer.uid_counter++;
   private static uid_counter = 1;
 
   readonly id: string;
@@ -42,7 +42,7 @@ export abstract class AbstractPlayer implements GamePlayer {
   }
 }
 
-export class OtherPlayer extends AbstractPlayer {
+export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
   handCount: number;
 
   constructor({
@@ -54,7 +54,7 @@ export class OtherPlayer extends AbstractPlayer {
   }
 }
 
-export class MyPlayer extends AbstractPlayer {
+export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   role: PlayerRole;
   hands: AbstractCard.Playable[];
   gold: number;

@@ -1,0 +1,57 @@
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { SaboteurRoom, SaboteurSession } from "@/libs/saboteur/game";
+
+interface GameRoomContext {
+  gameRoom: SaboteurRoom;
+  gameSession: SaboteurSession | null;
+}
+
+const GameRoomContext = createContext<GameRoomContext | null>(null);
+
+export const GameRoomProvider = ({
+  gameRoom,
+  children,
+}: PropsWithChildren<{ gameRoom: SaboteurRoom }>) => {
+  // const socket = useSocket();
+  const [gameSession, setGameSession] = useState<SaboteurSession | null>(null);
+
+  useEffect(() => {
+    const unsubscribes = [
+      // gameRoom.adapter.onPlayerJoin((player) => {}),
+      // gameRoom.adapter.onPlayerLeave((player) => {}),
+      // gameRoom.adapter.onGameSessionReady(() => {}),
+      gameRoom.adapter.onGameSessionStart((gameSession) => {
+        setGameSession(gameSession);
+      }),
+    ];
+
+    return () => {
+      for (const unsubscribe of unsubscribes) unsubscribe();
+    };
+  }, [gameRoom]);
+
+  return (
+    <GameRoomContext value={{ gameRoom, gameSession }}>
+      {children}
+    </GameRoomContext>
+  );
+};
+
+export const useGameRoom = () => {
+  const context = useContext(GameRoomContext);
+
+  if (!context) {
+    throw new Error(
+      "useGameRoom must be used within a GameRoomProvider with gameRoom and setGameRoom",
+    );
+  }
+
+  return context;
+};

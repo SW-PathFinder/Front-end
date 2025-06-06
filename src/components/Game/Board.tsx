@@ -15,7 +15,8 @@ import {
 } from "./Card";
 
 interface BoardProps {
-  cards: (SaboteurCard.Path.Abstract | null)[][];
+  board: GameBoard;
+  // cards: (SaboteurCard.Path.Abstract | null)[][];
   onDropCard?: (
     x: number,
     y: number,
@@ -32,12 +33,14 @@ export const BOARD_COLS = 23;
 const BOARD_VISIBLE_ROWS = 11;
 const BOARD_VISIBLE_COLS = 7;
 
-const board = new GameBoard();
-
 // TODO: 카드 드래그할때 불필요한 스크롤링 방지
 // 바깥 영역에서만 스크롤 한칸씩 되도록?
-export const Board = ({ onDropCard, style, className }: BoardProps) => {
+export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
+  /**
+   * 보드 좌상단 슬롯의 좌표
+   * @todo setAnchorCoord를 옮겨 보드 위치 변환
+   */
   const [anchorCoord, setAnchorCoord] = useState<[number, number]>(() =>
     CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
   );
@@ -52,22 +55,6 @@ export const Board = ({ onDropCard, style, className }: BoardProps) => {
       onDropCard(x, y, card, prevCard);
     },
   });
-
-  // const cards = useMemo(() => {
-  //   //  toSparseRepresentation
-  //   const [anchorX, anchorY] = anchorCoord;
-
-  //   return Array.from({ length: BOARD_VISIBLE_COLS }, (_, deltaY) =>
-  //     Array.from({ length: BOARD_VISIBLE_ROWS }, (_, deltaX) => {
-  //       const x = anchorX + deltaX;
-  //       const y = anchorY + deltaY;
-
-  //       return board.getCard(x, y);
-  //     }),
-  //   );
-  // }, [anchorCoord]);
-
-  // console.log("Board cards:", cards);
 
   return (
     <section

@@ -1,30 +1,77 @@
-import { GamePlayer, GameRoom, GameSession } from "@/libs/gameSession";
+import {
+  GameRoomPlayer,
+  GameRoom,
+  GameRoomAdapter,
+  GameSession,
+} from "@/libs/gameSession";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { GameBoard } from "@/libs/saboteur/board";
-import { AbstractPlayer, MyPlayer } from "@/libs/saboteur/player";
+import {
+  AbstractSaboteurPlayer,
+  MySaboteurPlayer,
+} from "@/libs/saboteur/player";
+import { UnsubscribeCallback } from "@/libs/socket-io";
 
 // export const BOARD_ROWS = 23;
 // export const BOARD_COLS = 23;
 
+export interface SaboteurRoomAdapter extends GameRoomAdapter {
+  onGameSessionStart(
+    callback: (gameSession: SaboteurSession) => void,
+  ): UnsubscribeCallback;
+}
+
+export interface SaboteurRoomOption {
+  id: string;
+  players: GameRoomPlayer[];
+  host: GameRoomPlayer;
+  capacity: number;
+  isPublic: boolean;
+  cardHelper: boolean;
+}
+
 export class SaboteurRoom implements GameRoom {
-  // state: SaboteurSession | null = null;
-  // adapter: SaboteurSessionAdapter;
-  // constructor(adapter: SaboteurSessionAdapter) {
-  //   this.adapter = adapter;
-  // }
-  // onPlayerJoin(callback: (player: GamePlayer) => void): void {
-  //   this.adapter.addEventListener(
-  //     "playerJoin",
-  //     (event: CustomEvent<GamePlayer>) => {
-  //       callback(event.detail);
-  //     },
-  //   );
+  readonly id: string;
+  readonly adapter: SaboteurRoomAdapter;
+  readonly players: GameRoomPlayer[];
+
+  private _host: GameRoomPlayer;
+  readonly capacity: number;
+  readonly isPublic: boolean;
+  readonly cardHelper: boolean;
+
+  constructor(
+    adapter: SaboteurRoomAdapter,
+    { id, players, host, capacity, isPublic, cardHelper }: SaboteurRoomOption,
+  ) {
+    this.adapter = adapter;
+    this.id = id;
+    this.players = players;
+    this._host = host;
+    this.capacity = capacity;
+    this.isPublic = isPublic;
+    this.cardHelper = cardHelper;
+
+    this.adapter.onPlayerJoin((player) => {
+      this.players.push(player);
+    });
+    this.adapter.onPlayerLeave((player) => {
+      const index = this.players.findIndex((p) => p.id === player.id);
+      if (index !== -1) this.players.splice(index, 1);
+    });
+  }
+
+  get host(): GameRoomPlayer {
+    return this._host;
+  }
+
+  // getGameSession(): SaboteurSession | null {
+  //   return this.adapter.getGameSession();
   // }
 }
 
-interface SaboteurSessionOptions {
-  adapter: SaboteurSessionAdapter;
-  players: AbstractPlayer[];
+export interface SaboteurSessionOptions {
+  players: AbstractSaboteurPlayer[];
   firstPlayerIndex: number;
 }
 
@@ -33,11 +80,14 @@ export class SaboteurSession implements GameSession {
 
   round: number;
   // turn: number = 0;
-  readonly players: AbstractPlayer[];
+  readonly players: AbstractSaboteurPlayer[];
   readonly board: GameBoard;
   private _currentPlayerIndex: number = 0;
 
-  constructor({ adapter, players, firstPlayerIndex }: SaboteurSessionOptions) {
+  constructor(
+    adapter: SaboteurSessionAdapter,
+    { players, firstPlayerIndex }: SaboteurSessionOptions,
+  ) {
     this.adapter = adapter;
     this.players = players;
     this._currentPlayerIndex = firstPlayerIndex;
@@ -45,16 +95,23 @@ export class SaboteurSession implements GameSession {
     this.board = new GameBoard();
   }
 
-  get currentPlayer(): AbstractPlayer {
+  get currentPlayer(): AbstractSaboteurPlayer {
     return this.players[this._currentPlayerIndex];
   }
 
-  get myPlayer(): MyPlayer {
-    const myPlayer = this.players.find((player) => player instanceof MyPlayer);
+  get myPlayer(): MySaboteurPlayer {
+    const myPlayer = this.players.find(
+      (player) => player instanceof MySaboteurPlayer,
+    );
     if (!myPlayer) {
       throw new Error("MyPlayer not found in the game state.");
     }
 
     return myPlayer;
+  }
+
+  // TODO: 소켓 연동
+  get remainingCards(): number {
+    return 6;
   }
 }
