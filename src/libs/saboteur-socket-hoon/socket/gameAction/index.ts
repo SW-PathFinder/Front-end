@@ -1,4 +1,7 @@
+import { transformIdToCard } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
+import { SaboteurCard } from "@/libs/saboteur/cards";
+import { SaboteurSession } from "@/libs/saboteur/game";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 abstract class AbstractSocketAction<T extends string | object = string | object>
@@ -119,7 +122,9 @@ export namespace SocketAction {
       );
     }
 
-    abstract toSaboteurAction(): SaboteurAction.Response.Actions;
+    abstract toSaboteurAction(
+      gameSession: SaboteurSession,
+    ): SaboteurAction.Response.Actions;
   }
 
   export namespace Response {
@@ -154,6 +159,19 @@ export namespace SocketAction {
         type = "turn_change" as const;
         /** @description next player id */
         declare data;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.TurnChange {
+          const player = gameSession.players.find(
+            (player) => player.id === this.data,
+          );
+          if (!player) {
+            throw new Error(`Player with id ${this.data} not found.`);
+          }
+
+          return new SaboteurAction.Response.Public.TurnChange({ player });
+        }
       }
 
       export class PlacePath extends AbstractBroadcastResponse<{
@@ -175,7 +193,7 @@ export namespace SocketAction {
       export class Sabotage extends AbstractBroadcastResponse<{
         /** @description target player id */
         target: string;
-        cardType: ("pickaxe" | "lantern" | "mineCart")[];
+        cardType: "pickaxe" | "lantern" | "mineCart";
       }> {
         type = "sabotage" as const;
       }
@@ -183,7 +201,7 @@ export namespace SocketAction {
       export class Repair extends AbstractBroadcastResponse<{
         /** @description target player id */
         target: string;
-        cardType: "pickaxe" | "lantern" | "mineCart";
+        cardType: ("pickaxe" | "lantern" | "mineCart")[];
       }> {
         type = "repair" as const;
       }
@@ -300,25 +318,25 @@ export namespace SocketAction {
       >;
     }
 
-    abstract class AbstractErrorResponse extends AbstractPrivateResponse<string> {}
+    abstract class AbstractExceptionResponse extends AbstractPrivateResponse<string> {}
 
-    export namespace Error {
-      export class Error extends AbstractErrorResponse {
+    export namespace Exception {
+      export class Exception extends AbstractExceptionResponse {
         type = "error" as const;
       }
-      export type Actions = Error;
+      export type Actions = Exception;
     }
 
     export type Actions =
       | Response.Broadcast.Actions
       | Response.Private.Actions
-      | Response.Error.Actions;
+      | Response.Exception.Actions;
 
     type ToUnion<T> = T[keyof T];
     export const typeToClassMap = [
       ...Object.entries(Response.Broadcast),
       ...Object.entries(Response.Private),
-      ...Object.entries(Response.Error),
+      ...Object.entries(Response.Exception),
     ].reduce(
       (prev, [, cls]) => {
         prev[cls.prototype.type] = cls;
@@ -329,7 +347,7 @@ export namespace SocketAction {
         ToUnion<
           typeof Response.Broadcast &
             typeof Response.Private &
-            typeof Response.Error
+            typeof Response.Exception
         >
       >,
     );

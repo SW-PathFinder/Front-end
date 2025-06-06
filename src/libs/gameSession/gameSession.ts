@@ -16,6 +16,7 @@ export interface GameSession {
 
 export interface GameSessionAdapter extends EventTarget {
   onGameSessionEnd(
-    callback: (gameSession: GameSession) => void,
+    // callback: (gameSession: GameSession) => void,
+    callback: () => void,
   ): UnsubscribeCallback;
 }
