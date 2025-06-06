@@ -2,33 +2,7 @@ import { GameSessionAdapter } from "@/libs/gameSession";
 import { SaboteurSession } from "@/libs/saboteur/game";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
-type RequestActionType =
-  | "dig"
-  | "destroy"
-  | "repair"
-  | "sabotage"
-  | "useMap"
-  | "discard"
-  | "rotate";
-
-type PublicResponseActionType =
-  | "roundStart"
-  | "dig"
-  | "destroy"
-  | "repair"
-  | "sabotage"
-  | "useMap"
-  | "discard"
-  | "foundRock"
-  | "turnChange"
-  | "roundEnd";
-
-type PrivateResponseActionType =
-  | "roundStart"
-  | "draw"
-  | "revealDest"
-  | "rotate"
-  | "roundEnd";
+import { SaboteurAction } from "./action";
 
 export interface SaboteurSessionAdapter
   extends EventTarget,
@@ -45,14 +19,22 @@ export interface SaboteurSessionAdapter
   //   currentPlayerIndex: number;
   // };
 
-  sendAction(action: {}): void;
-  onGameStateChange(
-    actionType: PublicResponseActionType | PrivateResponseActionType,
-    callback: (gameState: {}) => void,
+  sendAction<TAction extends SaboteurAction.Request.Actions>(
+    action: TAction,
+  ): void;
+
+  onGameStateChange<
+    TActionType extends SaboteurAction.Response.Actions["type"],
+  >(
+    actionType: TActionType,
+    callback: (
+      action: SaboteurAction.Response.Actions & { type: TActionType },
+    ) => void,
   ): void;
 
   /** @todo add callback argument */
   onGameSessionEnd(
-    callback: (gameSession: SaboteurSession) => void,
+    // callback: (gameSession: SaboteurSession) => void,
+    callback: () => void,
   ): UnsubscribeCallback;
 }

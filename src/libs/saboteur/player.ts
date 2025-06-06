@@ -1,5 +1,6 @@
 import { GameSessionPlayer } from "@/libs/gameSession";
 import { AbstractCard } from "@/libs/saboteur/cards";
+import { SaboteurSession } from "@/libs/saboteur/game";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 interface AbstractPlayerOption {
@@ -13,32 +14,40 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
 
   readonly id: string;
   abstract readonly handCount: number;
-  readonly status: Record<Tools, boolean>;
+  private _status: Record<Tools, boolean>;
 
   constructor({
     id,
-    status = { lantern: true, pickaxe: true, mineCart: false },
+    status = { lantern: true, pickaxe: true, mineCart: true },
   }: AbstractPlayerOption) {
     this.id = id;
-    this.status = status;
+    this._status = status;
   }
 
   get name(): string {
     return this.id;
   }
 
+  get status(): Readonly<Record<Tools, boolean>> {
+    return { ...this._status };
+  }
+
   someToolIsAvailable(tools: Tools[]): boolean {
-    return tools.some((tool) => this.status[tool]);
+    return tools.some((tool) => this._status[tool]);
   }
 
   sabotage(tool: Tools): void {
-    this.status[tool] = false;
+    this._status[tool] = false;
   }
 
   repair(tools: Tools[]): void {
     tools.forEach((tool) => {
-      this.status[tool] = true;
+      this._status[tool] = true;
     });
+  }
+
+  resetRoundState(): void {
+    this._status = { lantern: true, pickaxe: true, mineCart: true };
   }
 }
 
@@ -46,36 +55,80 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
   handCount: number;
 
   constructor({
-    handCount,
+    handCount = 0,
     ...options
-  }: AbstractPlayerOption & { handCount: number }) {
+  }: AbstractPlayerOption & { handCount?: number }) {
     super(options);
     this.handCount = handCount;
+  }
+
+  resetRoundState(): void {
+    super.resetRoundState();
+    this.handCount = 0;
+  }
+
+  static readonly handCountPerPlayersMap: Record<number, number> = {
+    3: 6,
+    4: 6,
+    5: 6,
+    6: 5,
+    7: 5,
+    8: 4,
+    9: 4,
+    10: 4,
+  };
+
+  static getInitialHandCount(playerCount: number): number {
+    return this.handCountPerPlayersMap[playerCount] ?? 4;
   }
 }
 
 export class MySaboteurPlayer extends AbstractSaboteurPlayer {
-  role: PlayerRole;
-  hands: AbstractCard.Playable[];
   gold: number;
+
+  role: PlayerRole | null;
+  private _hands: AbstractCard.Playable[];
 
   constructor({
     role,
-    hands,
+    hands = [],
     gold = 0,
     ...options
   }: AbstractPlayerOption & {
-    role: PlayerRole;
-    hands: AbstractCard.Playable[];
+    role?: PlayerRole;
+    hands?: AbstractCard.Playable[];
     gold?: number;
   }) {
     super(options);
-    this.role = role;
-    this.hands = hands;
+    this.role = role ?? null;
+    this._hands = hands;
     this.gold = gold;
   }
 
+  get hands(): ReadonlyArray<AbstractCard.Playable> {
+    return this._hands;
+  }
+
   get handCount() {
-    return this.hands.length;
+    return this._hands.length;
+  }
+
+  add(card: AbstractCard.Playable): this {
+    this._hands.push(card);
+
+    return this;
+  }
+
+  use(cardIndex: number): AbstractCard.Playable {
+    if (cardIndex < 0 || cardIndex >= this._hands.length) {
+      throw new Error("Invalid card index");
+    }
+    return this._hands.splice(cardIndex, 1)[0];
+  }
+
+  resetRoundState(): void {
+    super.resetRoundState();
+    this._hands = [];
+    this.role = null;
   }
 }

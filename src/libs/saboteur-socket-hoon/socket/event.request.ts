@@ -15,10 +15,10 @@ export interface EmitEvents {
   join_game: BaseEmitEvent<{ room: string; player: string }>;
   leave_room: { room: string; player: string };
 
-  game_action: BaseEmitEvent<{
+  game_action: {
     room: string;
     player: string;
     action: SocketAction.Request.Primitive;
-  }>;
+  };
   chat: BaseEmitEvent<{ room: string; message: string }>;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GameRoomPlayer } from "@/libs/gameSession";
 import { SaboteurRoomAdapter, SaboteurSession } from "@/libs/saboteur/game";
 import {
@@ -10,17 +11,6 @@ import { onOncePromise, UnsubscribeCallback } from "@/libs/socket-io";
 import { PlayableCardId, transformIdToCard } from "./card";
 import { HSSaboteurSessionAdapter } from "./gameSession";
 import { HSSaboteurSocket, ListenEvents, SocketAction } from "./socket";
-
-const handSizePerPlayerCountMap: Record<number, number> = {
-  3: 6,
-  4: 6,
-  5: 6,
-  6: 5,
-  7: 5,
-  8: 4,
-  9: 4,
-  10: 4,
-};
 
 export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   private socket: HSSaboteurSocket;
@@ -80,57 +70,25 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
     const listener = async ({ type, data }: SocketAction.Response.Actions) => {
       if (type !== "game_started") return;
 
-      const playerIds = data.players;
-      const maxHandSize = handSizePerPlayerCountMap[playerIds.length];
-
-      const {
-        data: { currentRound, hand, role },
-      } = await onOncePromise(
-        this.socket,
-        "game_update",
-        SocketAction.isPrimitiveType("roundStart"),
-      ).promise;
-
-      const hands = hand.map(({ cardId, reverse }) => {
-        return transformIdToCard(
-          cardId as PlayableCardId,
-          typeof reverse === "boolean" ? reverse : undefined,
-        );
-      });
-
-      const players: AbstractSaboteurPlayer[] = playerIds.map((playerId) => {
+      const players: AbstractSaboteurPlayer[] = data.players.map((playerId) => {
         if (playerId === this.player.id) {
-          return new MySaboteurPlayer({ id: playerId, role, hands }); // MyPlayer
+          return new MySaboteurPlayer({ id: playerId });
         }
-        return new OtherSaboteurPlayer({
-          id: playerId,
-          handCount: maxHandSize,
-        }); // OtherPlayer
+        return new OtherSaboteurPlayer({ id: playerId });
       });
-
-      const firstPlayerIndex = players.findIndex(
-        (player) => player.id === current_player,
-      );
 
       const adapter = new HSSaboteurSessionAdapter(this.socket);
-
-      const session = new SaboteurSession({
-        adapter,
-        players,
-        firstPlayerIndex,
-      });
+      const session = new SaboteurSession(adapter, { players });
 
       this.gameSession = session;
-
-      // this.adapter.onGameSessionEnd;
 
       callback(session);
     };
 
-    this.socket.on("game_update", listener);
+    this.socket.on("game_update", listener as any);
 
     return () => {
-      this.socket.off("game_update", listener);
+      this.socket.off("game_update", listener as any);
     };
   }
 

@@ -1,3 +1,4 @@
+import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 abstract class AbstractSocketAction<T extends string | object = string | object>
@@ -117,6 +118,8 @@ export namespace SocketAction {
         primitive.id,
       );
     }
+
+    abstract toSaboteurAction(): SaboteurAction.Response.Actions;
   }
 
   export namespace Response {
