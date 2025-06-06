@@ -1,24 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
+import { SaboteurSession } from "@/libs/saboteur/game";
+import { MySaboteurPlayer } from "@/libs/saboteur/player";
 
 import { HSSaboteurSocket, SocketAction } from "./socket";
 
 export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   private socket: HSSaboteurSocket;
+  private roomId: string;
+  private player: MySaboteurPlayer;
 
-  constructor(socket: HSSaboteurSocket) {
+  constructor(
+    socket: HSSaboteurSocket,
+    roomId: string,
+    player: MySaboteurPlayer,
+  ) {
     this.socket = socket;
+    this.roomId = roomId;
+    this.player = player;
   }
 
-  sendAction<TAction extends SaboteurAction.Request.Actions>(action: TAction) {
-    // const room = this.socket.getRoomId();
-    // const player = this.socket.getPlayerId();
-
+  sendAction<TAction extends SaboteurAction.Request.Actions>(
+    action: TAction,
+    gameSession: SaboteurSession,
+  ) {
     this.socket.emit("game_action", {
-      room,
-      player,
-      action: action.toSocketPrimitive(),
+      room: this.roomId,
+      player: this.player.id,
+      action: action.toSocketAction(gameSession),
     });
   }
 
@@ -29,6 +39,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     callback: (
       action: SaboteurAction.Response.Actions & { type: TActionType },
     ) => void,
+    gameSession: SaboteurSession,
   ) {
     const ev =
       actionType in SaboteurAction.Response.Private.actionTypes
@@ -39,7 +50,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       if (data.type !== actionType) return;
 
       const action = SocketAction.AbstractResponse.fromPrimitive(data);
-      callback(action.toSaboteurAction() as any);
+      callback(action.toSaboteurAction(gameSession) as any);
     };
 
     this.socket.on(ev, listener as any);
@@ -51,6 +62,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   onGameSessionEnd(callback: () => void): () => void {
     const listener = ({ type, data }: SocketAction.Response.Actions) => {
       if (type !== "game_end") return;
+      // TODO: Handle game end logic
       // callback(data.rank);
     };
 

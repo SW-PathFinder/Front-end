@@ -6,9 +6,8 @@ import {
   MySaboteurPlayer,
   OtherSaboteurPlayer,
 } from "@/libs/saboteur/player";
-import { onOncePromise, UnsubscribeCallback } from "@/libs/socket-io";
+import { UnsubscribeCallback } from "@/libs/socket-io";
 
-import { PlayableCardId, transformIdToCard } from "./card";
 import { HSSaboteurSessionAdapter } from "./gameSession";
 import { HSSaboteurSocket, ListenEvents, SocketAction } from "./socket";
 
@@ -55,7 +54,8 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   }
 
   onGameSessionReady(callback: () => void): UnsubscribeCallback {
-    const listener = (data: ListenEvents["countdown_started"]) => {
+    // const listener = (data: ListenEvents["countdown_started"]) => {
+    const listener = () => {
       callback();
     };
 
@@ -70,14 +70,17 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
     const listener = async ({ type, data }: SocketAction.Response.Actions) => {
       if (type !== "game_started") return;
 
+      const myPlayer = new MySaboteurPlayer({ id: this.player.id });
       const players: AbstractSaboteurPlayer[] = data.players.map((playerId) => {
-        if (playerId === this.player.id) {
-          return new MySaboteurPlayer({ id: playerId });
-        }
+        if (playerId === this.player.id) return myPlayer;
         return new OtherSaboteurPlayer({ id: playerId });
       });
 
-      const adapter = new HSSaboteurSessionAdapter(this.socket);
+      const adapter = new HSSaboteurSessionAdapter(
+        this.socket,
+        this.roomId,
+        myPlayer,
+      );
       const session = new SaboteurSession(adapter, { players });
 
       this.gameSession = session;

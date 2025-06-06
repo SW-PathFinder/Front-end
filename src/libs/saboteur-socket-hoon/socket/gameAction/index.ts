@@ -2,7 +2,8 @@ import { transformIdToCard } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { SaboteurSession } from "@/libs/saboteur/game";
-import { PlayerRole } from "@/libs/saboteur/types";
+import { OtherSaboteurPlayer } from "@/libs/saboteur/player";
+import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 abstract class AbstractSocketAction<T extends string | object = string | object>
   implements SocketAction.Primitive
@@ -153,6 +154,25 @@ export namespace SocketAction {
         players: string[];
       }> {
         type = "game_started" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.GameStart {
+          const myPlayer = gameSession.myPlayer;
+          const players = this.data.players.map(
+            (playerId) => gameSession.players.find((p) => p.id === playerId)!,
+          );
+          if (!players.includes(myPlayer)) {
+            throw new Error(
+              `My player with id ${myPlayer.id} not found in the game players.`,
+            );
+          }
+
+          return new SaboteurAction.Response.Public.GameStart({
+            myPlayer,
+            players,
+          });
+        }
       }
 
       export class TurnChange extends AbstractBroadcastResponse<string> {
@@ -180,6 +200,18 @@ export namespace SocketAction {
         card: number;
       }> {
         type = "path" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.Path {
+          return new SaboteurAction.Response.Public.Path({
+            card: transformIdToCard(
+              this.data.card,
+            ) as SaboteurCard.Path.AbstractCommon,
+            x: this.data.x,
+            y: this.data.y,
+          });
+        }
       }
 
       export class DestroyPath extends AbstractBroadcastResponse<{
@@ -188,53 +220,148 @@ export namespace SocketAction {
         card: number;
       }> {
         type = "rockFail" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.Destroy {
+          return new SaboteurAction.Response.Public.Destroy({
+            card: transformIdToCard(
+              this.data.card,
+            ) as SaboteurCard.Action.Destroy,
+            x: this.data.x,
+            y: this.data.y,
+          });
+        }
       }
 
       export class Sabotage extends AbstractBroadcastResponse<{
         /** @description target player id */
         target: string;
-        cardType: "pickaxe" | "lantern" | "mineCart";
+        cardType: Tools;
       }> {
         type = "sabotage" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.Sabotage {
+          const player = gameSession.players.find(
+            (player) => player.id === this.data.target,
+          );
+          if (!player) {
+            throw new Error(`Player with id ${this.data.target} not found.`);
+          }
+
+          const card = new SaboteurCard.Action.Sabotage(this.data.cardType);
+
+          return new SaboteurAction.Response.Public.Sabotage({ card, player });
+        }
       }
 
       export class Repair extends AbstractBroadcastResponse<{
         /** @description target player id */
         target: string;
-        cardType: ("pickaxe" | "lantern" | "mineCart")[];
+        cardType: Tools[];
       }> {
         type = "repair" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Actions {
+          const player = gameSession.players.find(
+            (player) => player.id === this.data.target,
+          );
+          if (!player) {
+            throw new Error(`Player with id ${this.data.target} not found.`);
+          }
+
+          const card = new SaboteurCard.Action.Repair(this.data.cardType);
+
+          return new SaboteurAction.Response.Public.Repair({ card, player });
+        }
       }
 
       export class UseMap extends AbstractBroadcastResponse<{
         target: [x: number, y: number];
       }> {
         type = "viewMap" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.UseMap {
+          return new SaboteurAction.Response.Public.UseMap({
+            x: this.data.target[0],
+            y: this.data.target[1],
+            card: new SaboteurCard.Action.Map(),
+          });
+        }
       }
 
       export class DiscardCard extends AbstractBroadcastResponse<{
         handNum: number;
       }> {
         type = "discard" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.Discard {
+          return new SaboteurAction.Response.Public.Discard({
+            card: gameSession.myPlayer.hands[this.data.handNum],
+          });
+        }
       }
 
       export class FoundRock extends AbstractBroadcastResponse<
         [x: number, y: number]
       > {
         type = "rock_found" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.FoundRock {
+          return new SaboteurAction.Response.Public.FoundRock({
+            x: this.data[0],
+            y: this.data[1],
+          });
+        }
       }
 
       export class RoundEnd extends AbstractBroadcastResponse<{
+        /** @description winner role */
         winner: PlayerRole;
         roles: { [playerId: string]: PlayerRole };
       }> {
         type = "round_end" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.RoundEnd {
+          const winners = gameSession.players.filter(
+            (player) => this.data.roles[player.id] === this.data.winner,
+          );
+
+          return new SaboteurAction.Response.Private.RoundEnd({ winners });
+        }
       }
 
       export class GameEnd extends AbstractBroadcastResponse<{
         rank: [playerId: string, gold: number][];
       }> {
         type = "game_end" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Public.GameEnd {
+          return new SaboteurAction.Response.Public.GameEnd({
+            rank: this.data.rank
+              .map(([playerId, gold]) => ({
+                player: gameSession.players.find(
+                  (player) => player.id === playerId,
+                )!,
+                gold,
+              }))
+              .sort((a, b) => b.gold - a.gold),
+          });
+        }
       }
 
       export type Actions = InstanceType<
@@ -267,36 +394,98 @@ export namespace SocketAction {
         currentRound: number;
       }> {
         type = "roundStart" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.RoundStart {
+          return new SaboteurAction.Response.Private.RoundStart({
+            hands: this.data.hand.map(
+              (card) =>
+                transformIdToCard(
+                  card.cardId,
+                  card.reverse,
+                ) as SaboteurCard.Abstract.Playable,
+            ),
+            role: this.data.role,
+            round: this.data.currentRound,
+          });
+        }
       }
 
       export class DrawCard extends AbstractPrivateResponse<{ card: number }> {
         type = "drawCard" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.Draw {
+          return new SaboteurAction.Response.Private.Draw({
+            card: transformIdToCard(
+              this.data.card,
+            ) as SaboteurCard.Abstract.Playable,
+          });
+        }
       }
 
       export class RevealDestination extends AbstractPrivateResponse<{
-        cardType: "gold" | "rock";
+        x: number;
+        y: number;
+        /** @description destination card id */
+        cardType: number;
       }> {
-        // TODO: 기존 서버 타입은 viewMap인데 Broadcast의 UseMap과 구분이 불가능해서 바꿈
         type = "revealDest" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.RevealDest {
+          return new SaboteurAction.Response.Private.RevealDest({
+            x: this.data.x,
+            y: this.data.y,
+            card: transformIdToCard(
+              this.data.cardType,
+            ) as SaboteurCard.Path.AbstractDest,
+          });
+        }
       }
 
       export class RotatePathCard extends AbstractPrivateResponse<{
         card: number;
       }> {
         type = "reversePath" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.Rotate {
+          return new SaboteurAction.Response.Private.Rotate({
+            card: transformIdToCard(
+              this.data.card,
+            ) as SaboteurCard.Path.AbstractCommon,
+          });
+        }
       }
 
       export class ReceiveGold extends AbstractPrivateResponse<{
         gold: number;
       }> {
         type = "getGold" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.ReceiveGold {
+          return new SaboteurAction.Response.Private.ReceiveGold({
+            gold: this.data.gold,
+            player: gameSession.myPlayer,
+          });
+        }
       }
 
       export class PlayerState extends AbstractPrivateResponse<{
-        // round state
+        // game session state
         round: number;
         // 내꺼
         gold: number;
+
+        // game round state
+        role: PlayerRole;
 
         // personal turn state
         hands: { cardId: number; reverse?: boolean }[];
@@ -311,6 +500,66 @@ export namespace SocketAction {
         }[];
       }> {
         type = "playerState" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Private.PlayerState {
+          gameSession.players.forEach((player) => {
+            player.resetRoundState();
+          });
+
+          const myPlayer = gameSession.myPlayer;
+          const myPlayerData = this.data.players.find(
+            (p) => p.playerId === myPlayer.id,
+          );
+          if (!myPlayerData) {
+            throw new Error(`My player data not found for id ${myPlayer.id}.`);
+          }
+
+          myPlayer.sync(
+            this.data.gold,
+            this.data.hands.map(
+              (card) =>
+                transformIdToCard(
+                  card.cardId,
+                  card.reverse,
+                ) as SaboteurCard.Abstract.Playable,
+            ),
+            this.data.role,
+            myPlayerData.tool,
+          );
+
+          gameSession.players.forEach((player) => {
+            if (player instanceof OtherSaboteurPlayer)
+              player.handCount = OtherSaboteurPlayer.getInitialHandCount(
+                gameSession.players.length,
+              );
+          });
+
+          const currentPlayer = gameSession.players.find(
+            (player) => player.id === this.data.currentPlayerId,
+          );
+          if (!currentPlayer) {
+            throw new Error(
+              `Current player with id ${this.data.currentPlayerId} not found.`,
+            );
+          }
+
+          gameSession.board.import(
+            this.data.board.map(({ x, y, cardId, reverse }) => [
+              [x, y],
+              transformIdToCard(cardId, reverse) as SaboteurCard.Path.Abstract,
+            ]),
+          );
+
+          return new SaboteurAction.Response.Private.PlayerState({
+            round: this.data.round,
+            myPlayer,
+            currentPlayer,
+            players: gameSession.players,
+            board: gameSession.board,
+          });
+        }
       }
 
       export type Actions = InstanceType<
@@ -323,6 +572,12 @@ export namespace SocketAction {
     export namespace Exception {
       export class Exception extends AbstractExceptionResponse {
         type = "error" as const;
+
+        toSaboteurAction(
+          gameSession: SaboteurSession,
+        ): SaboteurAction.Response.Actions {
+          throw new Error("Method not implemented.");
+        }
       }
       export type Actions = Exception;
     }

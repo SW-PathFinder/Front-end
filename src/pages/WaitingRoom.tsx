@@ -4,7 +4,6 @@ import { Crown } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { useGameRoom } from "@/contexts/GameRoomContext";
-import { useSocket } from "@/contexts/SocketContext";
 
 const palette = [
   "bg-blue-300",
@@ -22,7 +21,6 @@ const palette = [
 const WaitingRoom = () => {
   const navigate = useNavigate();
 
-  const socket = useSocket();
   const { gameRoom } = useGameRoom();
   const [countdown, setCountdown] = useState<number | null>(null);
   const [players, setPlayers] = useState<string[]>(() =>

@@ -14,7 +14,7 @@ export interface GameSession {
   readonly players: GameSessionPlayer[];
 }
 
-export interface GameSessionAdapter extends EventTarget {
+export interface GameSessionAdapter {
   onGameSessionEnd(
     // callback: (gameSession: GameSession) => void,
     callback: () => void,

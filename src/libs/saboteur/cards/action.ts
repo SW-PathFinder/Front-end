@@ -37,9 +37,17 @@ export namespace ActionCard {
     readonly tools: AvailableRepairToolSet;
     readonly image: string;
 
-    constructor(tools: AvailableRepairToolSet) {
+    constructor(tools: Tools[]) {
       super();
-      this.tools = tools;
+      this.tools = tools.sort((a, b) =>
+        a === Tools.Pickaxe
+          ? -1
+          : a === Tools.Lantern
+            ? b === Tools.MineCart
+              ? -1
+              : 1
+            : 1,
+      ) as AvailableRepairToolSet;
       this.image = `/assets/saboteur/cards/action/repair_${tools.map((tool) => tool[0].toLowerCase()).join("")}.png`;
     }
   }

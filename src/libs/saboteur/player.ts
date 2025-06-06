@@ -1,6 +1,5 @@
 import { GameSessionPlayer } from "@/libs/gameSession";
 import { AbstractCard } from "@/libs/saboteur/cards";
-import { SaboteurSession } from "@/libs/saboteur/game";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 interface AbstractPlayerOption {
@@ -14,7 +13,7 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
 
   readonly id: string;
   abstract readonly handCount: number;
-  private _status: Record<Tools, boolean>;
+  protected _status: Record<Tools, boolean>;
 
   constructor({
     id,
@@ -100,9 +99,9 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     gold?: number;
   }) {
     super(options);
+    this.gold = gold;
     this.role = role ?? null;
     this._hands = hands;
-    this.gold = gold;
   }
 
   get hands(): ReadonlyArray<AbstractCard.Playable> {
@@ -130,5 +129,21 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     super.resetRoundState();
     this._hands = [];
     this.role = null;
+  }
+
+  sync(
+    gold: number,
+    hands: AbstractCard.Playable[],
+    role: PlayerRole | null = null,
+    status: Record<Tools, boolean> = {
+      lantern: true,
+      pickaxe: true,
+      mineCart: true,
+    },
+  ) {
+    this.gold = gold;
+    this._hands = hands;
+    this.role = role;
+    this._status = status;
   }
 }

@@ -4,9 +4,7 @@ import { UnsubscribeCallback } from "@/libs/socket-io";
 
 import { SaboteurAction } from "./action";
 
-export interface SaboteurSessionAdapter
-  extends EventTarget,
-    GameSessionAdapter {
+export interface SaboteurSessionAdapter extends GameSessionAdapter {
   // getBoard(): GameBoard;
   // getMyPlayer(): MyPlayer;
   // getPlayers(): AbstractPlayer[];
@@ -21,6 +19,7 @@ export interface SaboteurSessionAdapter
 
   sendAction<TAction extends SaboteurAction.Request.Actions>(
     action: TAction,
+    gameSession: SaboteurSession,
   ): void;
 
   onGameStateChange<
@@ -30,7 +29,8 @@ export interface SaboteurSessionAdapter
     callback: (
       action: SaboteurAction.Response.Actions & { type: TActionType },
     ) => void,
-  ): void;
+    gameSession: SaboteurSession,
+  ): UnsubscribeCallback;
 
   /** @todo add callback argument */
   onGameSessionEnd(

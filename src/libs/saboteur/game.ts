@@ -89,11 +89,29 @@ export class SaboteurSession implements GameSession {
     this.players = players;
     this.board = new GameBoard();
 
-    this.adapter.onGameStateChange("roundStart", (data) => {
-      this.onRoundStart(data);
-    });
-    this.adapter.onGameStateChange("turnChange", (data) => {
-      this.onTurnChange(data);
+    this.adapter.onGameStateChange(
+      "roundStart",
+      (data) => {
+        this.onRoundStart(data);
+      },
+      this,
+    );
+    this.adapter.onGameStateChange(
+      "turnChange",
+      (data) => {
+        this.onTurnChange(data);
+      },
+      this,
+    );
+    this.adapter.onGameStateChange(
+      "roundEnd",
+      (data) => {
+        this.onRoundEnd(data);
+      },
+      this,
+    );
+    this.adapter.onGameSessionEnd(() => {
+      this.onGameSessionEnd();
     });
   }
 
@@ -117,7 +135,21 @@ export class SaboteurSession implements GameSession {
     return 6;
   }
 
-  // private onGameStateChange(): UnsubscribeCallback {}
+  sendAction<TAction extends SaboteurAction.Request.Actions>(
+    action: TAction,
+  ): void {
+    this.adapter.sendAction(action, this);
+  }
+
+  onGameStateChange<
+    TActionType extends SaboteurAction.Response.Actions["type"],
+  >(
+    actionType: TActionType,
+    callback: (action: SaboteurAction.Response.Actions) => void,
+  ): UnsubscribeCallback {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.adapter.onGameStateChange(actionType as any, callback, this);
+  }
 
   private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
     this.round = data.round;
@@ -143,9 +175,7 @@ export class SaboteurSession implements GameSession {
     this._currentPlayerIndex = nextPlayerIndex;
   }
 
-  private onRoundEnd({
-    data: { round, winner },
-  }: SaboteurAction.Response.Private.RoundEnd) {
+  private onRoundEnd({ data }: SaboteurAction.Response.Private.RoundEnd) {
     this.players.forEach((player) => {
       player.resetRoundState();
     });
