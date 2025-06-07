@@ -45,13 +45,6 @@ const WaitingRoom = () => {
     };
   }, [gameRoom]);
 
-  // 추가: 입장 시점에 이미 정원이 찼으면 바로 카운트다운
-  useEffect(() => {
-    if (countdown === null && players.length === gameRoom.capacity) {
-      setCountdown(5);
-    }
-  }, [players, countdown, gameRoom.capacity]);
-
   // 카운트 처리 및 자동 시작
   useEffect(() => {
     if (countdown == null) return;
