@@ -1,15 +1,15 @@
-import { AbstractPlayer } from "@/libs/saboteur/player";
+import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 interface PlayerStatusProps {
-  item: AbstractPlayer;
+  item: AbstractSaboteurPlayer;
 }
 
 const PlayerStatus = ({ item }: PlayerStatusProps) => {
   return (
-    <div className="flex flex-row items-center justify-between border p-1 pr-4">
-      <div className="flex flex-col">
+    <div className="flex flex-row items-center justify-between border p-2 pt-1">
+      <div className="flex flex-col gap-2">
         <p>{item.name}</p>
         <div className="flex h-[20px] gap-4">
           <div className="flex items-center gap-1">

@@ -2,11 +2,11 @@ import { useState } from "react";
 
 import type { Meta } from "@storybook/react";
 
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import {
-  SabotageActionCard,
-  RepairActionCard,
-} from "@/libs/saboteur/cards/action";
-import { OtherPlayer, type AbstractPlayer } from "@/libs/saboteur/player";
+  OtherSaboteurPlayer,
+  type AbstractSaboteurPlayer,
+} from "@/libs/saboteur/player";
 import { Tools } from "@/libs/saboteur/types";
 
 import EquipmentModal from "./EquipmentModal";
@@ -19,57 +19,57 @@ const meta: Meta<typeof EquipmentModal> = {
 
 export default meta;
 
-const dummyList: AbstractPlayer[] = [
-  new OtherPlayer({
-    name: "Dami",
+const dummyList: AbstractSaboteurPlayer[] = [
+  new OtherSaboteurPlayer({
+    id: "Dami",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Doo Hyun",
+  new OtherSaboteurPlayer({
+    id: "Doo Hyun",
     status: { lantern: true, pickaxe: false, mineCart: false },
     handCount: 2,
   }),
-  new OtherPlayer({
-    name: "Jiwoo",
+  new OtherSaboteurPlayer({
+    id: "Jiwoo",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 1,
   }),
-  new OtherPlayer({
-    name: "Dohoon",
+  new OtherSaboteurPlayer({
+    id: "Dohoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Jaehoon",
+  new OtherSaboteurPlayer({
+    id: "Jaehoon",
     status: { lantern: true, pickaxe: true, mineCart: false },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Namhoon",
+  new OtherSaboteurPlayer({
+    id: "Namhoon",
     status: { lantern: false, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Hayoung",
+  new OtherSaboteurPlayer({
+    id: "Hayoung",
     status: { lantern: true, pickaxe: false, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Nutria",
+  new OtherSaboteurPlayer({
+    id: "Nutria",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
-  new OtherPlayer({
-    name: "Schott",
+  new OtherSaboteurPlayer({
+    id: "Schott",
     status: { lantern: true, pickaxe: true, mineCart: true },
     handCount: 3,
   }),
 ];
 
-const card1 = new RepairActionCard([Tools.Lantern, Tools.MineCart]);
+const card1 = new SaboteurCard.Action.Repair([Tools.Lantern, Tools.MineCart]);
 
-const card2 = new SabotageActionCard(Tools.MineCart);
+const card2 = new SaboteurCard.Action.Sabotage(Tools.MineCart);
 
 export const Default = () => {
   const [mode, setMode] = useState<"repair" | "sabotage" | null>(null);

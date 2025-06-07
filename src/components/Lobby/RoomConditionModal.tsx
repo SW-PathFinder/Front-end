@@ -2,9 +2,8 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router";
 
-import { useGameSession } from "@/contexts/GameSessionContext";
+import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { useSocketRequest } from "@/contexts/SocketContext";
-import { setRoomSession } from "@/libs/game/sessionUtils";
 
 interface RoomConditionModalProps {
   isOpen: boolean;
@@ -21,7 +20,7 @@ const RoomConditionModal = ({
   const [helper, setHelper] = useState<boolean>(true);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const navigate = useNavigate();
-  const { setRoomId, setCapacity, setParticipants } = useGameSession();
+  const { setGameRoom } = useAuthenticated();
 
   const matchRoom = useSocketRequest("quick_match", "quick_match_result");
   const createRoom = useSocketRequest("create_room", "room_created");
@@ -32,7 +31,15 @@ const RoomConditionModal = ({
         max_players: playerNum,
         card_helper: helper,
       });
-      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+
+      setGameRoom({
+        id: result.room.room_id,
+        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: result.room.host, name: result.room.host },
+        capacity: result.room.max_players,
+        isPublic: result.room.is_public,
+        cardHelper: result.room.card_helper,
+      });
 
       navigate(`/waiting/${result.room.room_id}`);
       onClose();
@@ -48,7 +55,15 @@ const RoomConditionModal = ({
         is_public: isPublic,
         card_helper: helper,
       });
-      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+
+      setGameRoom({
+        id: result.room.room_id,
+        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: result.room.host, name: result.room.host },
+        capacity: result.room.max_players,
+        isPublic: result.room.is_public,
+        cardHelper: result.room.card_helper,
+      });
 
       navigate(`/waiting/${result.room.room_id}`);
       onClose();

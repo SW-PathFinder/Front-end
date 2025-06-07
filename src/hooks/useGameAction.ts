@@ -1,19 +1,20 @@
 import { useCallback, useEffect } from "react";
 
-import { useGameSession } from "@/contexts/GameSessionContext";
-import { useAuthenticated } from "@/contexts/SessionContext";
+import { useAuthenticated } from "@/contexts/AuthenticatedContext";
+import { useGameRoom } from "@/contexts/GameRoomContext";
 import { useSocket } from "@/contexts/SocketContext";
 import { SocketAction } from "@/libs/saboteur-socket-hoon";
 
 export function useGameActionEmitter() {
   const socket = useSocket();
   const { userId } = useAuthenticated();
-  const { roomId } = useGameSession();
+  const { gameRoom } = useGameRoom();
+  const roomId = gameRoom.id;
 
   return useCallback(
     (action: SocketAction.Request.Actions) => {
       socket.emit("game_action", {
-        action: action.toPrimitive(),
+        action: action.toPrimitive() as SocketAction.Request.Actions,
         room: roomId,
         player: userId,
         requestId: crypto.randomUUID(),

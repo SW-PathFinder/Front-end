@@ -3,3 +3,8 @@ export enum Tools {
   MineCart = "mineCart",
   Pickaxe = "pickaxe",
 }
+
+export enum PlayerRole {
+  Worker = "worker",
+  Saboteur = "saboteur",
+}

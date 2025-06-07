@@ -6,10 +6,11 @@ import {
   PathNotReachableError,
 } from "@/libs/saboteur/board/error";
 import { Grid2d, MapGrid2d } from "@/libs/saboteur/board/grid2d";
-import { CardinalDirection, PathCard } from "@/libs/saboteur/cards";
+import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
 export class GameBoard {
-  private grid: Grid2d<PathCard.Abstract> = new MapGrid2d<PathCard.Abstract>();
+  private grid: Grid2d<SaboteurCard.Path.Abstract> =
+    new MapGrid2d<SaboteurCard.Path.Abstract>();
 
   constructor() {
     this.startNewRound();
@@ -25,23 +26,23 @@ export class GameBoard {
     [9, 2],
   ] satisfies readonly [number, number][];
 
-  get cards(): readonly PathCard.Abstract[] {
+  get cards(): readonly SaboteurCard.Path.Abstract[] {
     return this.grid.entries().map(([, card]) => card);
   }
 
-  getCard(x: number, y: number): PathCard.Abstract | null {
+  getCard(x: number, y: number): SaboteurCard.Path.Abstract | null {
     return this.grid.get(x, y);
   }
 
   canPlaceCard(
     x: number,
     y: number,
-    card: PathCard.Abstract,
+    card: SaboteurCard.Path.Abstract,
   ): [removed: true] | [removed: false, error: Error];
   canPlaceCard(
     x: number,
     y: number,
-    card: PathCard.Abstract,
+    card: SaboteurCard.Path.Abstract,
   ): [removed: boolean, error?: Error] {
     if (this.grid.has(x, y)) return [false, new CardAlreadyExistsError(x, y)];
 
@@ -55,7 +56,7 @@ export class GameBoard {
     return [true];
   }
 
-  placeCard(x: number, y: number, card: PathCard.Abstract): void {
+  placeCard(x: number, y: number, card: SaboteurCard.Path.Abstract): void {
     const [canPlace, error] = this.canPlaceCard(x, y, card);
     if (!canPlace) throw error;
     this._setCard(x, y, card);
@@ -85,25 +86,31 @@ export class GameBoard {
   startNewRound(): void {
     this._clear();
 
-    this._setCard(...GameBoard.originCoordinates, new PathCard.Origin());
+    this._setCard(
+      ...GameBoard.originCoordinates,
+      new SaboteurCard.Path.Origin(),
+    );
     for (const destination of GameBoard.destinationCoordinates) {
-      this._setCard(...destination, new PathCard.DestHidden());
+      this._setCard(...destination, new SaboteurCard.Path.DestHidden());
     }
   }
 
-  revealDestination(destId: 0 | 1 | 2, destCard: PathCard.AbstractDest): void {
+  revealDestination(
+    destId: 0 | 1 | 2,
+    destCard: SaboteurCard.Path.AbstractDest,
+  ): void {
     const coordinates = GameBoard.destinationCoordinates[destId];
 
     this._setCard(...coordinates, destCard);
   }
 
   import(
-    cards: [[x: number, y: number], card: PathCard.Abstract][],
+    cards: [[x: number, y: number], card: SaboteurCard.Path.Abstract][],
   ): GameBoard {
     this.startNewRound();
 
     for (const [[x, y], card] of cards) {
-      if (card instanceof PathCard.AbstractDest) {
+      if (card instanceof SaboteurCard.Path.AbstractDest) {
         this._setCard(x, y, card);
         continue;
       }
@@ -117,11 +124,11 @@ export class GameBoard {
     return this;
   }
 
-  export(): [[x: number, y: number], card: PathCard.Abstract][] {
+  export(): [[x: number, y: number], card: SaboteurCard.Path.Abstract][] {
     return this.grid.entries();
   }
 
-  isReachable(x: number, y: number, card: PathCard.Abstract): boolean {
+  isReachable(x: number, y: number, card: SaboteurCard.Path.Abstract): boolean {
     // 시작점에서부터 해당 좌표까지 경로가 연결되어 있는지 확인
     const visited = new Set<string>();
     const stack: [number, number][] = [GameBoard.originCoordinates]; // 시작점에서 시작
@@ -166,7 +173,11 @@ export class GameBoard {
     this.grid.clear();
   }
 
-  private _setCard(x: number, y: number, card: PathCard.Abstract): void {
+  private _setCard(
+    x: number,
+    y: number,
+    card: SaboteurCard.Path.Abstract,
+  ): void {
     this.grid.set(x, y, card);
   }
 
@@ -174,7 +185,7 @@ export class GameBoard {
     const adjacentCards: {
       direction: CardinalDirection.Adjacent;
       coord: [number, number];
-      card: PathCard.Abstract;
+      card: SaboteurCard.Path.Abstract;
     }[] = [];
 
     for (const direction of CardinalDirection.adjacentList) {
@@ -190,7 +201,7 @@ export class GameBoard {
   private getDisconnectedAdjacentCards(
     x: number,
     y: number,
-    card: PathCard.Abstract,
+    card: SaboteurCard.Path.Abstract,
   ) {
     return this.getAdjacentCards(x, y).filter(
       ({ card: adjacentCard, direction }) =>

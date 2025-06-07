@@ -1,94 +1,69 @@
-import { useEffect, useState } from "react";
-
 import { RulebookButton } from "@/components/Common/RulebookButton";
-import { Board, BOARD_COLS, BOARD_ROWS } from "@/components/Game/Board";
+import { Board } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import { useGameSession } from "@/contexts/GameSessionContext";
-import { AbstractCard, PathCard } from "@/libs/saboteur/cards";
-import { AbstractPlayer, OtherPlayer } from "@/libs/saboteur/player";
-
-// import { fn } from "@storybook/test";
-
-const dummyCards: AbstractCard.Playable[] = [
-  new PathCard.Way4(),
-  new PathCard.Way4(),
-  new PathCard.Way4(),
-  new PathCard.Way4(),
-  new PathCard.Way4(),
-  new PathCard.Way4(),
-];
 
 const Game = () => {
-  const { participants } = useGameSession();
-
-  const dummyList: AbstractPlayer[] = participants.map(
-    (participant) =>
-      new OtherPlayer({
-        name: participant,
-        status: { lantern: true, pickaxe: true, mineCart: true },
-        handCount: 3,
-      }),
-  );
-
-  const [hands, setHand] = useState<AbstractCard.Playable[]>(() => []);
-
-  const dummyBoardCards: (PathCard.Abstract | null)[][] = Array.from(
-    { length: BOARD_ROWS },
-    () => {
-      return Array.from({ length: BOARD_COLS }, () => null);
-    },
-  );
-
-  dummyBoardCards[11][7] = new PathCard.Origin();
-  dummyBoardCards[9][15] = new PathCard.DestHidden();
-  dummyBoardCards[11][15] = new PathCard.DestHidden();
-  dummyBoardCards[13][15] = new PathCard.DestHidden();
-
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setHand(dummyCards);
-    // setIsLoading(false);
-    // setError(null);
-  }, []);
-
-  const remainingCards = 8;
+  const { gameSession } = useGameSession();
 
   return (
-    <div className="relative flex flex-col p-3">
-      <div className="absolute top-2 left-2 z-10 flex w-[180px] flex-col gap-6">
-        <PlayerList list={dummyList} />
-        <div className="flex h-[60px] w-full items-center justify-center gap-6">
-          <RulebookButton />
-          <img
-            className="h-full hover:cursor-pointer"
-            src="/buttons/emoji_button.svg"
-            alt="emoji chat"
-          />
-        </div>
-      </div>
-      <div className="absolute top-2 right-2 z-10 flex w-[150px] flex-col items-center justify-center gap-2 bg-transparent">
-        <img
-          className="w-full rounded-2xl shadow-2xs"
-          src="/assets/saboteur/cards/bg_playable.png"
-          alt="card back"
-        />
-        <p>남은 카드 수 : {remainingCards}장</p>
-      </div>
-      <div className="relative flex h-screen w-screen flex-col items-center justify-center">
-        <DndZone>
-          <Board cards={dummyBoardCards} className="mb-[100px] h-9/10 w-full" />
-          <div className="absolute bottom-0 flex h-[150px] w-full max-w-[480px] items-center justify-between px-4">
-            <button className="btn btn-primary">버리기</button>
-            <div className="relative flex h-full w-full items-center justify-center">
-              <Hand cards={dummyCards} className="absolute top-0" />
-            </div>
-            <button className="btn btn-primary">회전</button>
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-base-200 px-4 md:px-8">
+      {/* 상단: 플레이어 차례 */}
+      <header className="flex flex-col items-center justify-center bg-base-200 p-4">
+        <p>나의 역할 : {gameSession.myPlayer.role}</p>
+        <p className="text-lg font-semibold">
+          {gameSession.myPlayer.name}의 차례
+        </p>
+      </header>
+      {/* 메인 영역: 좌측 사이드바, 보드, 로그 */}
+      <div className="flex overflow-hidden">
+        {/* 좌측 사이드바 */}
+        <aside className="mr-6 flex w-[200px] flex-shrink-0 flex-col items-start gap-4 self-center overflow-auto bg-base-200 p-4">
+          <PlayerList list={gameSession.players} />
+          <div className="flex w-full items-center justify-evenly">
+            <RulebookButton />
+            <img
+              className="h-16 w-16 cursor-pointer"
+              src="/buttons/emoji_button.svg"
+              alt="emoji chat"
+            />
           </div>
-        </DndZone>
+        </aside>
+        {/* 중앙 보드 & 핸드 */}
+        <main className="relative flex flex-1 flex-col items-center justify-center">
+          <DndZone>
+            <Board
+              board={gameSession.board}
+              className="mb-[100px] h-1/2 w-full"
+            />
+            <div className="absolute bottom-0 flex h-[150px] w-full max-w-[480px] items-center justify-between px-4">
+              <button className="btn btn-primary">버리기</button>
+              <div className="relative flex h-full w-full items-center justify-center">
+                <Hand
+                  cards={gameSession.myPlayer.hands}
+                  className="absolute top-0"
+                />
+              </div>
+              <button className="btn btn-primary">회전</button>
+            </div>
+          </DndZone>
+        </main>
+        {/* 우측 사이드: 남은 카드 수 + 로그 */}
+        <div className="p-x-4 mb-4 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto bg-base-200">
+          <div className="flex w-[150px] flex-col items-center gap-4">
+            <img
+              className="w-1/2 rounded-xl shadow-2xs"
+              src="/assets/saboteur/cards/bg_playable.png"
+              alt="card back"
+            />
+            <p>남은 카드 : {gameSession.remainingCards}장</p>
+          </div>
+          <aside className="bg-opacity-50 h-full w-48 overflow-auto rounded bg-base-300 p-2">
+            <p className="text-center text-sm">게임 로그</p>
+          </aside>
+        </div>
       </div>
     </div>
   );

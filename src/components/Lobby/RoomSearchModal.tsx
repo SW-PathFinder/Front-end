@@ -1,8 +1,7 @@
 import { useState } from "react";
 
-import { useGameSession } from "@/contexts/GameSessionContext";
+import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { useSocketRequest } from "@/contexts/SocketContext";
-import { setRoomSession } from "@/libs/game/sessionUtils";
 
 interface RoomSearchModalProps {
   isOpen: boolean;
@@ -11,8 +10,7 @@ interface RoomSearchModalProps {
 
 const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
   const [value, setValue] = useState("");
-
-  const { setRoomId, setCapacity, setParticipants } = useGameSession();
+  const { setGameRoom } = useAuthenticated();
 
   const searchRoom = useSocketRequest(
     "search_room_by_code",
@@ -22,7 +20,15 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
   const clickSearch = async () => {
     try {
       const result = await searchRoom({ room_code: value });
-      setRoomSession(result.room, { setRoomId, setCapacity, setParticipants });
+
+      setGameRoom({
+        id: result.room.room_id,
+        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: result.room.host, name: result.room.host },
+        capacity: result.room.max_players,
+        isPublic: result.room.is_public,
+        cardHelper: result.room.card_helper,
+      });
     } catch (error) {
       console.error(error);
     }

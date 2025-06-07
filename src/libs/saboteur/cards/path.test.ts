@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CardinalDirection, PathCard } from "@/libs/saboteur/cards/path";
+import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
 const flipMap = {
   [CardinalDirection.East]: CardinalDirection.West,
@@ -11,20 +11,20 @@ const flipMap = {
 
 describe("opened direction", () => {
   const edges = [
-    [PathCard.Way4, CardinalDirection.East, true],
-    [PathCard.Way4, CardinalDirection.West, true],
-    [PathCard.Way4, CardinalDirection.South, true],
-    [PathCard.Way4, CardinalDirection.North, true],
+    [SaboteurCard.Path.Way4, CardinalDirection.East, true],
+    [SaboteurCard.Path.Way4, CardinalDirection.West, true],
+    [SaboteurCard.Path.Way4, CardinalDirection.South, true],
+    [SaboteurCard.Path.Way4, CardinalDirection.North, true],
 
-    [PathCard.Way2A, CardinalDirection.East, true],
-    [PathCard.Way2A, CardinalDirection.West, false],
-    [PathCard.Way2A, CardinalDirection.South, true],
-    [PathCard.Way2A, CardinalDirection.North, false],
+    [SaboteurCard.Path.Way2A, CardinalDirection.East, true],
+    [SaboteurCard.Path.Way2A, CardinalDirection.West, false],
+    [SaboteurCard.Path.Way2A, CardinalDirection.South, true],
+    [SaboteurCard.Path.Way2A, CardinalDirection.North, false],
 
-    [PathCard.Block2A, CardinalDirection.East, true],
-    [PathCard.Block2A, CardinalDirection.West, false],
-    [PathCard.Block2A, CardinalDirection.South, true],
-    [PathCard.Block2A, CardinalDirection.North, false],
+    [SaboteurCard.Path.Block2A, CardinalDirection.East, true],
+    [SaboteurCard.Path.Block2A, CardinalDirection.West, false],
+    [SaboteurCard.Path.Block2A, CardinalDirection.South, true],
+    [SaboteurCard.Path.Block2A, CardinalDirection.North, false],
   ] as const;
 
   it.each(edges)("can check opened direction", (cls, direction, expected) => {
@@ -55,13 +55,13 @@ describe("connection check", () => {
     [CardinalDirection.South, CardinalDirection.North, false],
   ] as const;
   it.each(edges)("can check connected direction", (from, to, result) => {
-    const card = new PathCard.Way2A();
+    const card = new SaboteurCard.Path.Way2A();
 
     expect(card.isConnected(from, to)).toBe(result);
   });
 
   it.each(edges)("can consider weather flipped or not", (from, to, result) => {
-    const card = new PathCard.Way2A();
+    const card = new SaboteurCard.Path.Way2A();
     card.flipped = true;
 
     expect(card.isConnected(flipMap[from], flipMap[to])).toBe(result);

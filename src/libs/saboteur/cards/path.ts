@@ -262,4 +262,6 @@ export namespace PathCard {
       CardinalDirection.East | CardinalDirection.North,
     ] as const;
   }
+
+  export type Cards = InstanceType<(typeof PathCard)[keyof typeof PathCard]>;
 }

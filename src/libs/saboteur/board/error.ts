@@ -1,4 +1,4 @@
-import { CardinalDirection, PathCard } from "@/libs/saboteur/cards";
+import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
 export class GameBoardError extends Error {}
 export class CardPlacementError extends GameBoardError {
@@ -19,13 +19,13 @@ export class PathNotConnectedError extends CardPlacementError {
   disconnectedCards: {
     direction: CardinalDirection.Adjacent;
     coord: [number, number];
-    card: PathCard.Abstract;
+    card: SaboteurCard.Path.Abstract;
   }[];
   constructor(
     disconnectedCards: {
       direction: CardinalDirection.Adjacent;
       coord: [number, number];
-      card: PathCard.Abstract;
+      card: SaboteurCard.Path.Abstract;
     }[],
   ) {
     super(
@@ -63,7 +63,7 @@ export class CardNotInCoordinatesError extends CardDestructionError {
 }
 
 export class CardIndestructibleError extends CardDestructionError {
-  constructor(card: PathCard.Abstract) {
+  constructor(card: SaboteurCard.Path.Abstract) {
     super(`카드 ${card.type}는 파괴할 수 없습니다.`);
   }
 }
