@@ -186,6 +186,8 @@ export namespace SaboteurAction {
   export namespace Response {
     export abstract class Primitive<T> extends Action<T> {
       readonly eventType = "response";
+
+      abstract update(gameSession: SaboteurSession): void;
     }
 
     export namespace Public {
