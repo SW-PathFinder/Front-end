@@ -1,8 +1,6 @@
 import { transformIdToCard } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
-import { SaboteurSession } from "@/libs/saboteur/game";
-import { OtherSaboteurPlayer } from "@/libs/saboteur/player";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 abstract class AbstractSocketAction<T extends string | object = string | object>
@@ -19,8 +17,6 @@ abstract class AbstractSocketAction<T extends string | object = string | object>
     return (this.constructor as any).type;
   }
 }
-
-type Prettify<T> = { [K in keyof T]: T[K] };
 
 export namespace SocketAction {
   export interface Primitive {
@@ -133,9 +129,7 @@ export namespace SocketAction {
       );
     }
 
-    abstract toSaboteurAction(
-      gameSession: Readonly<SaboteurSession>,
-    ): SaboteurAction.Response.Actions;
+    abstract toSaboteurAction(): SaboteurAction.Response.Actions[];
   }
 
   export namespace Response {
@@ -165,23 +159,14 @@ export namespace SocketAction {
       }> {
         static readonly type = "game_started";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.GameStart {
-          const myPlayer = gameSession.myPlayer;
-          const players = this.data.players.map(
-            (playerId) => gameSession.players.find((p) => p.id === playerId)!,
+        /**
+         * @deprecated do not use it
+         * only for raw socket response definition
+         */
+        toSaboteurAction(): [SaboteurAction.Response.Public.GameStart] {
+          throw new Error(
+            "GameStart action should not be used directly. Use GameSession to handle game start.",
           );
-          if (!players.includes(myPlayer)) {
-            throw new Error(
-              `My player with id ${myPlayer.id} not found in the game players.`,
-            );
-          }
-
-          return new SaboteurAction.Response.Public.GameStart({
-            myPlayer,
-            players,
-          });
         }
       }
 
@@ -190,17 +175,12 @@ export namespace SocketAction {
         /** @description next player id */
         declare data;
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.TurnChange {
-          const player = gameSession.players.find(
-            (player) => player.id === this.data,
-          );
-          if (!player) {
-            throw new Error(`Player with id ${this.data} not found.`);
-          }
-
-          return new SaboteurAction.Response.Public.TurnChange({ player });
+        toSaboteurAction(): [SaboteurAction.Response.Public.TurnChange] {
+          return [
+            new SaboteurAction.Response.Public.TurnChange({
+              playerId: this.data,
+            }),
+          ];
         }
       }
 
@@ -211,16 +191,12 @@ export namespace SocketAction {
       }> {
         static readonly type = "path";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.Path {
-          return new SaboteurAction.Response.Public.Path({
-            card: transformIdToCard(
-              this.data.card,
-            ) as SaboteurCard.Path.AbstractCommon,
-            x: this.data.x,
-            y: this.data.y,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.Path] {
+          const { x, y } = this.data;
+          const card = transformIdToCard(
+            this.data.card,
+          ) as SaboteurCard.Path.AbstractCommon;
+          return [new SaboteurAction.Response.Public.Path({ card, x, y })];
         }
       }
 
@@ -231,16 +207,9 @@ export namespace SocketAction {
       }> {
         static readonly type = "rockFail";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.Destroy {
-          return new SaboteurAction.Response.Public.Destroy({
-            card: transformIdToCard(
-              this.data.card,
-            ) as SaboteurCard.Action.Destroy,
-            x: this.data.x,
-            y: this.data.y,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.Destroy] {
+          const { x, y } = this.data;
+          return [new SaboteurAction.Response.Public.Destroy({ x, y })];
         }
       }
 
@@ -251,42 +220,30 @@ export namespace SocketAction {
       }> {
         static readonly type = "sabotage";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.Sabotage {
-          const player = gameSession.players.find(
-            (player) => player.id === this.data.target,
-          );
-          if (!player) {
-            throw new Error(`Player with id ${this.data.target} not found.`);
-          }
-
-          const card = new SaboteurCard.Action.Sabotage(this.data.cardType);
-
-          return new SaboteurAction.Response.Public.Sabotage({ card, player });
+        toSaboteurAction(): [SaboteurAction.Response.Public.Sabotage] {
+          return [
+            new SaboteurAction.Response.Public.Sabotage({
+              tool: this.data.cardType,
+              playerId: this.data.target,
+            }),
+          ];
         }
       }
 
       export class Repair extends AbstractBroadcastResponse<{
         /** @description target player id */
         target: string;
-        cardType: Tools[];
+        cardType: Tools;
       }> {
         static readonly type = "repair";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Actions {
-          const player = gameSession.players.find(
-            (player) => player.id === this.data.target,
-          );
-          if (!player) {
-            throw new Error(`Player with id ${this.data.target} not found.`);
-          }
-
-          const card = new SaboteurCard.Action.Repair(this.data.cardType);
-
-          return new SaboteurAction.Response.Public.Repair({ card, player });
+        toSaboteurAction(): [SaboteurAction.Response.Public.Repair] {
+          return [
+            new SaboteurAction.Response.Public.Repair({
+              tool: this.data.cardType,
+              playerId: this.data.target,
+            }),
+          ];
         }
       }
 
@@ -295,14 +252,9 @@ export namespace SocketAction {
       }> {
         static readonly type = "viewMap";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.UseMap {
-          return new SaboteurAction.Response.Public.UseMap({
-            x: this.data.target[0],
-            y: this.data.target[1],
-            card: new SaboteurCard.Action.Map(),
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.UseMap] {
+          const [x, y] = this.data.target;
+          return [new SaboteurAction.Response.Public.UseMap({ x, y })];
         }
       }
 
@@ -311,12 +263,12 @@ export namespace SocketAction {
       }> {
         static readonly type = "discard";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.Discard {
-          return new SaboteurAction.Response.Public.Discard({
-            card: gameSession.myPlayer.hands[this.data.handNum],
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.Discard] {
+          return [
+            new SaboteurAction.Response.Public.Discard({
+              handIndex: this.data.handNum,
+            }),
+          ];
         }
       }
 
@@ -325,13 +277,9 @@ export namespace SocketAction {
       > {
         static readonly type = "rock_found";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.FoundRock {
-          return new SaboteurAction.Response.Public.FoundRock({
-            x: this.data[0],
-            y: this.data[1],
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.FoundRock] {
+          const [x, y] = this.data;
+          return [new SaboteurAction.Response.Public.FoundRock({ x, y })];
         }
       }
 
@@ -342,14 +290,10 @@ export namespace SocketAction {
       }> {
         static readonly type = "round_end";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.RoundEnd {
-          const winners = gameSession.players.filter(
-            (player) => this.data.roles[player.id] === this.data.winner,
-          );
-
-          return new SaboteurAction.Response.Private.RoundEnd({ winners });
+        toSaboteurAction(): [SaboteurAction.Response.Public.RoundEnd] {
+          return [
+            new SaboteurAction.Response.Public.RoundEnd({ ...this.data }),
+          ];
         }
       }
 
@@ -358,19 +302,18 @@ export namespace SocketAction {
       }> {
         static readonly type = "game_end";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Public.GameEnd {
-          return new SaboteurAction.Response.Public.GameEnd({
-            rank: this.data.rank
-              .map(([playerId, gold]) => ({
-                player: gameSession.players.find(
-                  (player) => player.id === playerId,
-                )!,
-                gold,
-              }))
-              .sort((a, b) => b.gold - a.gold),
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Public.GameEnd] {
+          return [
+            new SaboteurAction.Response.Public.GameEnd({
+              golds: this.data.rank.reduce(
+                (prev, [playerId, gold]) => {
+                  prev[playerId] = gold;
+                  return prev;
+                },
+                {} as Record<string, number>,
+              ),
+            }),
+          ];
         }
       }
 
@@ -405,34 +348,34 @@ export namespace SocketAction {
       }> {
         static readonly type = "roundStart";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.RoundStart {
-          return new SaboteurAction.Response.Private.RoundStart({
-            hands: this.data.hand.map(
-              ([cardId, reversed]) =>
-                transformIdToCard(
-                  cardId,
-                  reversed,
-                ) as SaboteurCard.Abstract.Playable,
-            ),
-            role: this.data.role,
-            round: this.data.currentRound,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Private.RoundStart] {
+          return [
+            new SaboteurAction.Response.Private.RoundStart({
+              hands: this.data.hand.map(
+                ([cardId, reversed]) =>
+                  transformIdToCard(
+                    cardId,
+                    reversed,
+                  ) as SaboteurCard.Abstract.Playable,
+              ),
+              role: this.data.role,
+              round: this.data.currentRound,
+            }),
+          ];
         }
       }
 
       export class DrawCard extends AbstractPrivateResponse<{ card: number }> {
         static readonly type = "drawCard";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.Draw {
-          return new SaboteurAction.Response.Private.Draw({
-            card: transformIdToCard(
-              this.data.card,
-            ) as SaboteurCard.Abstract.Playable,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Private.Draw] {
+          return [
+            new SaboteurAction.Response.Private.Draw({
+              card: transformIdToCard(
+                this.data.card,
+              ) as SaboteurCard.Abstract.Playable,
+            }),
+          ];
         }
       }
 
@@ -444,16 +387,16 @@ export namespace SocketAction {
       }> {
         static readonly type = "revealDest";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.RevealDest {
-          return new SaboteurAction.Response.Private.RevealDest({
-            x: this.data.x,
-            y: this.data.y,
-            card: transformIdToCard(
-              this.data.cardType,
-            ) as SaboteurCard.Path.AbstractDest,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Private.RevealDest] {
+          return [
+            new SaboteurAction.Response.Private.RevealDest({
+              x: this.data.x,
+              y: this.data.y,
+              card: transformIdToCard(
+                this.data.cardType,
+              ) as SaboteurCard.Path.AbstractDest,
+            }),
+          ];
         }
       }
 
@@ -462,14 +405,14 @@ export namespace SocketAction {
       }> {
         static readonly type = "reversePath";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.Rotate {
-          return new SaboteurAction.Response.Private.Rotate({
-            card: transformIdToCard(
-              this.data.card,
-            ) as SaboteurCard.Path.AbstractCommon,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Private.Rotate] {
+          return [
+            new SaboteurAction.Response.Private.Rotate({
+              card: transformIdToCard(
+                this.data.card,
+              ) as SaboteurCard.Path.AbstractCommon,
+            }),
+          ];
         }
       }
 
@@ -478,13 +421,12 @@ export namespace SocketAction {
       }> {
         static readonly type = "getGold";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.ReceiveGold {
-          return new SaboteurAction.Response.Private.ReceiveGold({
-            gold: this.data.gold,
-            player: gameSession.myPlayer,
-          });
+        toSaboteurAction(): [SaboteurAction.Response.Private.ReceiveGold] {
+          return [
+            new SaboteurAction.Response.Private.ReceiveGold({
+              gold: this.data.gold,
+            }),
+          ];
         }
       }
 
@@ -511,49 +453,40 @@ export namespace SocketAction {
       }> {
         static readonly type = "playerState";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Private.PlayerState {
-          const myPlayer = gameSession.myPlayer;
-          const myPlayerData = this.data.players.find(
-            (p) => p.playerId === myPlayer.id,
-          );
-          if (!myPlayerData) {
-            throw new Error(`My player data not found for id ${myPlayer.id}.`);
-          }
-
-          return new SaboteurAction.Response.Private.PlayerState({
-            round: this.data.round,
-            myPlayer: {
-              id: myPlayer.id,
-              gold: this.data.gold,
-              role: this.data.role,
-              hands: this.data.hands.map(
-                ({ cardId, reverse }) =>
-                  transformIdToCard(
-                    cardId,
-                    reverse,
-                  ) as SaboteurCard.Abstract.Playable,
+        toSaboteurAction(): [SaboteurAction.Response.Private.PlayerState] {
+          // TODO: 각각의 상태 업데이트 action으로 분리
+          return [
+            new SaboteurAction.Response.Private.PlayerState({
+              round: this.data.round,
+              myPlayer: {
+                gold: this.data.gold,
+                role: this.data.role,
+                hands: this.data.hands.map(
+                  ({ cardId, reverse }) =>
+                    transformIdToCard(
+                      cardId,
+                      reverse,
+                    ) as SaboteurCard.Abstract.Playable,
+                ),
+              },
+              currentPlayerId: this.data.currentPlayerId,
+              players: this.data.players.map(
+                ({ playerId: id, handCount, tool: status }) => ({
+                  id,
+                  handCount,
+                  status,
+                }),
               ),
-              status: myPlayerData?.tool,
-            },
-            currentPlayerId: this.data.currentPlayerId,
-            players: this.data.players.map(
-              ({ playerId: id, handCount, tool: status }) => ({
-                id,
-                handCount,
-                status,
-              }),
-            ),
-            board: this.data.board.map(({ x, y, cardId, reverse }) => ({
-              x,
-              y,
-              card: transformIdToCard(
-                cardId,
-                reverse,
-              ) as SaboteurCard.Path.Abstract,
-            })),
-          });
+              board: this.data.board.map(({ x, y, cardId, reverse }) => ({
+                x,
+                y,
+                card: transformIdToCard(
+                  cardId,
+                  reverse,
+                ) as SaboteurCard.Path.Abstract,
+              })),
+            }),
+          ];
         }
       }
 
@@ -568,9 +501,7 @@ export namespace SocketAction {
       export class Exception extends AbstractExceptionResponse {
         static readonly type = "error";
 
-        toSaboteurAction(
-          gameSession: Readonly<SaboteurSession>,
-        ): SaboteurAction.Response.Actions {
+        toSaboteurAction(): [SaboteurAction.Response.Actions] {
           throw new Error("Method not implemented.");
         }
       }

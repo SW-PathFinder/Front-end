@@ -19,11 +19,9 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
   >(
     actionType: TActionType,
     callback: (action: InstanceType<TActionClass>) => void,
-    gameSession: SaboteurSession,
   ): UnsubscribeCallback;
 
   onAny(
     callback: (action: SaboteurAction.Response.Actions) => void,
-    gameSession: SaboteurSession,
   ): UnsubscribeCallback;
 }

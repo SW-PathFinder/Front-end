@@ -11,7 +11,6 @@ import { GameBoard } from "@/libs/saboteur/board";
 import {
   AbstractSaboteurPlayer,
   MySaboteurPlayer,
-  OtherSaboteurPlayer,
 } from "@/libs/saboteur/player";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
@@ -120,27 +119,9 @@ export class SaboteurSession implements GameSession {
     this.players = players;
     this.board = new GameBoard();
 
-    this.adapter.on(
-      "roundStart",
-      (data) => {
-        this.onRoundStart(data);
-      },
-      this,
-    );
-    this.adapter.on(
-      "turnChange",
-      (data) => {
-        this.onTurnChange(data);
-      },
-      this,
-    );
-    this.adapter.on(
-      "roundEnd",
-      (data) => {
-        this.onRoundEnd(data);
-      },
-      this,
-    );
+    this.adapter.onAny((action) => {
+      action.update(this);
+    });
   }
 
   get currentPlayer(): AbstractSaboteurPlayer {
@@ -169,34 +150,24 @@ export class SaboteurSession implements GameSession {
     this.adapter.sendAction(action, this);
   }
 
-  private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
-    this.round = data.round;
+  // private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
+  //   this.round = data.round;
 
-    data.hands.forEach((card) => this.myPlayer.add(card));
-    this.myPlayer.role = data.role;
+  //   data.hands.forEach((card) => this.myPlayer.add(card));
+  //   this.myPlayer.role = data.role;
 
-    this.players.forEach((player) => {
-      if (player instanceof OtherSaboteurPlayer)
-        player.handCount = OtherSaboteurPlayer.getInitialHandCount(
-          this.players.length,
-        );
-    });
-  }
+  //   this.players.forEach((player) => {
+  //     if (player instanceof OtherSaboteurPlayer)
+  //       player.handCount = OtherSaboteurPlayer.getInitialHandCount(
+  //         this.players.length,
+  //       );
+  //   });
+  // }
 
-  private onTurnChange({
-    data: { player },
-  }: SaboteurAction.Response.Public.TurnChange) {
-    const nextPlayerIndex = this.players.findIndex((p) => p.id === player.id);
-    if (nextPlayerIndex === -1) {
-      throw new Error(`Player ${player.id} not found in the game state.`);
-    }
-    this._currentPlayerIndex = nextPlayerIndex;
-  }
-
-  private onRoundEnd({ data }: SaboteurAction.Response.Private.RoundEnd) {
-    this.players.forEach((player) => {
-      player.resetRoundState();
-    });
-  }
+  // private onRoundEnd({ data }: SaboteurAction.Response.Private.RoundEnd) {
+  //   this.players.forEach((player) => {
+  //     player.resetRoundState();
+  //   });
+  // }
 }
 export interface SaboteurSession extends Reactive {}
