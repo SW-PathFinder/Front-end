@@ -12,7 +12,7 @@ export namespace ActionCard {
   const SABOTAGE_ACTION_CARD_ASSETS = {
     pickaxe: "/assets/saboteur/cards/action/sabotage_p.png",
     lantern: "/assets/saboteur/cards/action/sabotage_l.png",
-    mineCart: "/assets/saboteur/cards/action/sabotage_w.png",
+    mineCart: "/assets/saboteur/cards/action/sabotage_m.png",
   };
   export class Sabotage extends ActionCard.Abstract {
     readonly tool: [Tools];
