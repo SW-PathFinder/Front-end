@@ -69,36 +69,77 @@ export function useSocketListener(
   }, [socket, event, listener]);
 }
 
+type UseSocketRequestReturn<
+  TReqType extends Exclude<keyof EmitEvents, "game_action">,
+  TResType extends ResponsibleListenEventType,
+> = (
+  data: Omit<EmitEvents[TReqType], "requestId">,
+) => Promise<
+  {
+    [K in TResType]: { event: K; data: ListenEvents[K] & { success: true } };
+  }[TResType]
+>;
+
 export function useSocketRequest<
-  ReqType extends Exclude<keyof EmitEvents, "game_action">,
-  ResType extends ResponsibleListenEventType,
->(requestEvent: ReqType, responseEvent: ResType) {
+  TReqType extends Exclude<keyof EmitEvents, "game_action">,
+  TResType extends ResponsibleListenEventType,
+>(
+  requestEvent: TReqType,
+  responseEvent: TResType,
+): UseSocketRequestReturn<TReqType, TResType>;
+export function useSocketRequest<
+  TReqType extends Exclude<keyof EmitEvents, "game_action">,
+  TResType extends ResponsibleListenEventType,
+>(
+  requestEvent: TReqType,
+  responseEvent: TResType[],
+): UseSocketRequestReturn<TReqType, TResType>;
+export function useSocketRequest(
+  requestEvent: Exclude<keyof EmitEvents, "game_action">,
+  responseEvent: ResponsibleListenEventType | ResponsibleListenEventType[],
+) {
   const socket = useSocket();
+  responseEvent = Array.isArray(responseEvent)
+    ? responseEvent
+    : [responseEvent];
 
   return useCallback(
-    async (data: Omit<EmitEvents[ReqType], "requestId">) => {
+    async (
+      data: Omit<
+        EmitEvents[Exclude<keyof EmitEvents, "game_action">],
+        "requestId"
+      >,
+    ) => {
       const requestId = crypto.randomUUID();
+
+      const promise = new Promise<{
+        event: ResponsibleListenEventType;
+        data: ListenEvents[ResponsibleListenEventType] & { success: true };
+      }>((resolve, reject) => {
+        const listener = (
+          event: ResponsibleListenEventType,
+          data: ListenEvents[ResponsibleListenEventType],
+        ) => {
+          if (!responseEvent.includes(event)) return;
+
+          console.log("Socket response received:", data);
+          if (!data.requestId || data.requestId !== requestId) return;
+
+          if (data.success) {
+            resolve({ event, data: data as any });
+          } else {
+            reject(new Error(data.message || "Request failed"));
+          }
+
+          socket.offAny(listener);
+        };
+
+        socket.onAny(listener);
+      });
 
       socket.emit(requestEvent, ...([{ ...data, requestId }] as any));
 
-      return new Promise<ListenEvents[ResType] & { success: true }>(
-        (resolve, reject) => {
-          const listener = (data: ListenEvents[ResType]) => {
-            console.log("Socket response received:", data);
-            if (!data.requestId || data.requestId !== requestId) return;
-
-            if (data.success) {
-              resolve(data as any);
-            } else {
-              reject(new Error(data.message || "Request failed"));
-            }
-
-            socket.off(responseEvent, listener as any);
-          };
-
-          socket.on(responseEvent, listener as any);
-        },
-      );
+      return promise;
     },
     [socket, requestEvent, responseEvent],
   );

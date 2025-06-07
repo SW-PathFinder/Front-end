@@ -22,26 +22,29 @@ const RoomConditionModal = ({
   const navigate = useNavigate();
   const { setGameRoom } = useAuthenticated();
 
-  const matchRoom = useSocketRequest("quick_match", "quick_match_result");
+  const matchRoom = useSocketRequest("quick_match", [
+    "room_created",
+    "quick_match_result",
+  ]);
   const createRoom = useSocketRequest("create_room", "room_created");
 
   const clickMatch = async () => {
     try {
-      const result = await matchRoom({
+      const { data } = await matchRoom({
         max_players: playerNum,
         card_helper: helper,
       });
 
       setGameRoom({
-        id: result.room.room_id,
-        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
-        host: { id: result.room.host, name: result.room.host },
-        capacity: result.room.max_players,
-        isPublic: result.room.is_public,
-        cardHelper: result.room.card_helper,
+        id: data.room.room_id,
+        players: data.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: data.room.host, name: data.room.host },
+        capacity: data.room.max_players,
+        isPublic: data.room.is_public,
+        cardHelper: data.room.card_helper,
       });
 
-      navigate(`/waiting/${result.room.room_id}`);
+      navigate(`/waiting/${data.room.room_id}`);
       onClose();
     } catch (error) {
       console.error(error);
@@ -50,22 +53,22 @@ const RoomConditionModal = ({
 
   const clickCreate = async () => {
     try {
-      const result = await createRoom({
+      const { data } = await createRoom({
         max_players: playerNum,
         is_public: isPublic,
         card_helper: helper,
       });
 
       setGameRoom({
-        id: result.room.room_id,
-        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
-        host: { id: result.room.host, name: result.room.host },
-        capacity: result.room.max_players,
-        isPublic: result.room.is_public,
-        cardHelper: result.room.card_helper,
+        id: data.room.room_id,
+        players: data.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: data.room.host, name: data.room.host },
+        capacity: data.room.max_players,
+        isPublic: data.room.is_public,
+        cardHelper: data.room.card_helper,
       });
 
-      navigate(`/waiting/${result.room.room_id}`);
+      navigate(`/waiting/${data.room.room_id}`);
       onClose();
     } catch (error) {
       console.error(error);
