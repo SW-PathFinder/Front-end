@@ -22,32 +22,11 @@ const WaitingRoom = () => {
   const navigate = useNavigate();
 
   const { gameRoom } = useGameRoom();
-  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
-    const unsubscribes = [
-      gameRoom.adapter.onGameSessionReady(() => {
-        setCountdown(5);
-      }),
-    ];
-
-    return () => {
-      for (const unsubscribe of unsubscribes) unsubscribe();
-    };
-  }, [gameRoom]);
-
-  // 카운트 처리 및 자동 시작
-  useEffect(() => {
-    if (countdown == null) return;
-    if (countdown > 0) {
-      const id = setTimeout(() => setCountdown((prev) => prev! - 1), 1000);
-      return () => clearTimeout(id);
-    }
-
     // 카운트 종료 시 게임 페이지로 이동
-    // TODO: 게임 객체 생성?
-    navigate(`/game/${gameRoom.id}`);
-  }, [countdown, navigate, gameRoom]);
+    if (gameRoom.remainSecond == 0) navigate(`/game/${gameRoom.id}`);
+  }, [navigate, gameRoom.remainSecond, gameRoom.id]);
 
   const handleCancel = () => {
     gameRoom.adapter.leaveRoom();
@@ -90,15 +69,15 @@ const WaitingRoom = () => {
 
       <button
         onClick={handleCancel}
-        disabled={countdown === 0}
-        className={`btn mb-6 w-full max-w-md btn-error ${countdown === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+        disabled={gameRoom.remainSecond === 0}
+        className={`btn mb-6 w-full max-w-md btn-error ${gameRoom.remainSecond === 0 ? "cursor-not-allowed opacity-50" : ""}`}
       >
         매칭 취소
       </button>
 
-      {countdown !== null && (
+      {gameRoom.remainSecond !== null && (
         <div className="text-center text-xl font-bold">
-          게임이 {countdown}초 후에 자동으로 시작됩니다...
+          게임이 {gameRoom.remainSecond}초 후에 자동으로 시작됩니다...
         </div>
       )}
     </div>
