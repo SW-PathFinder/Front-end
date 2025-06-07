@@ -33,12 +33,14 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   }
 
   onGameStateChange<
-    TActionType extends SaboteurAction.Response.Actions["type"],
+    TActionType extends SaboteurAction.Response.ActionType,
+    TActionClass extends
+      SaboteurAction.Response.ActionClass = SaboteurAction.Response.ActionClass & {
+      type: TActionType;
+    },
   >(
     actionType: TActionType,
-    callback: (
-      action: SaboteurAction.Response.Actions & { type: TActionType },
-    ) => void,
+    callback: (action: InstanceType<TActionClass>) => void,
     gameSession: SaboteurSession,
   ) {
     const ev = SaboteurAction.Response.Private.actionTypes.includes(
