@@ -112,7 +112,11 @@ const Game = () => {
             </div>
           </DndZone>
           {destCard && (
-            <RevealDestModal isOpen={destModalOpen} revealedCard={destCard} />
+            <RevealDestModal
+              isOpen={destModalOpen}
+              onClose={() => setDestModalOpen(false)}
+              revealedCard={destCard}
+            />
           )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}

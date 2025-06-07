@@ -4,7 +4,7 @@ import { SaboteurCard } from "@/libs/saboteur/cards";
 
 interface RevealDestModalProps {
   isOpen: boolean;
-  onClose?: () => void;
+  onClose: () => void;
   revealedCard: SaboteurCard.Path.Abstract;
 }
 
