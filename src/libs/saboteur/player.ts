@@ -39,10 +39,8 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
     this._status[tool] = false;
   }
 
-  repair(tools: Tools[]): void {
-    tools.forEach((tool) => {
-      this._status[tool] = true;
-    });
+  repair(tool: Tools): void {
+    this._status[tool] = true;
   }
 
   resetRoundState(): void {

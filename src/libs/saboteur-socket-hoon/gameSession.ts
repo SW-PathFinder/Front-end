@@ -33,7 +33,10 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   }
 
   on<
-    TActionType extends SaboteurAction.Response.ActionType,
+    TActionType extends Exclude<
+      SaboteurAction.Response.ActionType,
+      "game_started"
+    >,
     TActionClass extends
       SaboteurAction.Response.ActionClass = SaboteurAction.Response.ActionClass & {
       type: TActionType;
@@ -41,7 +44,6 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   >(
     actionType: TActionType,
     callback: (action: InstanceType<TActionClass>) => void,
-    gameSession: SaboteurSession,
   ) {
     const ev = SaboteurAction.Response.Private.actionTypes.includes(
       actionType as any,
@@ -49,14 +51,15 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       ? "private_game_update"
       : "game_update";
 
+    // TODO: 단일 listener에서 변환을 처리하도록 개선
     const listener = (data: SocketAction.Response.Actions) => {
-      const action =
-        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction(
-          gameSession,
-        );
-      if (action.type !== actionType) return;
+      const actions =
+        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
 
-      callback(action as any);
+      const filteredActions = actions.filter((a) => a.type === actionType);
+      if (filteredActions.length > 0) return;
+
+      callback(filteredActions as any);
     };
 
     this.socket.on(ev, listener as any);
@@ -65,16 +68,13 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     };
   }
 
-  onAny(
-    callback: (action: SaboteurAction.Response.Actions) => void,
-    gameSession: SaboteurSession,
-  ) {
+  onAny(callback: (action: SaboteurAction.Response.Actions) => void) {
     const listener = (data: SocketAction.Response.Actions) => {
-      const action =
-        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction(
-          gameSession,
-        );
-      callback(action);
+      const actions =
+        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
+      actions.forEach((action) => {
+        callback(action);
+      });
     };
 
     this.socket.on("game_update", listener as any);

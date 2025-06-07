@@ -202,36 +202,29 @@ export namespace SaboteurAction {
       export class Destroy extends Response.Primitive<{
         x: number;
         y: number;
-        card: SaboteurCard.Action.Destroy;
       }> {
         static readonly type = "destroy";
       }
 
       export class Repair extends Response.Primitive<{
-        card: SaboteurCard.Action.Repair;
-        player: AbstractSaboteurPlayer;
+        tool: Tools;
+        playerId: string;
       }> {
         static readonly type = "repair";
       }
 
       export class Sabotage extends Response.Primitive<{
-        card: SaboteurCard.Action.Sabotage;
-        player: AbstractSaboteurPlayer;
+        tool: Tools;
+        playerId: string;
       }> {
         static readonly type = "sabotage";
       }
 
-      export class UseMap extends Response.Primitive<{
-        x: number;
-        y: number;
-        card: SaboteurCard.Action.Map;
-      }> {
+      export class UseMap extends Response.Primitive<{ x: number; y: number }> {
         static readonly type = "useMap";
       }
 
-      export class Discard extends Response.Primitive<{
-        card: SaboteurCard.Abstract.Playable;
-      }> {
+      export class Discard extends Response.Primitive<{ handIndex: number }> {
         static readonly type = "discard";
       }
 
@@ -249,14 +242,12 @@ export namespace SaboteurAction {
         static readonly type = "gameStart";
       }
 
-      export class TurnChange extends Response.Primitive<{
-        player: AbstractSaboteurPlayer;
-      }> {
+      export class TurnChange extends Response.Primitive<{ playerId: string }> {
         static readonly type = "turnChange";
       }
 
       export class GameEnd extends Response.Primitive<{
-        rank: { player: AbstractSaboteurPlayer; gold: number }[];
+        golds: { [playerId: string]: number };
       }> {
         static readonly type = "gameEnd";
       }
@@ -271,6 +262,7 @@ export namespace SaboteurAction {
         | typeof FoundRock
         | typeof GameStart
         | typeof TurnChange
+        | typeof RoundEnd
         | typeof GameEnd;
       export type Actions = InstanceType<ActionClass>;
       export type ActionType = ActionClass["type"];
@@ -296,7 +288,7 @@ export namespace SaboteurAction {
         y: number;
         card: SaboteurCard.Path.AbstractDest;
       }> {
-        static readonly type = "reveal Dest";
+        static readonly type = "revealDest";
       }
 
       export class Rotate extends Response.Primitive<{
@@ -305,20 +297,12 @@ export namespace SaboteurAction {
         static readonly type = "rotate";
       }
 
-      export class RoundEnd extends Response.Primitive<{
-        winners: AbstractSaboteurPlayer[];
-      }> {
-        static readonly type = "roundEnd";
-      }
-
       export class PlayerState extends Response.Primitive<{
         round: number;
         myPlayer: {
-          id: string;
           gold: number;
           role: PlayerRole | null;
           hands: SaboteurCard.Abstract.Playable[];
-          status: Record<Tools, boolean>;
         };
         currentPlayerId: string;
         players: {
@@ -331,10 +315,7 @@ export namespace SaboteurAction {
         static readonly type = "playerState";
       }
 
-      export class ReceiveGold extends Response.Primitive<{
-        player: AbstractSaboteurPlayer;
-        gold: number;
-      }> {
+      export class ReceiveGold extends Response.Primitive<{ gold: number }> {
         static readonly type = "receiveGold";
       }
 
@@ -343,7 +324,6 @@ export namespace SaboteurAction {
         | typeof Draw
         | typeof RevealDest
         | typeof Rotate
-        | typeof RoundEnd
         | typeof PlayerState
         | typeof ReceiveGold;
       export type Actions = InstanceType<ActionClass>;
