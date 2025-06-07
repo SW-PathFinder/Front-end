@@ -21,9 +21,9 @@ export class GameBoard {
     number,
   ];
   static readonly destinationCoordinates = [
-    [9, -2],
-    [9, 0],
-    [9, 2],
+    [8, -2],
+    [8, 0],
+    [8, 2],
   ] satisfies readonly [number, number][];
 
   get cards(): readonly SaboteurCard.Path.Abstract[] {
