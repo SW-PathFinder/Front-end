@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-
-import { set } from "react-hook-form";
+import { useState, useEffect, useCallback } from "react";
 
 import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
@@ -31,21 +29,29 @@ const Game = () => {
     setDestModalOpen(true);
   }, [gameSession.board, destInfo]);
 
-  const onDropMapCard = (
-    x: number,
-    y: number,
-    card: SaboteurCard.Action.Abstract,
-    prevCard: SaboteurCard.Path.Abstract,
-  ) => {
-    // 지도 카드
-    if (card instanceof SaboteurCard.Path.Abstract) {
-      gameSession.adapter.on("reveal Dest", (data) => {
-        console.log("지도 카드 사용 결과:", data);
-        setDestInfo(data.data);
-      });
-      gameSession.sendAction(new SaboteurAction.Request.UseMap({ x, y, card }));
-    }
-  };
+  const onDropCard = useCallback(
+    (
+      x: number,
+      y: number,
+      card: SaboteurCard.Abstract.Playable,
+      prevCard: SaboteurCard.Path.Abstract | null,
+    ) => {
+      // 지도 카드
+      if (
+        card instanceof SaboteurCard.Action.Map &&
+        prevCard instanceof SaboteurCard.Path.Abstract
+      ) {
+        gameSession.adapter.on("revealDest", (data) => {
+          console.log("지도 카드 사용 결과:", data);
+          setDestInfo(data.data);
+        });
+        gameSession.sendAction(
+          new SaboteurAction.Request.UseMap({ x, y, card }),
+        );
+      }
+    },
+    [gameSession],
+  );
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-base-200 px-4 md:px-8">
@@ -85,7 +91,7 @@ const Game = () => {
           <DndZone>
             <Board
               board={gameSession.board}
-              onDropCard={onDropMapCard}
+              onDropCard={onDropCard}
               className="mb-[100px] h-1/2 w-full"
             />
             <div className="absolute bottom-0 flex h-[150px] w-full max-w-[540px] items-center justify-between px-4">
@@ -105,7 +111,9 @@ const Game = () => {
               />
             </div>
           </DndZone>
-          {destModalOpen && <RevealDestModal revealedCard={destCard} />}
+          {destCard && (
+            <RevealDestModal isOpen={destModalOpen} revealedCard={destCard} />
+          )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}
         <div className="p-x-4 mb-4 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto bg-base-200">

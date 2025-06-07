@@ -4,7 +4,7 @@ import { SaboteurCard } from "@/libs/saboteur/cards";
 
 interface RevealDestModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   revealedCard: SaboteurCard.Path.Abstract;
 }
 
@@ -22,7 +22,7 @@ const RevealDestModal = ({
   useEffect(() => {
     if (!isOpen) return;
     if (remaining <= 0) {
-      onClose();
+      onClose?.();
       return;
     }
     const id = setTimeout(() => setRemaining((r) => r - 1), 1000);
