@@ -4,6 +4,7 @@ import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
 import { AbstractCard } from "@/libs/saboteur/cards";
+import { PathCard } from "@/libs/saboteur/cards/path";
 
 interface CardProps {
   card: AbstractCard;
@@ -53,18 +54,20 @@ export const Card = ({
     },
   });
 
+  const isPathCard = card instanceof PathCard.Abstract;
+
   const transformStyle = {
     "--tw-z-index": 1,
     ...(transform && {
       "--tw-top": `${transform?.y ?? 0}px`,
       "--tw-left": `${transform?.x ?? 0}px`,
-      "--tw-rotate": `${transform?.rotate ?? 0}deg`,
+      "--tw-rotate": `${(transform?.rotate ?? 0) + (isPathCard && card.flipped ? 180 : 0)}deg`,
     }),
     ...(!fixed &&
       isFocusing && {
         "--tw-scale": isDragging ? 1 : 1.2,
         "--tw-z-index": 2,
-        "--tw-rotate": 0,
+        "--tw-rotate": `${isPathCard && card.flipped ? 180 : 0}deg`,
       }),
     ...(dragTransform && {
       "--tw-translate-x": `${dragTransform.x}px`,
