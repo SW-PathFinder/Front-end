@@ -44,7 +44,7 @@ const RoomConditionModal = ({
         cardHelper: data.room.card_helper,
       });
 
-      navigate(`/waiting/${data.room.room_id}`);
+      navigate(`/saboteur/${data.room.room_id}/waiting`);
       onClose();
     } catch (error) {
       console.error(error);
@@ -68,7 +68,7 @@ const RoomConditionModal = ({
         cardHelper: data.room.card_helper,
       });
 
-      navigate(`/waiting/${data.room.room_id}`);
+      navigate(`/saboteur/${data.room.room_id}/waiting`);
       onClose();
     } catch (error) {
       console.error(error);
