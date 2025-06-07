@@ -14,7 +14,7 @@ const Game = () => {
       <header className="flex flex-col items-center justify-center bg-base-200 p-4">
         <p>나의 역할 : {gameSession.myPlayer.role}</p>
         <p className="text-lg font-semibold">
-          {gameSession.myPlayer.name}의 차례
+          {gameSession.currentPlayer.name}의 차례
         </p>
       </header>
       {/* 메인 영역: 좌측 사이드바, 보드, 로그 */}

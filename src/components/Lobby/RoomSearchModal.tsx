@@ -37,6 +37,11 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
       onClose();
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        alert(error.message || "방을 찾는 중 오류가 발생했습니다.");
+      } else {
+        alert("방을 찾는 중 오류가 발생했습니다.");
+      }
     }
   };
 
