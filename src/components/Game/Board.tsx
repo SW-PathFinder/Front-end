@@ -47,7 +47,12 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
 
   useDndMonitor({
     onDragEnd: (event) => {
-      if (!event.over || !onDropCard) return;
+      if (
+        !onDropCard ||
+        !event.over ||
+        !event.over.id.toString().startsWith("boardSlot")
+      )
+        return;
 
       const { card } = event.active.data.current as DraggableCardData;
       const { x, y, card: prevCard } = event.over.data.current as BoardSlotData;
@@ -113,7 +118,7 @@ const BoardSlot = ({
   style?: React.CSSProperties;
   className?: string;
 }) => {
-  const id = `droppable:${x}:${y}`;
+  const id = `boardSlot:${x}:${y}`;
   const { setNodeRef } = useDroppable({
     id,
     data: { x, y, card } as BoardSlotData,
