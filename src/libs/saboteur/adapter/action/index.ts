@@ -6,7 +6,7 @@ import {
   AbstractSaboteurPlayer,
   MySaboteurPlayer,
 } from "@/libs/saboteur/player";
-import { PlayerRole } from "@/libs/saboteur/types";
+import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 abstract class Action<T = unknown> {
   readonly data: T;
@@ -311,10 +311,20 @@ export namespace SaboteurAction {
 
       export class PlayerState extends Response.Primitive<{
         round: number;
-        myPlayer: MySaboteurPlayer;
-        currentPlayer: AbstractSaboteurPlayer;
-        players: AbstractSaboteurPlayer[];
-        board: GameBoard;
+        myPlayer: {
+          id: string;
+          gold: number;
+          role: PlayerRole | null;
+          hands: SaboteurCard.Abstract.Playable[];
+          status: Record<Tools, boolean>;
+        };
+        currentPlayerId: string;
+        players: {
+          id: string;
+          handCount: number;
+          status: Record<Tools, boolean>;
+        }[];
+        board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
       }> {
         static readonly type = "playerState";
       }
