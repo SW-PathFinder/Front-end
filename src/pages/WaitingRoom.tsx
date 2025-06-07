@@ -25,7 +25,7 @@ const WaitingRoom = () => {
 
   useEffect(() => {
     // 카운트 종료 시 게임 페이지로 이동
-    if (gameRoom.remainSecond == 0) navigate(`/game/${gameRoom.id}`);
+    if (gameRoom.remainSecond == 0) navigate(`/saboteur/${gameRoom.id}/game/`);
   }, [navigate, gameRoom.remainSecond, gameRoom.id]);
 
   const handleCancel = () => {
