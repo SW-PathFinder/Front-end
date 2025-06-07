@@ -21,6 +21,7 @@
     "@hookform/resolvers": "^5.0.1",
     "@tailwindcss/vite": "^4.1.4",
     "@tanstack/react-query": "^5.74.3",
+    "@vitejs/plugin-react": "^4.5.1",
     "axios": "^1.9.0",
     "lucide-react": "^0.511.0",
     "openvidu-browser": "^2.31.0",

@@ -22,6 +22,8 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-unsafe-declaration-merging": "off",
+
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
@@ -31,7 +33,6 @@ export default tseslint.config(
       "@wogns3623/better-exhaustive-deps/exhaustive-deps": [
         "warn",
         {
-          additionalHooks: "(useDeepEqualMemo)",
           checkMemoizedVariableIsStatic: true,
           staticHooks: { useQuery: { refetch: true } },
         },

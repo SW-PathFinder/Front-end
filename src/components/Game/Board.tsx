@@ -78,7 +78,6 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
             deltaY,
           ]);
           const card = board.getCard(x, y);
-          console.log({ x, y, card, anchorCoord, deltaX, deltaY });
 
           return (
             <BoardSlot
