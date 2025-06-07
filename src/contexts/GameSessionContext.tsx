@@ -1,4 +1,10 @@
-import { createContext, Provider, useContext } from "react";
+import {
+  createContext,
+  Provider,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { SaboteurSession } from "@/libs/saboteur/game";
 
@@ -13,12 +19,19 @@ export const GameSessionProvider =
 
 export const useGameSession = () => {
   const context = useContext(GameSessionContext);
+  const [, setReload] = useState(0);
 
   if (!context) {
     throw new Error(
       "useGameSession must be used within a GameSessionProvider with gameId and socket",
     );
   }
+
+  useEffect(() => {
+    context.gameSession.onAny(() => {
+      setReload((prev) => prev + 1);
+    });
+  }, [context.gameSession]);
 
   return context;
 };
