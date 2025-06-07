@@ -56,7 +56,6 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   onGameSessionReady(
     callback: (remainSecond: number) => void,
   ): UnsubscribeCallback {
-    // const listener = (data: ListenEvents["countdown_started"]) => {
     const listener = (data: ListenEvents["countdown_started"]) => {
       callback(data.seconds);
     };
@@ -68,8 +67,10 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   }
 
   onGameSessionStart(callback: (gameSession: SaboteurSession) => void) {
-    // Implementation for handling game session start events
-    const listener = async ({ type, data }: SocketAction.Response.Actions) => {
+    const listener = async ({
+      type,
+      data,
+    }: SocketAction.Response.Broadcast.GameStart) => {
       if (type !== "game_started") return;
 
       const myPlayer = new MySaboteurPlayer({ id: this.player.id });

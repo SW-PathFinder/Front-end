@@ -4,7 +4,7 @@ import {
   GameRoomAdapter,
   GameSession,
 } from "@/libs/gameSession";
-import { Reactive, Reactivity } from "@/libs/reactivity";
+import { NonReactive, Reactive, Reactivity } from "@/libs/reactivity";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { GameBoard } from "@/libs/saboteur/board";
@@ -33,10 +33,12 @@ export interface SaboteurRoomOption {
   cardHelper: boolean;
 }
 
-@Reactivity
+@Reactivity()
 export class SaboteurRoom implements GameRoom {
-  readonly id: string;
+  @NonReactive
   readonly adapter: SaboteurRoomAdapter;
+
+  readonly id: string;
   readonly players: GameRoomPlayer[];
 
   private _host: GameRoomPlayer;
@@ -99,8 +101,9 @@ export interface SaboteurSessionOptions {
   players: AbstractSaboteurPlayer[];
 }
 
-@Reactivity
+@Reactivity()
 export class SaboteurSession implements GameSession {
+  @NonReactive
   readonly adapter: SaboteurSessionAdapter;
 
   round: number = 0;

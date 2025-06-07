@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface Reactive {
@@ -7,56 +9,78 @@ export interface Reactive {
   ): void;
 }
 
+const reactiveMetadataKey = Symbol("reactivity:reactive");
+const storeSymbol = Symbol("reactivity:store");
+
+export const Reactive = ((target: object, propertyKey: string | symbol) => {
+  Reflect.defineMetadata(reactiveMetadataKey, true, target, propertyKey);
+}) as PropertyDecorator;
+export const NonReactive = ((target: object, propertyKey: string | symbol) => {
+  Reflect.defineMetadata(reactiveMetadataKey, false, target, propertyKey);
+}) as PropertyDecorator;
+
 type Class<T = any, TArgs extends unknown[] = any[]> = new (
   ...args: TArgs
 ) => T;
-export const Reactivity = ((target: Class) => {
-  return class extends target implements Reactive {
-    private _eventTarget = new EventTarget();
-    private _anyTarget = new EventTarget();
+export const Reactivity = (defaultReactive = true) =>
+  ((target: Class) => {
+    return class extends target implements Reactive {
+      private _eventTarget = new EventTarget();
+      private _anyTarget = new EventTarget();
 
-    constructor(...args: any[]) {
-      super(...args);
+      constructor(...args: any[]) {
+        super(...args);
 
-      watchProperties(this, (p, v) => {
-        this._eventTarget.dispatchEvent(
-          new CustomEvent(`reactivity:${String(p)}`, { detail: { value: v } }),
+        NonReactive(this, "_eventTarget");
+        NonReactive(this, "_anyTarget");
+
+        watchProperties(
+          this,
+
+          (p, v) => {
+            this._eventTarget.dispatchEvent(
+              new CustomEvent(`reactivity:${String(p)}`, {
+                detail: { value: v },
+              }),
+            );
+            this._anyTarget.dispatchEvent(
+              new CustomEvent("reactivity:any", {
+                detail: { property: p, value: v },
+              }),
+            );
+          },
+          (t, k) =>
+            Reflect.getMetadata(reactiveMetadataKey, t, k) ?? defaultReactive,
         );
-        this._anyTarget.dispatchEvent(
-          new CustomEvent("reactivity:any", {
-            detail: { property: p, value: v },
-          }),
-        );
-      });
-    }
+      }
 
-    on(
-      event: string,
-      callback: (property: string | number | symbol) => void,
-    ): void {
-      this._eventTarget.addEventListener(event, ((
-        e: CustomEvent<{ value: any }>,
-      ) => {
-        callback(e.detail.value);
-      }) as any);
-    }
+      on(
+        event: string,
+        callback: (property: string | number | symbol) => void,
+      ): void {
+        this._eventTarget.addEventListener(event, ((
+          e: CustomEvent<{ value: any }>,
+        ) => {
+          callback(e.detail.value);
+        }) as any);
+      }
 
-    onAny(
-      callback: (property: string | number | symbol, value: any) => void,
-    ): void {
-      this._anyTarget.addEventListener("reactivity:any", ((
-        e: CustomEvent<{ property: string | number | symbol; value: any }>,
-      ) => {
-        callback(e.detail.property, e.detail.value);
-      }) as any);
-    }
-  };
-}) as ClassDecorator;
+      onAny(
+        callback: (property: string | number | symbol, value: any) => void,
+      ): void {
+        this._anyTarget.addEventListener("reactivity:any", ((
+          e: CustomEvent<{ property: string | number | symbol; value: any }>,
+        ) => {
+          callback(e.detail.property, e.detail.value);
+        }) as any);
+      }
+    };
+  }) as ClassDecorator;
 
-const storeSymbol = Symbol("reactivity:store");
 function watchProperties(
   target: any,
   callback: (p: number | string | symbol, next: any) => void,
+  filter?: (target: any, key: string | symbol) => boolean,
 ) {
   if (!target || typeof target !== "object") return target;
   if (Object.getPrototypeOf(target) === Object.prototype) return target;
@@ -70,6 +94,8 @@ function watchProperties(
   target[storeSymbol] = target[storeSymbol] || new Map();
 
   for (const key of allKeys) {
+    if (filter && !filter(target, key)) continue;
+
     const value = target[key];
     target[storeSymbol].set(key, value);
 
@@ -92,13 +118,15 @@ function watchProperties(
       watchArrayChange(value, (methodName, next) => {
         callback(`${String(key)}`, next);
       });
-    }
-
-    if (typeof value === "object" && value !== null) {
+    } else if (typeof value === "object" && value !== null) {
       // Recursively watch properties of nested objects
-      watchProperties(value, (p, next) => {
-        callback(`${String(key)}.${String(p)}`, next);
-      });
+      watchProperties(
+        value,
+        (p, next) => {
+          callback(`${String(key)}.${String(p)}`, next);
+        },
+        filter,
+      );
     }
   }
 
