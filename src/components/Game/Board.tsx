@@ -85,6 +85,7 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
               y={y}
               card={card}
               style={{ gridRow: deltaY + 1, gridColumn: deltaX + 1 }}
+              key={`${x}:${y}`}
             />
           );
         }),
