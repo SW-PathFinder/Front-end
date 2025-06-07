@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SocketProvider } from "@/contexts/SocketContext";
@@ -21,13 +21,16 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<AuthenticatedLayout />}>
-              <Route index element={<LobbyPage />} />
-              <Route element={<GameRoomLayout />}>
-                <Route path="waiting/:roomId" element={<WaitingRoom />} />
-                <Route element={<GameSessionLayout />}>
-                  <Route path="game/:roomId" element={<Game />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route element={<AuthenticatedLayout />}>
+              <Route index element={<Navigate to="/saboteur" />} />
+              <Route path="saboteur">
+                <Route index element={<LobbyPage />} />
+                <Route path=":roomId" element={<GameRoomLayout />}>
+                  <Route path="waiting" element={<WaitingRoom />} />
+                  <Route element={<GameSessionLayout />}>
+                    <Route path="game" element={<Game />} />
+                  </Route>
                 </Route>
               </Route>
             </Route>

@@ -10,7 +10,7 @@ export const GameSessionLayout = () => {
   if (!gameSession) {
     return (
       <Navigate
-        to={{ pathname: `/waiting/${gameRoom.id}` }}
+        to={{ pathname: `/saboteur/${gameRoom.id}/waiting/` }}
         state={{ from: location.pathname }}
         replace
       />
