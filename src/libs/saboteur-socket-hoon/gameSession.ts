@@ -6,10 +6,13 @@ import { MySaboteurPlayer } from "@/libs/saboteur/player";
 
 import { HSSaboteurSocket, SocketAction } from "./socket";
 
+type ResponseActionEvent = CustomEvent<SocketAction.Response.Actions>;
 export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   private socket: HSSaboteurSocket;
   private roomId: string;
   private player: MySaboteurPlayer;
+
+  private readonly eventTarget = new EventTarget();
 
   constructor(
     socket: HSSaboteurSocket,
@@ -19,6 +22,28 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.socket = socket;
     this.roomId = roomId;
     this.player = player;
+
+    this.socket.onAny((type, data) => {
+      if (type !== "game_update" || type !== "private_game_action") return;
+
+      const actions =
+        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
+
+      for (const action of actions) {
+        const target = SaboteurAction.Response.Private.actionTypes.includes(
+          action.type as any,
+        )
+          ? "private"
+          : "public";
+
+        this.eventTarget.dispatchEvent(
+          new CustomEvent("any", { detail: action }),
+        );
+        this.eventTarget.dispatchEvent(
+          new CustomEvent(`${target}:${action.type}`, { detail: action }),
+        );
+      }
+    });
   }
 
   sendAction<TAction extends SaboteurAction.Request.Actions>(
@@ -33,53 +58,45 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   }
 
   on<
-    TActionType extends Exclude<
+    TSaboteurActionType extends Exclude<
       SaboteurAction.Response.ActionType,
       "game_started"
     >,
-    TActionClass extends
+    TSaboteurActionClass extends
       SaboteurAction.Response.ActionClass = SaboteurAction.Response.ActionClass & {
-      type: TActionType;
+      type: TSaboteurActionType;
     },
   >(
-    actionType: TActionType,
-    callback: (action: InstanceType<TActionClass>) => void,
+    actionType: TSaboteurActionType,
+    callback: (action: InstanceType<TSaboteurActionClass>) => void,
   ) {
-    const ev = SaboteurAction.Response.Private.actionTypes.includes(
+    const target = SaboteurAction.Response.Private.actionTypes.includes(
       actionType as any,
     )
-      ? "private_game_update"
-      : "game_update";
+      ? "private"
+      : "public";
 
-    // TODO: 단일 listener에서 변환을 처리하도록 개선
-    const listener = (data: SocketAction.Response.Actions) => {
-      const actions =
-        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
+    const type = `${target}:${actionType}`;
 
-      const filteredActions = actions.filter((a) => a.type === actionType);
-      if (filteredActions.length > 0) return;
-
-      callback(filteredActions as any);
+    const listener = (event: ResponseActionEvent) => {
+      callback(event.detail as any);
     };
 
-    this.socket.on(ev, listener as any);
+    // TODO: Add {signal: this.socket.signal}
+    this.eventTarget.addEventListener(type, listener as any);
     return () => {
-      this.socket.off(ev, listener as any);
+      this.eventTarget.removeEventListener(type, listener as any);
     };
   }
 
   onAny(callback: (action: SaboteurAction.Response.Actions) => void) {
-    const listener = (data: SocketAction.Response.Actions) => {
-      const actions =
-        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
-      actions.forEach((action) => {
-        callback(action);
-      });
+    const listener = (event: ResponseActionEvent) => {
+      callback(event.detail as any);
     };
 
-    this.socket.on("game_update", listener as any);
+    this.eventTarget.addEventListener("any", listener as any);
     return () => {
-      this.socket.off("game_update", listener as any);
+      this.eventTarget.removeEventListener("any", listener as any);
     };
   }
 }
