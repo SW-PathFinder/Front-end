@@ -200,8 +200,8 @@ export namespace SaboteurAction {
         static readonly type = "path";
 
         update(gameSession: SaboteurSession): void {
-          // const { x, y, card } = this.data;
-          // gameSession.board.placeCard(x, y, card);
+          const { x, y, card } = this.data;
+          gameSession.board.placeCard(x, y, card);
         }
       }
 

@@ -1,4 +1,5 @@
 import { transformIdToCard } from "@/libs/saboteur-socket-hoon/card";
+import { FixedArrayGrid2d } from "@/libs/saboteur-socket-hoon/fixedGrid2d";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
@@ -43,6 +44,12 @@ export namespace SocketAction {
     }> {
       // TODO: 이거 prototype에 없음
       static readonly type = "path";
+
+      constructor(data: { x: number; y: number; handNum: number }) {
+        // 서버에서 받는 좌표 (10,5)에서 10이 y임;;
+        const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
+        super({ x, y, handNum: data.handNum });
+      }
     }
 
     export class DestroyPath extends AbstractRequest<{
@@ -51,6 +58,11 @@ export namespace SocketAction {
       handNum: number;
     }> {
       static readonly type = "rockFail";
+
+      constructor(data: { x: number; y: number; handNum: number }) {
+        const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
+        super({ x, y, handNum: data.handNum });
+      }
     }
 
     export class Sabotage extends AbstractRequest<{
@@ -79,6 +91,11 @@ export namespace SocketAction {
       handNum: number;
     }> {
       static readonly type = "viewMap";
+
+      constructor(data: { x: number; y: number; handNum: number }) {
+        const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
+        super({ x, y, handNum: data.handNum });
+      }
     }
 
     export class Discard extends AbstractRequest<{ handNum: number }> {
@@ -187,7 +204,10 @@ export namespace SocketAction {
         static readonly type = "path";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.Path] {
-          const { x, y } = this.data;
+          const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+            this.data.y,
+            this.data.x,
+          );
           const card = transformIdToCard(
             this.data.card,
           ) as SaboteurCard.Path.AbstractCommon;
@@ -203,7 +223,10 @@ export namespace SocketAction {
         static readonly type = "rockFail";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.Destroy] {
-          const { x, y } = this.data;
+          const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+            this.data.y,
+            this.data.x,
+          );
           return [new SaboteurAction.Response.Public.Destroy({ x, y })];
         }
       }
@@ -243,12 +266,16 @@ export namespace SocketAction {
       }
 
       export class UseMap extends AbstractBroadcastResponse<{
-        target: [x: number, y: number];
+        target: [absoluteY: number, absoluteX: number];
       }> {
         static readonly type = "viewMap";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.UseMap] {
-          const [x, y] = this.data.target;
+          const [absoluteY, absoluteX] = this.data.target;
+          const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+            absoluteX,
+            absoluteY,
+          );
           return [new SaboteurAction.Response.Public.UseMap({ x, y })];
         }
       }
@@ -268,12 +295,16 @@ export namespace SocketAction {
       }
 
       export class FoundRock extends AbstractBroadcastResponse<
-        [x: number, y: number]
+        [absoluteY: number, absoluteX: number]
       > {
         static readonly type = "rock_found";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.FoundRock] {
-          const [x, y] = this.data;
+          const [absoluteY, absoluteX] = this.data;
+          const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+            absoluteX,
+            absoluteY,
+          );
           return [new SaboteurAction.Response.Public.FoundRock({ x, y })];
         }
       }
@@ -364,13 +395,10 @@ export namespace SocketAction {
         static readonly type = "drawCard";
 
         toSaboteurAction(): [SaboteurAction.Response.Private.Draw] {
-          return [
-            new SaboteurAction.Response.Private.Draw({
-              card: transformIdToCard(
-                this.data.card,
-              ) as SaboteurCard.Abstract.Playable,
-            }),
-          ];
+          const card = transformIdToCard(
+            this.data.card,
+          ) as SaboteurCard.Abstract.Playable;
+          return [new SaboteurAction.Response.Private.Draw({ card })];
         }
       }
 
@@ -383,14 +411,17 @@ export namespace SocketAction {
         static readonly type = "revealDest";
 
         toSaboteurAction(): [SaboteurAction.Response.Private.RevealDest] {
+          const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+            this.data.y,
+            this.data.x,
+          );
+
+          const card = transformIdToCard(
+            this.data.cardType,
+          ) as SaboteurCard.Path.AbstractDest;
+
           return [
-            new SaboteurAction.Response.Private.RevealDest({
-              x: this.data.x,
-              y: this.data.y,
-              card: transformIdToCard(
-                this.data.cardType,
-              ) as SaboteurCard.Path.AbstractDest,
-            }),
+            new SaboteurAction.Response.Private.RevealDest({ x, y, card }),
           ];
         }
       }
@@ -472,14 +503,20 @@ export namespace SocketAction {
                   status,
                 }),
               ),
-              board: this.data.board.map(({ x, y, cardId, reverse }) => ({
-                x,
-                y,
-                card: transformIdToCard(
-                  cardId,
-                  reverse,
-                ) as SaboteurCard.Path.Abstract,
-              })),
+              board: this.data.board.map(
+                ({ cardId, reverse, ...absoluteCoord }) => {
+                  const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+                    absoluteCoord.x,
+                    absoluteCoord.y,
+                  );
+                  const card = transformIdToCard(
+                    cardId,
+                    reverse,
+                  ) as SaboteurCard.Path.Abstract;
+
+                  return { x, y, card };
+                },
+              ),
             }),
           ];
         }

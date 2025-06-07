@@ -8,6 +8,7 @@ import { NonReactive, Reactive, Reactivity } from "@/libs/reactivity";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { GameBoard } from "@/libs/saboteur/board";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import {
   AbstractSaboteurPlayer,
   MySaboteurPlayer,

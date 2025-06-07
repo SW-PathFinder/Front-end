@@ -50,10 +50,12 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     action: TAction,
     gameSession: SaboteurSession,
   ) {
+    const primitive = action.toSocketAction(gameSession).toPrimitive();
+
     this.socket.emit("game_action", {
       room: this.roomId,
       player: this.player.id,
-      action: action.toSocketAction(gameSession),
+      action: primitive,
     });
   }
 
