@@ -21,6 +21,7 @@ const config = {
   importOrder: ["^react$", "<THIRD_PARTY_MODULES>", "^@/", "^[./]"],
   importOrderSeparation: true,
   // importOrderSortSpecifiers: true,
+  importOrderParserPlugins: ["typescript", "jsx", "decorators"],
 
   // prettier-plugin-tailwindcss
   tailwindStylesheet: "./src/index.css",

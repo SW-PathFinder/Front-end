@@ -28,6 +28,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unsafe-declaration-merging": "off",
       "@wogns3623/better-exhaustive-deps/exhaustive-deps": [
         "warn",
         {
