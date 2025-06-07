@@ -4,6 +4,7 @@ import { DndZone } from "@/components/Game/Dnd";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import { useGameSession } from "@/contexts/GameSessionContext";
+import { PlayerRole } from "@/libs/saboteur/types";
 
 const Game = () => {
   const { gameSession } = useGameSession();
@@ -12,9 +13,19 @@ const Game = () => {
     <div className="flex h-screen w-full flex-col overflow-hidden bg-base-200 px-4 md:px-8">
       {/* 상단: 플레이어 차례 */}
       <header className="flex flex-col items-center justify-center bg-base-200 p-4">
-        <p>나의 역할 : {gameSession.myPlayer.role}</p>
+        <p
+          className={
+            gameSession.myPlayer.role === PlayerRole.Saboteur
+              ? "text-red-500"
+              : "" + " text-lg font-semibold"
+          }
+        >
+          나의 역할 : {gameSession.myPlayer.role}
+        </p>
         <p className="text-lg font-semibold">
-          {gameSession.currentPlayer.name}의 차례
+          {gameSession.currentPlayer.name === gameSession.myPlayer.name
+            ? "내 차례"
+            : `${gameSession.currentPlayer.name}의 차례`}
         </p>
       </header>
       {/* 메인 영역: 좌측 사이드바, 보드, 로그 */}
