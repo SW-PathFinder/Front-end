@@ -120,30 +120,27 @@ export class SaboteurSession implements GameSession {
     this.players = players;
     this.board = new GameBoard();
 
-    this.adapter.onGameStateChange(
+    this.adapter.on(
       "roundStart",
       (data) => {
         this.onRoundStart(data);
       },
       this,
     );
-    this.adapter.onGameStateChange(
+    this.adapter.on(
       "turnChange",
       (data) => {
         this.onTurnChange(data);
       },
       this,
     );
-    this.adapter.onGameStateChange(
+    this.adapter.on(
       "roundEnd",
       (data) => {
         this.onRoundEnd(data);
       },
       this,
     );
-    this.adapter.onGameSessionEnd(() => {
-      this.onGameSessionEnd();
-    });
   }
 
   get currentPlayer(): AbstractSaboteurPlayer {
@@ -170,16 +167,6 @@ export class SaboteurSession implements GameSession {
     action: TAction,
   ): void {
     this.adapter.sendAction(action, this);
-  }
-
-  onGameStateChange<
-    TActionType extends SaboteurAction.Response.Actions["type"],
-  >(
-    actionType: TActionType,
-    callback: (action: SaboteurAction.Response.Actions) => void,
-  ): UnsubscribeCallback {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.adapter.onGameStateChange(actionType as any, callback, this);
   }
 
   private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
@@ -210,10 +197,6 @@ export class SaboteurSession implements GameSession {
     this.players.forEach((player) => {
       player.resetRoundState();
     });
-  }
-
-  private onGameSessionEnd() {
-    throw new Error("Method not implemented.");
   }
 }
 export interface SaboteurSession extends Reactive {}

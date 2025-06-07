@@ -14,9 +14,20 @@ export interface GameSession {
   readonly players: readonly GameSessionPlayer[];
 }
 
+/**
+ * @todo Define default action types to support
+ */
 export interface GameSessionAdapter {
-  onGameSessionEnd(
-    // callback: (gameSession: GameSession) => void,
-    callback: () => void,
+  sendAction(action: object, gameSession: GameSession): void;
+
+  on(
+    actionType: string,
+    callback: (action: object) => void,
+    gameSession: GameSession,
+  ): UnsubscribeCallback;
+
+  onAny(
+    callback: (action: object) => void,
+    gameSession: GameSession,
   ): UnsubscribeCallback;
 }
