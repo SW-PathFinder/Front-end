@@ -53,10 +53,12 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
     });
   }
 
-  onGameSessionReady(callback: () => void): UnsubscribeCallback {
+  onGameSessionReady(
+    callback: (remainSecond: number) => void,
+  ): UnsubscribeCallback {
     // const listener = (data: ListenEvents["countdown_started"]) => {
-    const listener = () => {
-      callback();
+    const listener = (data: ListenEvents["countdown_started"]) => {
+      callback(data.seconds);
     };
 
     this.socket.on("countdown_started", listener);

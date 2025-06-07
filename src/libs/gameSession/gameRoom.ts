@@ -24,7 +24,9 @@ export interface GameRoomAdapter {
 
   leaveRoom(): void;
 
-  onGameSessionReady(callback: () => void): UnsubscribeCallback;
+  onGameSessionReady(
+    callback: (remainSecond: number) => void,
+  ): UnsubscribeCallback;
 
   onGameSessionStart(
     callback: (gameSession: GameSession) => void,
