@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 
+import { twMerge } from "tailwind-merge";
+
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
@@ -14,7 +16,7 @@ type EquipmentModalProps = {
 
 const TOOL_LABEL: Record<Tools, string> = {
   lantern: "랜턴",
-  mineCart: "광차",
+  mineCart: "수레",
   pickaxe: "곡괭이",
 };
 
@@ -24,12 +26,13 @@ const EquipmentModal = ({
   handNum,
   onClose,
 }: EquipmentModalProps) => {
-  const [mode] = useState<"repair" | "sabotage">(
-    card instanceof SaboteurCard.Action.Sabotage ? "sabotage" : "repair",
-  );
+  const mode =
+    card instanceof SaboteurCard.Action.Sabotage ? "sabotage" : "repair";
   const [validationMsg, setValidationMsg] = useState<string>("");
   const [canUse, setCanUse] = useState<boolean>(false);
   const [targetPlayer, setTargetPlayer] = useState<string>("");
+  const [brokenTools, setBrokenTools] = useState<Tools[]>([]);
+  const [selectedTool, setSelectedTool] = useState<Tools | null>(null);
 
   const toolsName = useMemo(() => {
     if (mode === "repair") {
@@ -42,37 +45,42 @@ const EquipmentModal = ({
   }, [card, mode]);
 
   const handleClickPlayer = (player: AbstractSaboteurPlayer) => {
-    let usable = false;
-    if (mode === "repair") {
-      const repairCard = card as SaboteurCard.Action.Repair;
-      usable = repairCard.tools.some((t) => player.status[t] === false);
-    } else {
-      const sabotageCard = card as SaboteurCard.Action.Sabotage;
-      usable = player.status[sabotageCard.tool[0]] === true;
-    }
-    setCanUse(usable);
+    const isRepair = mode === "repair";
+    const repairCard = isRepair ? (card as SaboteurCard.Action.Repair) : null;
+    const targetTools = isRepair
+      ? repairCard!.tools.filter((t) => !player.status[t])
+      : (() => {
+          const t = (card as SaboteurCard.Action.Sabotage).tool[0];
+          return player.status[t] ? [t] : [];
+        })();
+    const usable = targetTools.length > 0;
+    setBrokenTools(isRepair ? targetTools : []);
 
-    if (usable) {
-      const actionObjectName =
-        mode === "repair"
-          ? toolsName
-          : TOOL_LABEL[(card as SaboteurCard.Action.Sabotage).tool[0]];
-      setValidationMsg(
-        `${actionObjectName} ${
-          mode === "repair" ? "수리" : "파괴"
-        }를 ${player.name}에게 사용하시겠습니까?`,
-      );
-      setTargetPlayer(player.name);
-    } else {
+    // 도구 선택 로직
+    const chosenTool =
+      usable && targetTools.length === 1 ? targetTools[0] : null;
+    setSelectedTool(chosenTool);
+    setCanUse(usable && (mode !== "repair" || chosenTool !== null));
+    setTargetPlayer(player.name);
+
+    // 메시지 설정: 선택 UI 있음 -> 빈 문자열, 단일 선택시 바로 메시지 노출, 실패시 불가 메시지
+    if (!usable) {
       setValidationMsg("사용할 수 없습니다");
+    } else if (chosenTool) {
+      setValidationMsg(
+        `${TOOL_LABEL[chosenTool]} ${isRepair ? "수리" : "파괴"}를 ${player.name}에게 사용하시겠습니까?`,
+      );
+    } else {
+      // 멀티 선택이 필요한 경우에는 메시지 숨김
+      setValidationMsg("");
     }
   };
 
   const handleConfirm = () => {
-    if (canUse) {
-      // Socket으로 변경
+    if (canUse && (mode !== "repair" || selectedTool)) {
+      // TODO: Socket으로 변경
       alert(
-        `type: ${mode}, player_name : ${targetPlayer}, hand_num: ${handNum}`,
+        `type: ${mode}, player_name: ${targetPlayer}, hand_num: ${handNum}, tool: ${selectedTool}`,
       );
       onClose();
     }
@@ -122,15 +130,42 @@ const EquipmentModal = ({
             </div>
           ))}
         </div>
-        {validationMsg && (
-          <div className="mt-4 flex flex-col items-center justify-center gap-y-4">
-            {validationMsg}
+        {(brokenTools.length > 1 || validationMsg) && (
+          <div className="mt-4 flex flex-col items-center gap-4">
+            {brokenTools.length > 1 ? (
+              <div className="flex flex-row items-center gap-4">
+                <p>수리할 도구를 선택하세요</p>
+                <div className="flex gap-2">
+                  {brokenTools.map((t) => (
+                    <button
+                      key={t}
+                      className={twMerge(
+                        "btn",
+                        selectedTool !== t && "btn-outline",
+                        selectedTool === t && "btn-secondary",
+                      )}
+                      onClick={() => {
+                        setSelectedTool(t);
+                        setCanUse(true);
+                        setValidationMsg(
+                          `${TOOL_LABEL[t]} 수리를 ${targetPlayer}에게 사용하시겠습니까?`,
+                        );
+                      }}
+                    >
+                      {TOOL_LABEL[t]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <p>{validationMsg}</p>
+              </>
+            )}
             <button
               className="btn w-1/3 btn-primary"
               disabled={!canUse}
-              onClick={() => {
-                handleConfirm();
-              }}
+              onClick={handleConfirm}
             >
               확인
             </button>

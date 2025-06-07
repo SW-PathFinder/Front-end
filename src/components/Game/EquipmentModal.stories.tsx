@@ -27,7 +27,7 @@ const dummyList: AbstractSaboteurPlayer[] = [
   }),
   new OtherSaboteurPlayer({
     id: "Doo Hyun",
-    status: { lantern: true, pickaxe: false, mineCart: false },
+    status: { lantern: false, pickaxe: false, mineCart: false },
     handCount: 2,
   }),
   new OtherSaboteurPlayer({
@@ -69,7 +69,7 @@ const dummyList: AbstractSaboteurPlayer[] = [
 
 const card1 = new SaboteurCard.Action.Repair([Tools.Lantern, Tools.MineCart]);
 
-const card2 = new SaboteurCard.Action.Sabotage(Tools.MineCart);
+const card2 = new SaboteurCard.Action.Sabotage(Tools.Lantern);
 
 export const Default = () => {
   const [mode, setMode] = useState<"repair" | "sabotage" | null>(null);
