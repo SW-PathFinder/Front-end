@@ -44,6 +44,9 @@ export class SaboteurRoom implements GameRoom {
   readonly isPublic: boolean;
   readonly cardHelper: boolean;
 
+  private _remainSecond: number | null = null;
+  private _isReady: boolean = false;
+
   constructor(
     adapter: SaboteurRoomAdapter,
     { id, players, host, capacity, isPublic, cardHelper }: SaboteurRoomOption,
@@ -63,10 +66,31 @@ export class SaboteurRoom implements GameRoom {
       const index = this.players.findIndex((p) => p.id === player.id);
       if (index !== -1) this.players.splice(index, 1);
     });
+    this.adapter.onGameSessionReady((remainSecond) => {
+      this._isReady = true;
+      this._remainSecond = remainSecond;
+
+      const id = setInterval(() => {
+        if (this._remainSecond === null || this._remainSecond <= 0) {
+          clearInterval(id);
+          return;
+        }
+
+        this._remainSecond -= 1;
+      }, 1000);
+    });
   }
 
   get host(): GameRoomPlayer {
     return this._host;
+  }
+
+  get isReady(): boolean {
+    return this._isReady;
+  }
+
+  get remainSecond(): number | null {
+    return this._remainSecond;
   }
 }
 export interface SaboteurRoom extends Reactive {}
