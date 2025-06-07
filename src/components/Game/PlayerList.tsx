@@ -10,7 +10,7 @@ interface Props {
 
 const PlayerList = ({ list }: Props) => {
   const { gameSession } = useGameSession();
-  const curRound = gameSession.currentRound; // This should be replaced with the actual current round logic
+  const curRound = gameSession.round;
 
   return (
     <div className="h-fit w-full border bg-base-100/70 shadow-xl">
