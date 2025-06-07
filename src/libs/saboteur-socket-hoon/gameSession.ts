@@ -24,7 +24,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.player = player;
 
     this.socket.onAny((type, data) => {
-      if (type !== "game_update" || type !== "private_game_action") return;
+      if (type !== "game_update" && type !== "private_game_update") return;
 
       const actions =
         SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();

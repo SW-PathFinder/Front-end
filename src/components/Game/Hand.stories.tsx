@@ -24,7 +24,6 @@ const HandStory = ({ cards }: { cards: SaboteurCard.Abstract.Playable[] }) => {
   // const { } = useDndContext();
   useDndMonitor({
     onDragEnd({ active, over }) {
-      console.log("onDragEnd", { active, over });
       if (!over) return;
 
       const container = containers.find(

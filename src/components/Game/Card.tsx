@@ -3,11 +3,11 @@ import { useState } from "react";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
-import { AbstractCard } from "@/libs/saboteur/cards";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import { PathCard } from "@/libs/saboteur/cards/path";
 
 interface CardProps {
-  card: AbstractCard;
+  card: SaboteurCard.Abstract;
   /**
    * width of card
    * @default 60
@@ -25,7 +25,7 @@ export const CARD_HEIGHT = 97;
 export const CARD_RATIO = CARD_WIDTH / CARD_HEIGHT;
 
 export interface DraggableCardData {
-  card: AbstractCard;
+  card: SaboteurCard.Abstract.Playable;
 }
 
 export const Card = ({

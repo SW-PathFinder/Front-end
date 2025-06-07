@@ -20,7 +20,7 @@ interface BoardProps {
   onDropCard?: (
     x: number,
     y: number,
-    card: SaboteurCard.Abstract,
+    card: SaboteurCard.Abstract.Playable,
     prevCard: SaboteurCard.Path.Abstract | null,
   ) => void;
   style?: React.CSSProperties;

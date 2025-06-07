@@ -116,11 +116,6 @@ export namespace SocketAction {
     static fromPrimitive<T extends Response.Primitive>(
       primitive: T,
     ): AbstractResponse<T["data"]> {
-      console.log(
-        `Converting primitive to response: ${primitive.type}`,
-        Response.typeToClassMap[primitive.type],
-      );
-
       return new Response.typeToClassMap[primitive.type](
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primitive.data as any,

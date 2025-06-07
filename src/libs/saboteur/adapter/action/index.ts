@@ -5,6 +5,7 @@ import { SaboteurSession } from "@/libs/saboteur/game";
 import {
   AbstractSaboteurPlayer,
   MySaboteurPlayer,
+  OtherSaboteurPlayer,
 } from "@/libs/saboteur/player";
 import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
@@ -197,6 +198,11 @@ export namespace SaboteurAction {
         card: SaboteurCard.Path.AbstractCommon;
       }> {
         static readonly type = "path";
+
+        update(gameSession: SaboteurSession): void {
+          // const { x, y, card } = this.data;
+          // gameSession.board.placeCard(x, y, card);
+        }
       }
 
       export class Destroy extends Response.Primitive<{
@@ -204,6 +210,11 @@ export namespace SaboteurAction {
         y: number;
       }> {
         static readonly type = "destroy";
+
+        update(gameSession: SaboteurSession): void {
+          // const { x, y } = this.data;
+          // gameSession.board.removeCard(x, y);
+        }
       }
 
       export class Repair extends Response.Primitive<{
@@ -211,6 +222,11 @@ export namespace SaboteurAction {
         playerId: string;
       }> {
         static readonly type = "repair";
+
+        update(gameSession: SaboteurSession): void {
+          //   const { tool, player } = this.data;
+          //   player.repair(tool);
+        }
       }
 
       export class Sabotage extends Response.Primitive<{
@@ -218,14 +234,27 @@ export namespace SaboteurAction {
         playerId: string;
       }> {
         static readonly type = "sabotage";
+
+        update(gameSession: SaboteurSession): void {
+          // const { tool, player } = this.data;
+          // player.sabotage(tool);
+        }
       }
 
       export class UseMap extends Response.Primitive<{ x: number; y: number }> {
         static readonly type = "useMap";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class Discard extends Response.Primitive<{ handIndex: number }> {
         static readonly type = "discard";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class FoundRock extends Response.Primitive<{
@@ -233,6 +262,10 @@ export namespace SaboteurAction {
         y: number;
       }> {
         static readonly type = "foundRock";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class GameStart extends Response.Primitive<{
@@ -240,16 +273,56 @@ export namespace SaboteurAction {
         myPlayer: MySaboteurPlayer;
       }> {
         static readonly type = "gameStart";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class TurnChange extends Response.Primitive<{ playerId: string }> {
         static readonly type = "turnChange";
+
+        update(gameSession: SaboteurSession): void {
+          const { playerId } = this.data;
+
+          const nextPlayerIndex = gameSession.players.findIndex(
+            (p) => p.id === playerId,
+          );
+          if (nextPlayerIndex === -1) {
+            throw new Error(`Player ${playerId} not found in the game state.`);
+          }
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (gameSession as any)._currentPlayerIndex = nextPlayerIndex;
+        }
+      }
+
+      export class RoundEnd extends Response.Primitive<{
+        winner: PlayerRole;
+        roles: { [playerId: string]: PlayerRole };
+      }> {
+        static readonly type = "roundEnd";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class GameEnd extends Response.Primitive<{
         golds: { [playerId: string]: number };
       }> {
         static readonly type = "gameEnd";
+
+        update(gameSession: SaboteurSession): void {
+          // const { golds } = this.data;
+          // TODO: cleanup game session?
+          // gameSession.players.forEach((player) => {
+          //   const playerRank = rank.find((r) => r.player.id === player.id);
+          //   if (playerRank) {
+          //     player.gold += playerRank.gold;
+          //   }
+          // });
+        }
       }
 
       export type ActionClass =
@@ -275,12 +348,32 @@ export namespace SaboteurAction {
         role: PlayerRole;
       }> {
         static readonly type = "roundStart";
+
+        update(gameSession: SaboteurSession): void {
+          const { round, hands, role } = this.data;
+
+          gameSession.round = round;
+
+          hands.forEach((card) => gameSession.myPlayer.add(card));
+          gameSession.myPlayer.role = role;
+
+          gameSession.players.forEach((player) => {
+            if (player instanceof OtherSaboteurPlayer)
+              player.handCount = OtherSaboteurPlayer.getInitialHandCount(
+                gameSession.players.length,
+              );
+          });
+        }
       }
 
       export class Draw extends Response.Primitive<{
         card: SaboteurCard.Abstract.Playable;
       }> {
         static readonly type = "draw";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class RevealDest extends Response.Primitive<{
@@ -289,12 +382,20 @@ export namespace SaboteurAction {
         card: SaboteurCard.Path.AbstractDest;
       }> {
         static readonly type = "revealDest";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class Rotate extends Response.Primitive<{
         card: SaboteurCard.Path.AbstractCommon;
       }> {
         static readonly type = "rotate";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class PlayerState extends Response.Primitive<{
@@ -313,10 +414,18 @@ export namespace SaboteurAction {
         board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
       }> {
         static readonly type = "playerState";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export class ReceiveGold extends Response.Primitive<{ gold: number }> {
         static readonly type = "receiveGold";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
       }
 
       export type ActionClass =
