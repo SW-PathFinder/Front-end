@@ -32,7 +32,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     });
   }
 
-  onGameStateChange<
+  on<
     TActionType extends SaboteurAction.Response.ActionType,
     TActionClass extends
       SaboteurAction.Response.ActionClass = SaboteurAction.Response.ActionClass & {
@@ -65,11 +65,16 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     };
   }
 
-  onGameSessionEnd(callback: () => void): () => void {
-    const listener = ({ type, data }: SocketAction.Response.Actions) => {
-      if (type !== "game_end") return;
-      // TODO: Handle game end logic
-      // callback(data.rank);
+  onAny(
+    callback: (action: SaboteurAction.Response.Actions) => void,
+    gameSession: SaboteurSession,
+  ) {
+    const listener = (data: SocketAction.Response.Actions) => {
+      const action =
+        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction(
+          gameSession,
+        );
+      callback(action);
     };
 
     this.socket.on("game_update", listener as any);
