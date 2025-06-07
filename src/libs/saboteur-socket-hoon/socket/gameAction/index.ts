@@ -120,6 +120,11 @@ export namespace SocketAction {
     static fromPrimitive<T extends Response.Primitive>(
       primitive: T,
     ): AbstractResponse<T["data"]> {
+      console.log(
+        `Converting primitive to response: ${primitive.type}`,
+        Response.typeToClassMap[primitive.type],
+      );
+
       return new Response.typeToClassMap[primitive.type](
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primitive.data as any,
@@ -129,7 +134,7 @@ export namespace SocketAction {
     }
 
     abstract toSaboteurAction(
-      gameSession: SaboteurSession,
+      gameSession: Readonly<SaboteurSession>,
     ): SaboteurAction.Response.Actions;
   }
 
@@ -161,7 +166,7 @@ export namespace SocketAction {
         static readonly type = "game_started";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.GameStart {
           const myPlayer = gameSession.myPlayer;
           const players = this.data.players.map(
@@ -186,7 +191,7 @@ export namespace SocketAction {
         declare data;
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.TurnChange {
           const player = gameSession.players.find(
             (player) => player.id === this.data,
@@ -207,7 +212,7 @@ export namespace SocketAction {
         static readonly type = "path";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.Path {
           return new SaboteurAction.Response.Public.Path({
             card: transformIdToCard(
@@ -227,7 +232,7 @@ export namespace SocketAction {
         static readonly type = "rockFail";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.Destroy {
           return new SaboteurAction.Response.Public.Destroy({
             card: transformIdToCard(
@@ -247,7 +252,7 @@ export namespace SocketAction {
         static readonly type = "sabotage";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.Sabotage {
           const player = gameSession.players.find(
             (player) => player.id === this.data.target,
@@ -270,7 +275,7 @@ export namespace SocketAction {
         static readonly type = "repair";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Actions {
           const player = gameSession.players.find(
             (player) => player.id === this.data.target,
@@ -291,7 +296,7 @@ export namespace SocketAction {
         static readonly type = "viewMap";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.UseMap {
           return new SaboteurAction.Response.Public.UseMap({
             x: this.data.target[0],
@@ -307,7 +312,7 @@ export namespace SocketAction {
         static readonly type = "discard";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.Discard {
           return new SaboteurAction.Response.Public.Discard({
             card: gameSession.myPlayer.hands[this.data.handNum],
@@ -321,7 +326,7 @@ export namespace SocketAction {
         static readonly type = "rock_found";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.FoundRock {
           return new SaboteurAction.Response.Public.FoundRock({
             x: this.data[0],
@@ -338,7 +343,7 @@ export namespace SocketAction {
         static readonly type = "round_end";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.RoundEnd {
           const winners = gameSession.players.filter(
             (player) => this.data.roles[player.id] === this.data.winner,
@@ -354,7 +359,7 @@ export namespace SocketAction {
         static readonly type = "game_end";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Public.GameEnd {
           return new SaboteurAction.Response.Public.GameEnd({
             rank: this.data.rank
@@ -401,7 +406,7 @@ export namespace SocketAction {
         static readonly type = "roundStart";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.RoundStart {
           return new SaboteurAction.Response.Private.RoundStart({
             hands: this.data.hand.map(
@@ -421,7 +426,7 @@ export namespace SocketAction {
         static readonly type = "drawCard";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.Draw {
           return new SaboteurAction.Response.Private.Draw({
             card: transformIdToCard(
@@ -440,7 +445,7 @@ export namespace SocketAction {
         static readonly type = "revealDest";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.RevealDest {
           return new SaboteurAction.Response.Private.RevealDest({
             x: this.data.x,
@@ -458,7 +463,7 @@ export namespace SocketAction {
         static readonly type = "reversePath";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.Rotate {
           return new SaboteurAction.Response.Private.Rotate({
             card: transformIdToCard(
@@ -474,7 +479,7 @@ export namespace SocketAction {
         static readonly type = "getGold";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.ReceiveGold {
           return new SaboteurAction.Response.Private.ReceiveGold({
             gold: this.data.gold,
@@ -507,12 +512,8 @@ export namespace SocketAction {
         static readonly type = "playerState";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Private.PlayerState {
-          gameSession.players.forEach((player) => {
-            player.resetRoundState();
-          });
-
           const myPlayer = gameSession.myPlayer;
           const myPlayerData = this.data.players.find(
             (p) => p.playerId === myPlayer.id,
@@ -521,48 +522,37 @@ export namespace SocketAction {
             throw new Error(`My player data not found for id ${myPlayer.id}.`);
           }
 
-          myPlayer.sync(
-            this.data.gold,
-            this.data.hands.map(
-              (card) =>
-                transformIdToCard(
-                  card.cardId,
-                  card.reverse,
-                ) as SaboteurCard.Abstract.Playable,
-            ),
-            this.data.role,
-            myPlayerData.tool,
-          );
-
-          gameSession.players.forEach((player) => {
-            if (player instanceof OtherSaboteurPlayer)
-              player.handCount = OtherSaboteurPlayer.getInitialHandCount(
-                gameSession.players.length,
-              );
-          });
-
-          const currentPlayer = gameSession.players.find(
-            (player) => player.id === this.data.currentPlayerId,
-          );
-          if (!currentPlayer) {
-            throw new Error(
-              `Current player with id ${this.data.currentPlayerId} not found.`,
-            );
-          }
-
-          gameSession.board.import(
-            this.data.board.map(({ x, y, cardId, reverse }) => [
-              [x, y],
-              transformIdToCard(cardId, reverse) as SaboteurCard.Path.Abstract,
-            ]),
-          );
-
           return new SaboteurAction.Response.Private.PlayerState({
             round: this.data.round,
-            myPlayer,
-            currentPlayer,
-            players: gameSession.players,
-            board: gameSession.board,
+            myPlayer: {
+              id: myPlayer.id,
+              gold: this.data.gold,
+              role: this.data.role,
+              hands: this.data.hands.map(
+                ({ cardId, reverse }) =>
+                  transformIdToCard(
+                    cardId,
+                    reverse,
+                  ) as SaboteurCard.Abstract.Playable,
+              ),
+              status: myPlayerData?.tool,
+            },
+            currentPlayerId: this.data.currentPlayerId,
+            players: this.data.players.map(
+              ({ playerId: id, handCount, tool: status }) => ({
+                id,
+                handCount,
+                status,
+              }),
+            ),
+            board: this.data.board.map(({ x, y, cardId, reverse }) => ({
+              x,
+              y,
+              card: transformIdToCard(
+                cardId,
+                reverse,
+              ) as SaboteurCard.Path.Abstract,
+            })),
           });
         }
       }
@@ -579,7 +569,7 @@ export namespace SocketAction {
         static readonly type = "error";
 
         toSaboteurAction(
-          gameSession: SaboteurSession,
+          gameSession: Readonly<SaboteurSession>,
         ): SaboteurAction.Response.Actions {
           throw new Error("Method not implemented.");
         }
