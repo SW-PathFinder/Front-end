@@ -8,11 +8,15 @@ import { PlayerRole, Tools } from "@/libs/saboteur/types";
 abstract class AbstractSocketAction<T extends string | object = string | object>
   implements SocketAction.Primitive
 {
-  abstract readonly type: string;
   readonly data: T;
 
   constructor(data: T) {
     this.data = data;
+  }
+
+  get type(): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (this.constructor as any).type;
   }
 }
 
@@ -41,7 +45,8 @@ export namespace SocketAction {
       y: number;
       handNum: number;
     }> {
-      type = "path" as const;
+      // TODO: 이거 prototype에 없음
+      static readonly type = "path";
     }
 
     export class DestroyPath extends AbstractRequest<{
@@ -49,7 +54,7 @@ export namespace SocketAction {
       y: number;
       handNum: number;
     }> {
-      type = "rockFail" as const;
+      static readonly type = "rockFail";
     }
 
     export class Sabotage extends AbstractRequest<{
@@ -59,7 +64,7 @@ export namespace SocketAction {
       target: string;
       handNum: number;
     }> {
-      type = "sabotage" as const;
+      static readonly type = "sabotage";
     }
 
     export class Repair extends AbstractRequest<{
@@ -69,7 +74,7 @@ export namespace SocketAction {
       target: string;
       handNum: number;
     }> {
-      type = "repair" as const;
+      static readonly type = "repair";
     }
 
     export class UseMap extends AbstractRequest<{
@@ -77,19 +82,19 @@ export namespace SocketAction {
       y: number;
       handNum: number;
     }> {
-      type = "viewMap" as const;
+      static readonly type = "viewMap";
     }
 
     export class Discard extends AbstractRequest<{ handNum: number }> {
-      type = "discard" as const;
+      static readonly type = "discard";
     }
 
     export class RotatePath extends AbstractRequest<{ handNum: number }> {
-      type = "reversePath" as const;
+      static readonly type = "reversePath";
     }
 
     export class PlayerState extends AbstractRequest<{}> {
-      type = "playerState" as const;
+      static readonly type = "playerState";
     }
 
     export type Actions = InstanceType<
@@ -153,7 +158,7 @@ export namespace SocketAction {
         /** @description player ids in the game */
         players: string[];
       }> {
-        type = "game_started" as const;
+        static readonly type = "game_started";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -176,7 +181,7 @@ export namespace SocketAction {
       }
 
       export class TurnChange extends AbstractBroadcastResponse<string> {
-        type = "turn_change" as const;
+        static readonly type = "turn_change";
         /** @description next player id */
         declare data;
 
@@ -199,7 +204,7 @@ export namespace SocketAction {
         y: number;
         card: number;
       }> {
-        type = "path" as const;
+        static readonly type = "path";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -219,7 +224,7 @@ export namespace SocketAction {
         y: number;
         card: number;
       }> {
-        type = "rockFail" as const;
+        static readonly type = "rockFail";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -239,7 +244,7 @@ export namespace SocketAction {
         target: string;
         cardType: Tools;
       }> {
-        type = "sabotage" as const;
+        static readonly type = "sabotage";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -262,7 +267,7 @@ export namespace SocketAction {
         target: string;
         cardType: Tools[];
       }> {
-        type = "repair" as const;
+        static readonly type = "repair";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -283,7 +288,7 @@ export namespace SocketAction {
       export class UseMap extends AbstractBroadcastResponse<{
         target: [x: number, y: number];
       }> {
-        type = "viewMap" as const;
+        static readonly type = "viewMap";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -299,7 +304,7 @@ export namespace SocketAction {
       export class DiscardCard extends AbstractBroadcastResponse<{
         handNum: number;
       }> {
-        type = "discard" as const;
+        static readonly type = "discard";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -313,7 +318,7 @@ export namespace SocketAction {
       export class FoundRock extends AbstractBroadcastResponse<
         [x: number, y: number]
       > {
-        type = "rock_found" as const;
+        static readonly type = "rock_found";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -330,7 +335,7 @@ export namespace SocketAction {
         winner: PlayerRole;
         roles: { [playerId: string]: PlayerRole };
       }> {
-        type = "round_end" as const;
+        static readonly type = "round_end";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -346,7 +351,7 @@ export namespace SocketAction {
       export class GameEnd extends AbstractBroadcastResponse<{
         rank: [playerId: string, gold: number][];
       }> {
-        type = "game_end" as const;
+        static readonly type = "game_end";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -389,21 +394,21 @@ export namespace SocketAction {
       }
 
       export class RoundStart extends AbstractPrivateResponse<{
-        hand: { cardId: number; reverse?: boolean }[];
+        hand: [cardId: number, reverse?: boolean][];
         role: PlayerRole;
         currentRound: number;
       }> {
-        type = "roundStart" as const;
+        static readonly type = "roundStart";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
         ): SaboteurAction.Response.Private.RoundStart {
           return new SaboteurAction.Response.Private.RoundStart({
             hands: this.data.hand.map(
-              (card) =>
+              ([cardId, reversed]) =>
                 transformIdToCard(
-                  card.cardId,
-                  card.reverse,
+                  cardId,
+                  reversed,
                 ) as SaboteurCard.Abstract.Playable,
             ),
             role: this.data.role,
@@ -413,7 +418,7 @@ export namespace SocketAction {
       }
 
       export class DrawCard extends AbstractPrivateResponse<{ card: number }> {
-        type = "drawCard" as const;
+        static readonly type = "drawCard";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -432,7 +437,7 @@ export namespace SocketAction {
         /** @description destination card id */
         cardType: number;
       }> {
-        type = "revealDest" as const;
+        static readonly type = "revealDest";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -450,7 +455,7 @@ export namespace SocketAction {
       export class RotatePathCard extends AbstractPrivateResponse<{
         card: number;
       }> {
-        type = "reversePath" as const;
+        static readonly type = "reversePath";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -466,7 +471,7 @@ export namespace SocketAction {
       export class ReceiveGold extends AbstractPrivateResponse<{
         gold: number;
       }> {
-        type = "getGold" as const;
+        static readonly type = "getGold";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -499,7 +504,7 @@ export namespace SocketAction {
           handCount: number;
         }[];
       }> {
-        type = "playerState" as const;
+        static readonly type = "playerState";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -571,7 +576,7 @@ export namespace SocketAction {
 
     export namespace Exception {
       export class Exception extends AbstractExceptionResponse {
-        type = "error" as const;
+        static readonly type = "error";
 
         toSaboteurAction(
           gameSession: SaboteurSession,
@@ -594,7 +599,7 @@ export namespace SocketAction {
       ...Object.entries(Response.Exception),
     ].reduce(
       (prev, [, cls]) => {
-        prev[cls.prototype.type] = cls;
+        prev[cls.type] = cls;
         return prev;
       },
       {} as Record<
@@ -609,17 +614,4 @@ export namespace SocketAction {
   }
 
   export type Actions = Request.Actions | Response.Actions;
-
-  export function isType<T extends Actions["type"]>(type: T) {
-    return (action: Actions): action is Extract<Actions, { type: T }> => {
-      return action.type === type;
-    };
-  }
-  export function isPrimitiveType<T extends Actions["type"]>(type: T) {
-    return (
-      action: Primitive,
-    ): action is Prettify<Extract<Actions, { type: T }>> => {
-      return action.type === type;
-    };
-  }
 }

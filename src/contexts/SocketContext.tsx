@@ -120,9 +120,8 @@ export function useSocketRequest(
           event: ResponsibleListenEventType,
           data: ListenEvents[ResponsibleListenEventType],
         ) => {
+          console.log("Socket event received:", event, data);
           if (!responseEvent.includes(event)) return;
-
-          console.log("Socket response received:", data);
           if (!data.requestId || data.requestId !== requestId) return;
 
           if (data.success) {

@@ -41,16 +41,20 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     ) => void,
     gameSession: SaboteurSession,
   ) {
-    const ev =
-      actionType in SaboteurAction.Response.Private.actionTypes
-        ? "private_game_update"
-        : "game_update";
+    const ev = SaboteurAction.Response.Private.actionTypes.includes(
+      actionType as any,
+    )
+      ? "private_game_update"
+      : "game_update";
 
     const listener = (data: SocketAction.Response.Actions) => {
-      if (data.type !== actionType) return;
+      const action =
+        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction(
+          gameSession,
+        );
+      if (action.type !== actionType) return;
 
-      const action = SocketAction.AbstractResponse.fromPrimitive(data);
-      callback(action.toSaboteurAction(gameSession) as any);
+      callback(action as any);
     };
 
     this.socket.on(ev, listener as any);

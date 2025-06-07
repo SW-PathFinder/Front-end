@@ -9,11 +9,15 @@ import {
 import { PlayerRole } from "@/libs/saboteur/types";
 
 abstract class Action<T = unknown> {
-  abstract readonly type: string;
   readonly data: T;
 
   constructor(data: T) {
     this.data = data;
+  }
+
+  get type(): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (this.constructor as any).type;
   }
 }
 
@@ -44,7 +48,7 @@ export namespace SaboteurAction {
       }>
       implements SocketTransformable
     {
-      readonly type = "path";
+      static readonly type = "path";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -65,7 +69,7 @@ export namespace SaboteurAction {
       }>
       implements SocketTransformable
     {
-      readonly type = "destroy";
+      static readonly type = "destroy";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -85,7 +89,7 @@ export namespace SaboteurAction {
       }>
       implements SocketTransformable
     {
-      readonly type = "repair";
+      static readonly type = "repair";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -104,7 +108,7 @@ export namespace SaboteurAction {
       }>
       implements SocketTransformable
     {
-      readonly type = "sabotage";
+      static readonly type = "sabotage";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -124,7 +128,7 @@ export namespace SaboteurAction {
       }>
       implements SocketTransformable
     {
-      readonly type = "useMap";
+      static readonly type = "useMap";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -141,7 +145,7 @@ export namespace SaboteurAction {
       extends Request.Primitive<{ card: SaboteurCard.Abstract.Playable }>
       implements SocketTransformable
     {
-      readonly type = "discard";
+      static readonly type = "discard";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -156,7 +160,7 @@ export namespace SaboteurAction {
       extends Request.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
       implements SocketTransformable
     {
-      readonly type = "rotate";
+      static readonly type = "rotate";
 
       toSocketAction(
         gameSession: SaboteurSession,
@@ -167,15 +171,15 @@ export namespace SaboteurAction {
       }
     }
 
-    export type Actions =
-      | Path
-      | Destroy
-      | Repair
-      | Sabotage
-      | UseMap
-      | Discard
-      | Rotate;
-
+    export type ActionClass =
+      | typeof Path
+      | typeof Destroy
+      | typeof Repair
+      | typeof Sabotage
+      | typeof UseMap
+      | typeof Discard
+      | typeof Rotate;
+    export type Actions = InstanceType<ActionClass>;
     export type ActionType = Actions["type"];
   }
 
@@ -190,7 +194,7 @@ export namespace SaboteurAction {
         y: number;
         card: SaboteurCard.Path.AbstractCommon;
       }> {
-        readonly type = "path";
+        static readonly type = "path";
       }
 
       export class Destroy extends Response.Primitive<{
@@ -198,21 +202,21 @@ export namespace SaboteurAction {
         y: number;
         card: SaboteurCard.Action.Destroy;
       }> {
-        readonly type = "destroy";
+        static readonly type = "destroy";
       }
 
       export class Repair extends Response.Primitive<{
         card: SaboteurCard.Action.Repair;
         player: AbstractSaboteurPlayer;
       }> {
-        readonly type = "repair";
+        static readonly type = "repair";
       }
 
       export class Sabotage extends Response.Primitive<{
         card: SaboteurCard.Action.Sabotage;
         player: AbstractSaboteurPlayer;
       }> {
-        readonly type = "sabotage";
+        static readonly type = "sabotage";
       }
 
       export class UseMap extends Response.Primitive<{
@@ -220,53 +224,54 @@ export namespace SaboteurAction {
         y: number;
         card: SaboteurCard.Action.Map;
       }> {
-        readonly type = "useMap";
+        static readonly type = "useMap";
       }
 
       export class Discard extends Response.Primitive<{
         card: SaboteurCard.Abstract.Playable;
       }> {
-        readonly type = "discard";
+        static readonly type = "discard";
       }
 
       export class FoundRock extends Response.Primitive<{
         x: number;
         y: number;
       }> {
-        readonly type = "foundRock";
+        static readonly type = "foundRock";
       }
 
       export class GameStart extends Response.Primitive<{
         players: AbstractSaboteurPlayer[];
         myPlayer: MySaboteurPlayer;
       }> {
-        readonly type = "gameStart";
+        static readonly type = "gameStart";
       }
 
       export class TurnChange extends Response.Primitive<{
         player: AbstractSaboteurPlayer;
       }> {
-        readonly type = "turnChange";
+        static readonly type = "turnChange";
       }
 
       export class GameEnd extends Response.Primitive<{
         rank: { player: AbstractSaboteurPlayer; gold: number }[];
       }> {
-        readonly type = "gameEnd";
+        static readonly type = "gameEnd";
       }
 
-      export type Actions =
-        | Path
-        | Destroy
-        | Repair
-        | Sabotage
-        | UseMap
-        | Discard
-        | FoundRock
-        | GameStart
-        | TurnChange
-        | GameEnd;
-      export type ActionType = Actions["type"];
+      export type ActionClass =
+        | typeof Path
+        | typeof Destroy
+        | typeof Repair
+        | typeof Sabotage
+        | typeof UseMap
+        | typeof Discard
+        | typeof FoundRock
+        | typeof GameStart
+        | typeof TurnChange
+        | typeof GameEnd;
+      export type Actions = InstanceType<ActionClass>;
+      export type ActionType = ActionClass["type"];
     }
 
     export namespace Private {
@@ -275,13 +280,13 @@ export namespace SaboteurAction {
         hands: SaboteurCard.Abstract.Playable[];
         role: PlayerRole;
       }> {
-        readonly type = "roundStart";
+        static readonly type = "roundStart";
       }
 
       export class Draw extends Response.Primitive<{
         card: SaboteurCard.Abstract.Playable;
       }> {
-        readonly type = "draw";
+        static readonly type = "draw";
       }
 
       export class RevealDest extends Response.Primitive<{
@@ -289,19 +294,19 @@ export namespace SaboteurAction {
         y: number;
         card: SaboteurCard.Path.AbstractDest;
       }> {
-        readonly type = "reveal Dest";
+        static readonly type = "reveal Dest";
       }
 
       export class Rotate extends Response.Primitive<{
         card: SaboteurCard.Path.AbstractCommon;
       }> {
-        readonly type = "rotate";
+        static readonly type = "rotate";
       }
 
       export class RoundEnd extends Response.Primitive<{
         winners: AbstractSaboteurPlayer[];
       }> {
-        readonly type = "roundEnd";
+        static readonly type = "roundEnd";
       }
 
       export class PlayerState extends Response.Primitive<{
@@ -311,34 +316,37 @@ export namespace SaboteurAction {
         players: AbstractSaboteurPlayer[];
         board: GameBoard;
       }> {
-        readonly type = "playerState";
+        static readonly type = "playerState";
       }
 
       export class ReceiveGold extends Response.Primitive<{
         player: AbstractSaboteurPlayer;
         gold: number;
       }> {
-        readonly type = "receiveGold";
+        static readonly type = "receiveGold";
       }
 
-      export type Actions =
-        | RoundStart
-        | Draw
-        | RevealDest
-        | Rotate
-        | RoundEnd
-        | PlayerState
-        | ReceiveGold;
-      export type ActionType = Actions["type"];
+      export type ActionClass =
+        | typeof RoundStart
+        | typeof Draw
+        | typeof RevealDest
+        | typeof Rotate
+        | typeof RoundEnd
+        | typeof PlayerState
+        | typeof ReceiveGold;
+      export type Actions = InstanceType<ActionClass>;
+      export type ActionType = ActionClass["type"];
       export const actionTypes = Object.values(Private)
         .filter((v) => "prototype" in v)
-        .map((value) => value.prototype.type) as ActionType[];
+        .map((value) => value.type) as ActionType[];
     }
 
-    export type Actions = Public.Actions | Private.Actions;
-    export type ActionType = Actions["type"];
+    export type ActionClass = Public.ActionClass | Private.ActionClass;
+    export type Actions = InstanceType<ActionClass>;
+    export type ActionType = ActionClass["type"];
   }
 
-  export type Actions = Request.Actions | Response.Actions;
-  export type ActionType = Request.ActionType | Response.ActionType;
+  export type ActionClass = Request.ActionClass | Response.ActionClass;
+  export type Actions = InstanceType<ActionClass>;
+  export type ActionType = ActionClass["type"];
 }
