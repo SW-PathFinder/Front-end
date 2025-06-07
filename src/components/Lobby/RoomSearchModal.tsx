@@ -19,15 +19,15 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
 
   const clickSearch = async () => {
     try {
-      const result = await searchRoom({ room_code: value });
+      const { data } = await searchRoom({ room_code: value });
 
       setGameRoom({
-        id: result.room.room_id,
-        players: result.room.players.map((pid) => ({ id: pid, name: pid })),
-        host: { id: result.room.host, name: result.room.host },
-        capacity: result.room.max_players,
-        isPublic: result.room.is_public,
-        cardHelper: result.room.card_helper,
+        id: data.room.room_id,
+        players: data.room.players.map((pid) => ({ id: pid, name: pid })),
+        host: { id: data.room.host, name: data.room.host },
+        capacity: data.room.max_players,
+        isPublic: data.room.is_public,
+        cardHelper: data.room.card_helper,
       });
     } catch (error) {
       console.error(error);
