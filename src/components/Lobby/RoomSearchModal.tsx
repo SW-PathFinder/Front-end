@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router";
+
 import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { useSocketRequest } from "@/contexts/SocketContext";
 
@@ -11,6 +13,7 @@ interface RoomSearchModalProps {
 const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
   const [value, setValue] = useState("");
   const { setGameRoom } = useAuthenticated();
+  const navigate = useNavigate();
 
   const searchRoom = useSocketRequest(
     "search_room_by_code",
@@ -29,6 +32,9 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
         isPublic: data.room.is_public,
         cardHelper: data.room.card_helper,
       });
+
+      navigate(`/waiting/${data.room.room_id}`);
+      onClose();
     } catch (error) {
       console.error(error);
     }
