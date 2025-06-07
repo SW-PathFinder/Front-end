@@ -17,7 +17,7 @@ export function useGameActionEmitter() {
         action: action.toPrimitive() as SocketAction.Request.Actions,
         room: roomId,
         player: userId,
-        requestId: crypto.randomUUID(),
+        // requestId: crypto.randomUUID(),
       });
     },
     [socket, userId, roomId],
