@@ -115,7 +115,6 @@ export function EquipmentModal({
         new SaboteurAction.Request.Sabotage({
           player: targetPlayer,
           card: equipCard as SaboteurCard.Action.Sabotage,
-          tool: selectedTool!,
         }),
       );
     }
