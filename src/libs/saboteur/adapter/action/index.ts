@@ -1,5 +1,4 @@
 import { SocketAction } from "@/libs/saboteur-socket-hoon";
-import { GameBoard } from "@/libs/saboteur/board";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { SaboteurSession } from "@/libs/saboteur/game";
 import {
@@ -11,9 +10,11 @@ import { PlayerRole, Tools } from "@/libs/saboteur/types";
 
 abstract class Action<T = unknown> {
   readonly data: T;
+  readonly requestId?: string;
 
-  constructor(data: T) {
+  constructor(data: T, requestId?: string) {
     this.data = data;
+    this.requestId = requestId;
   }
 
   get type(): string {
@@ -32,6 +33,10 @@ export namespace SaboteurAction {
 
     export abstract class Primitive<T> extends Action<T> {
       readonly eventType = "request";
+
+      constructor(data: T) {
+        super(data, crypto.randomUUID());
+      }
 
       protected getHandNumOfCard(
         myPlayer: MySaboteurPlayer,
@@ -54,11 +59,17 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.PlacePath({
-          x: this.data.x,
-          y: this.data.y,
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.PlacePath(
+          {
+            x: this.data.x,
+            y: this.data.y,
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -75,11 +86,17 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.DestroyPath({
-          x: this.data.x,
-          y: this.data.y,
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.DestroyPath(
+          {
+            x: this.data.x,
+            y: this.data.y,
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -95,10 +112,16 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Repair({
-          target: this.data.player.id,
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.Repair(
+          {
+            target: this.data.player.id,
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -114,10 +137,16 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Sabotage({
-          target: this.data.player.id,
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.Sabotage(
+          {
+            target: this.data.player.id,
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -134,11 +163,17 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.UseMap({
-          x: this.data.x,
-          y: this.data.y,
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.UseMap(
+          {
+            x: this.data.x,
+            y: this.data.y,
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -151,9 +186,15 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Discard({
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.Discard(
+          {
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -166,9 +207,15 @@ export namespace SaboteurAction {
       toSocketAction(
         gameSession: SaboteurSession,
       ): SocketAction.Request.Actions {
-        return new SocketAction.Request.RotatePath({
-          handNum: this.getHandNumOfCard(gameSession.myPlayer, this.data.card),
-        });
+        return new SocketAction.Request.RotatePath(
+          {
+            handNum: this.getHandNumOfCard(
+              gameSession.myPlayer,
+              this.data.card,
+            ),
+          },
+          this.requestId,
+        );
       }
     }
 
@@ -181,7 +228,7 @@ export namespace SaboteurAction {
       | typeof Discard
       | typeof Rotate;
     export type Actions = InstanceType<ActionClass>;
-    export type ActionType = Actions["type"];
+    export type ActionType = ActionClass["type"];
   }
 
   export namespace Response {
@@ -428,13 +475,22 @@ export namespace SaboteurAction {
         }
       }
 
+      export class Exception extends Response.Primitive<{ message: string }> {
+        static readonly type = "exception";
+
+        update(gameSession: SaboteurSession): void {
+          // throw new Error("Method not implemented.");
+        }
+      }
+
       export type ActionClass =
         | typeof RoundStart
         | typeof Draw
         | typeof RevealDest
         | typeof Rotate
         | typeof PlayerState
-        | typeof ReceiveGold;
+        | typeof ReceiveGold
+        | typeof Exception;
       export type Actions = InstanceType<ActionClass>;
       export type ActionType = ActionClass["type"];
       export const actionTypes = Object.values(Private)

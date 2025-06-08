@@ -8,6 +8,7 @@ abstract class AbstractSocketAction<T extends string | object = string | object>
   implements SocketAction.Primitive
 {
   readonly data: T;
+  requestId?: string;
 
   constructor(data: T) {
     this.data = data;
@@ -23,6 +24,7 @@ export namespace SocketAction {
   export interface Primitive {
     type: string;
     data: string | object;
+    requestId?: string;
   }
   export abstract class AbstractRequest<
       T extends string | object = string | object,
@@ -30,6 +32,13 @@ export namespace SocketAction {
     extends AbstractSocketAction<T>
     implements Request.Primitive
   {
+    readonly requestId?: string;
+
+    constructor(data: T, requestId?: string) {
+      super(data);
+      this.requestId = requestId ?? crypto.randomUUID();
+    }
+
     toPrimitive(): Request.Primitive {
       return { type: this.type, data: this.data };
     }
@@ -42,13 +51,15 @@ export namespace SocketAction {
       y: number;
       handNum: number;
     }> {
-      // TODO: 이거 prototype에 없음
       static readonly type = "path";
 
-      constructor(data: { x: number; y: number; handNum: number }) {
-        // 서버에서 받는 좌표 (10,5)에서 10이 y임;;
+      constructor(
+        data: { x: number; y: number; handNum: number },
+        requestId?: string,
+      ) {
+        // 서버가 받는 좌표 (10,5)에서 10이 y임;;
         const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
-        super({ x, y, handNum: data.handNum });
+        super({ x, y, handNum: data.handNum }, requestId);
       }
     }
 
@@ -59,9 +70,12 @@ export namespace SocketAction {
     }> {
       static readonly type = "rockFail";
 
-      constructor(data: { x: number; y: number; handNum: number }) {
+      constructor(
+        data: { x: number; y: number; handNum: number },
+        requestId?: string,
+      ) {
         const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
-        super({ x, y, handNum: data.handNum });
+        super({ x, y, handNum: data.handNum }, requestId);
       }
     }
 
@@ -92,9 +106,12 @@ export namespace SocketAction {
     }> {
       static readonly type = "viewMap";
 
-      constructor(data: { x: number; y: number; handNum: number }) {
+      constructor(
+        data: { x: number; y: number; handNum: number },
+        requestId?: string,
+      ) {
         const [y, x] = FixedArrayGrid2d.relativeToAbsolute(data.x, data.y);
-        super({ x, y, handNum: data.handNum });
+        super({ x, y, handNum: data.handNum }, requestId);
       }
     }
 
@@ -123,21 +140,33 @@ export namespace SocketAction {
   {
     id: number;
     readonly target: "all" | (string & {});
+    readonly requestId?: string;
 
-    constructor(data: T, target: "all" | (string & {}), id: number) {
+    constructor(
+      data: T,
+      target: "all" | (string & {}),
+      id: number,
+      requestId?: string,
+    ) {
       super(data);
       this.id = id;
       this.target = target;
+      this.requestId = requestId;
     }
 
     static fromPrimitive<T extends Response.Primitive>(
       primitive: T,
     ): AbstractResponse<T["data"]> {
+      console.warn("fromPrimitive", primitive);
+      if (Response.typeToClassMap[primitive.type] === undefined) {
+        console.warn("Unknown response type:", primitive);
+      }
       return new Response.typeToClassMap[primitive.type](
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primitive.data as any,
         primitive.target,
         primitive.id,
+        primitive.requestId,
       );
     }
 
@@ -189,9 +218,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.TurnChange] {
           return [
-            new SaboteurAction.Response.Public.TurnChange({
-              playerId: this.data,
-            }),
+            new SaboteurAction.Response.Public.TurnChange(
+              { playerId: this.data },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -211,7 +241,12 @@ export namespace SocketAction {
           const card = transformIdToCard(
             this.data.card,
           ) as SaboteurCard.Path.AbstractCommon;
-          return [new SaboteurAction.Response.Public.Path({ card, x, y })];
+          return [
+            new SaboteurAction.Response.Public.Path(
+              { card, x, y },
+              this.requestId,
+            ),
+          ];
         }
       }
 
@@ -227,7 +262,12 @@ export namespace SocketAction {
             this.data.y,
             this.data.x,
           );
-          return [new SaboteurAction.Response.Public.Destroy({ x, y })];
+          return [
+            new SaboteurAction.Response.Public.Destroy(
+              { x, y },
+              this.requestId,
+            ),
+          ];
         }
       }
 
@@ -240,10 +280,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.Sabotage] {
           return [
-            new SaboteurAction.Response.Public.Sabotage({
-              tool: this.data.cardType,
-              playerId: this.data.target,
-            }),
+            new SaboteurAction.Response.Public.Sabotage(
+              { tool: this.data.cardType, playerId: this.data.target },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -257,10 +297,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.Repair] {
           return [
-            new SaboteurAction.Response.Public.Repair({
-              tool: this.data.cardType,
-              playerId: this.data.target,
-            }),
+            new SaboteurAction.Response.Public.Repair(
+              { tool: this.data.cardType, playerId: this.data.target },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -276,7 +316,9 @@ export namespace SocketAction {
             absoluteX,
             absoluteY,
           );
-          return [new SaboteurAction.Response.Public.UseMap({ x, y })];
+          return [
+            new SaboteurAction.Response.Public.UseMap({ x, y }, this.requestId),
+          ];
         }
       }
 
@@ -287,9 +329,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.Discard] {
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
-            }),
+            new SaboteurAction.Response.Public.Discard(
+              { handIndex: this.data.handNum },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -305,7 +348,12 @@ export namespace SocketAction {
             absoluteX,
             absoluteY,
           );
-          return [new SaboteurAction.Response.Public.FoundRock({ x, y })];
+          return [
+            new SaboteurAction.Response.Public.FoundRock(
+              { x, y },
+              this.requestId,
+            ),
+          ];
         }
       }
 
@@ -318,7 +366,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.RoundEnd] {
           return [
-            new SaboteurAction.Response.Public.RoundEnd({ ...this.data }),
+            new SaboteurAction.Response.Public.RoundEnd(
+              { ...this.data },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -330,15 +381,18 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Public.GameEnd] {
           return [
-            new SaboteurAction.Response.Public.GameEnd({
-              golds: this.data.rank.reduce(
-                (prev, [playerId, gold]) => {
-                  prev[playerId] = gold;
-                  return prev;
-                },
-                {} as Record<string, number>,
-              ),
-            }),
+            new SaboteurAction.Response.Public.GameEnd(
+              {
+                golds: this.data.rank.reduce(
+                  (prev, [playerId, gold]) => {
+                    prev[playerId] = gold;
+                    return prev;
+                  },
+                  {} as Record<string, number>,
+                ),
+              },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -354,12 +408,7 @@ export namespace SocketAction {
       extends AbstractResponse<T>
       implements Private.Primitive
     {
-      readonly target: string;
-
-      constructor(data: T, target: string, id: number) {
-        super(data, target, id);
-        this.target = target;
-      }
+      declare readonly target: string;
     }
 
     export namespace Private {
@@ -376,17 +425,20 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Private.RoundStart] {
           return [
-            new SaboteurAction.Response.Private.RoundStart({
-              hands: this.data.hand.map(
-                ([cardId, reversed]) =>
-                  transformIdToCard(
-                    cardId,
-                    reversed,
-                  ) as SaboteurCard.Abstract.Playable,
-              ),
-              role: this.data.role,
-              round: this.data.currentRound,
-            }),
+            new SaboteurAction.Response.Private.RoundStart(
+              {
+                hands: this.data.hand.map(
+                  ([cardId, reversed]) =>
+                    transformIdToCard(
+                      cardId,
+                      reversed,
+                    ) as SaboteurCard.Abstract.Playable,
+                ),
+                role: this.data.role,
+                round: this.data.currentRound,
+              },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -398,7 +450,9 @@ export namespace SocketAction {
           const card = transformIdToCard(
             this.data.card,
           ) as SaboteurCard.Abstract.Playable;
-          return [new SaboteurAction.Response.Private.Draw({ card })];
+          return [
+            new SaboteurAction.Response.Private.Draw({ card }, this.requestId),
+          ];
         }
       }
 
@@ -421,7 +475,10 @@ export namespace SocketAction {
           ) as SaboteurCard.Path.AbstractDest;
 
           return [
-            new SaboteurAction.Response.Private.RevealDest({ x, y, card }),
+            new SaboteurAction.Response.Private.RevealDest(
+              { x, y, card },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -433,11 +490,14 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Private.Rotate] {
           return [
-            new SaboteurAction.Response.Private.Rotate({
-              card: transformIdToCard(
-                this.data.card,
-              ) as SaboteurCard.Path.AbstractCommon,
-            }),
+            new SaboteurAction.Response.Private.Rotate(
+              {
+                card: transformIdToCard(
+                  this.data.card,
+                ) as SaboteurCard.Path.AbstractCommon,
+              },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -449,9 +509,10 @@ export namespace SocketAction {
 
         toSaboteurAction(): [SaboteurAction.Response.Private.ReceiveGold] {
           return [
-            new SaboteurAction.Response.Private.ReceiveGold({
-              gold: this.data.gold,
-            }),
+            new SaboteurAction.Response.Private.ReceiveGold(
+              { gold: this.data.gold },
+              this.requestId,
+            ),
           ];
         }
       }
@@ -482,42 +543,45 @@ export namespace SocketAction {
         toSaboteurAction(): [SaboteurAction.Response.Private.PlayerState] {
           // TODO: 각각의 상태 업데이트 action으로 분리
           return [
-            new SaboteurAction.Response.Private.PlayerState({
-              round: this.data.round,
-              myPlayer: {
-                gold: this.data.gold,
-                role: this.data.role,
-                hands: this.data.hands.map(
-                  ({ cardId, reverse }) =>
-                    transformIdToCard(
+            new SaboteurAction.Response.Private.PlayerState(
+              {
+                round: this.data.round,
+                myPlayer: {
+                  gold: this.data.gold,
+                  role: this.data.role,
+                  hands: this.data.hands.map(
+                    ({ cardId, reverse }) =>
+                      transformIdToCard(
+                        cardId,
+                        reverse,
+                      ) as SaboteurCard.Abstract.Playable,
+                  ),
+                },
+                currentPlayerId: this.data.currentPlayerId,
+                players: this.data.players.map(
+                  ({ playerId: id, handCount, tool: status }) => ({
+                    id,
+                    handCount,
+                    status,
+                  }),
+                ),
+                board: this.data.board.map(
+                  ({ cardId, reverse, ...absoluteCoord }) => {
+                    const [x, y] = FixedArrayGrid2d.absoluteToRelative(
+                      absoluteCoord.x,
+                      absoluteCoord.y,
+                    );
+                    const card = transformIdToCard(
                       cardId,
                       reverse,
-                    ) as SaboteurCard.Abstract.Playable,
+                    ) as SaboteurCard.Path.Abstract;
+
+                    return { x, y, card };
+                  },
                 ),
               },
-              currentPlayerId: this.data.currentPlayerId,
-              players: this.data.players.map(
-                ({ playerId: id, handCount, tool: status }) => ({
-                  id,
-                  handCount,
-                  status,
-                }),
-              ),
-              board: this.data.board.map(
-                ({ cardId, reverse, ...absoluteCoord }) => {
-                  const [x, y] = FixedArrayGrid2d.absoluteToRelative(
-                    absoluteCoord.x,
-                    absoluteCoord.y,
-                  );
-                  const card = transformIdToCard(
-                    cardId,
-                    reverse,
-                  ) as SaboteurCard.Path.Abstract;
-
-                  return { x, y, card };
-                },
-              ),
-            }),
+              this.requestId,
+            ),
           ];
         }
       }
@@ -534,10 +598,18 @@ export namespace SocketAction {
         static readonly type = "error";
 
         toSaboteurAction(): [SaboteurAction.Response.Actions] {
-          throw new Error("Method not implemented.");
+          return [
+            new SaboteurAction.Response.Private.Exception(
+              { message: this.data },
+              this.requestId,
+            ),
+          ];
         }
       }
-      export type Actions = Exception;
+
+      export type Actions = InstanceType<
+        (typeof Response.Exception)[keyof typeof Response.Exception]
+      >;
     }
 
     export type Actions =

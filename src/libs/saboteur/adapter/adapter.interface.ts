@@ -11,17 +11,31 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
   ): void;
 
   on<
-    TActionType extends SaboteurAction.Response.ActionType,
-    TActionClass extends
+    TSaboteurActionType extends SaboteurAction.Response.ActionType,
+    TSaboteurActionClass extends
       SaboteurAction.Response.ActionClass = SaboteurAction.Response.ActionClass & {
-      type: TActionType;
+      type: TSaboteurActionType;
     },
   >(
-    actionType: TActionType,
-    callback: (action: InstanceType<TActionClass>) => void,
+    actionType: TSaboteurActionType,
+    callback: (action: InstanceType<TSaboteurActionClass>) => void,
+    options?: { once?: boolean },
   ): UnsubscribeCallback;
 
   onAny(
     callback: (action: SaboteurAction.Response.Actions) => void,
+    options?: { once?: boolean },
+  ): UnsubscribeCallback;
+
+  onOutgoing<
+    TSaboteurActionType extends SaboteurAction.Request.ActionType,
+    TSaboteurActionClass extends
+      SaboteurAction.Request.ActionClass = SaboteurAction.Request.ActionClass & {
+      type: TSaboteurActionType;
+    },
+  >(
+    actionType: TSaboteurActionType,
+    callback: (action: InstanceType<TSaboteurActionClass>) => void,
+    options?: { once?: boolean },
   ): UnsubscribeCallback;
 }

@@ -36,8 +36,6 @@ const Game = () => {
       card: SaboteurCard.Abstract.Playable,
       prevCard: SaboteurCard.Path.Abstract | null,
     ) => {
-      console.log("onDropCard", x, y, card);
-
       if (card instanceof SaboteurCard.Path.Abstract) {
         gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
       }

@@ -128,20 +128,4 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     this._hands = [];
     this.role = null;
   }
-
-  sync(
-    gold: number,
-    hands: AbstractCard.Playable[],
-    role: PlayerRole | null = null,
-    status: Record<Tools, boolean> = {
-      lantern: true,
-      pickaxe: true,
-      mineCart: true,
-    },
-  ) {
-    this.gold = gold;
-    this._hands = hands;
-    this.role = role;
-    this._status = status;
-  }
 }
