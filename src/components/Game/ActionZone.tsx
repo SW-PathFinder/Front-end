@@ -25,7 +25,10 @@ export function ActionZone({ action, className }: ActionZoneProps) {
           gameSession.sendAction(new SaboteurAction.Request.Rotate({ card }));
 
           console.log("Rotated card:", card);
-        } else if (action === "discard") {
+        } else if (
+          action === "discard" &&
+          gameSession.currentPlayer.name === gameSession.myPlayer.name
+        ) {
           gameSession.sendAction(new SaboteurAction.Request.Discard({ card }));
 
           console.log("Discarded card:", card);
