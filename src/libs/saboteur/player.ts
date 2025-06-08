@@ -116,11 +116,20 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this;
   }
 
-  use(cardIndex: number): AbstractCard.Playable {
+  remove(cardIndex: number): AbstractCard.Playable {
     if (cardIndex < 0 || cardIndex >= this._hands.length) {
       throw new Error("Invalid card index");
     }
     return this._hands.splice(cardIndex, 1)[0];
+  }
+
+  insert(cardIndex: number, card: AbstractCard.Playable): this {
+    if (cardIndex < 0 || cardIndex > this._hands.length) {
+      throw new Error("Invalid card index");
+    }
+    this._hands.splice(cardIndex, 0, card);
+
+    return this;
   }
 
   resetRoundState(): void {

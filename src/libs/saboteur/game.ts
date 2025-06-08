@@ -138,7 +138,7 @@ export class SaboteurSession implements GameSession {
         }),
         this.adapter.on("path", (resAction) => {
           if (reqAction.requestId !== resAction.requestId) return;
-          this.myPlayer.use(cardIndex);
+          this.myPlayer.remove(cardIndex);
           unsubscribes.forEach((unsubscribe) => unsubscribe());
         }),
       ];

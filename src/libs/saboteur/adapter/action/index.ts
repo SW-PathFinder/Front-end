@@ -259,8 +259,8 @@ export namespace SaboteurAction {
         static readonly type = "destroy";
 
         update(gameSession: SaboteurSession): void {
-          // const { x, y } = this.data;
-          // gameSession.board.removeCard(x, y);
+          const { x, y } = this.data;
+          gameSession.board.removeCard(x, y);
         }
       }
 
@@ -271,8 +271,12 @@ export namespace SaboteurAction {
         static readonly type = "repair";
 
         update(gameSession: SaboteurSession): void {
-          //   const { tool, player } = this.data;
-          //   player.repair(tool);
+          const { tool, playerId } = this.data;
+
+          const player = gameSession.players.find((p) => p.id === playerId);
+          if (!player) throw new Error(`Player with ID ${playerId} not found.`);
+
+          player.repair(tool);
         }
       }
 
@@ -283,8 +287,12 @@ export namespace SaboteurAction {
         static readonly type = "sabotage";
 
         update(gameSession: SaboteurSession): void {
-          // const { tool, player } = this.data;
-          // player.sabotage(tool);
+          const { tool, playerId } = this.data;
+
+          const player = gameSession.players.find((p) => p.id === playerId);
+          if (!player) throw new Error(`Player with ID ${playerId} not found.`);
+
+          player.sabotage(tool);
         }
       }
 
@@ -301,7 +309,7 @@ export namespace SaboteurAction {
 
         update(gameSession: SaboteurSession): void {
           const { handIndex } = this.data;
-          gameSession.myPlayer.use(handIndex);
+          gameSession.myPlayer.remove(handIndex);
         }
       }
 
