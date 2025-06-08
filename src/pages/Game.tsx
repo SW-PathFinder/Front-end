@@ -60,7 +60,7 @@ const Game = () => {
         prevCard instanceof SaboteurCard.Path.Abstract
       ) {
         // 지도 카드
-        gameSession.adapter.on("revealDest", (data) => {
+        gameSession.adapter.on("peekDestination", (data) => {
           console.log("지도 카드 사용 결과:", data);
           setDestInfo(data.data);
         });

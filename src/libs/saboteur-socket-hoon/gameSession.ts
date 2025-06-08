@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { act } from "react";
-
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurSession } from "@/libs/saboteur/game";
 import { MySaboteurPlayer } from "@/libs/saboteur/player";
+import { UnsubscribeCallback } from "@/libs/socket-io";
 
 import { HSSaboteurSocket, SocketAction } from "./socket";
 
@@ -12,7 +11,10 @@ type RequestActionEvent = CustomEvent<{
   action: SaboteurAction.Request.Actions;
   primitive: SocketAction.Request.Actions;
 }>;
-type ResponseActionEvent = CustomEvent<SocketAction.Response.Actions>;
+type ResponseActionEvent = CustomEvent<{
+  action: SaboteurAction.Response.Actions;
+  primitive: SocketAction.Response.Actions;
+}>;
 
 export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   private socket: HSSaboteurSocket;
@@ -45,19 +47,14 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.socket.onAny((type, data) => {
       if (type !== "game_update" && type !== "private_game_update") return;
 
+      const primitive = SocketAction.AbstractResponse.fromPrimitive(data);
+
       const actions =
         SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
 
       for (const action of actions) {
-        const target = SaboteurAction.Response.Private.actionTypes.includes(
-          action.type as any,
-        )
-          ? "private"
-          : "public";
-
-        this.inTarget.dispatchEvent(new CustomEvent("any", { detail: action }));
         this.inTarget.dispatchEvent(
-          new CustomEvent(`${target}:${action.type}`, { detail: action }),
+          new CustomEvent("any", { detail: { action, primitive } }),
         );
       }
     });
@@ -74,6 +71,22 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     );
   }
 
+  onAny(
+    callback: (action: SaboteurAction.Response.Actions) => void,
+    options: { once?: boolean } = {},
+  ) {
+    const listener = (event: ResponseActionEvent) => {
+      callback(event.detail.action as any);
+    };
+
+    this.inTarget.addEventListener("any", listener as any, {
+      once: options.once,
+    });
+    return () => {
+      this.inTarget.removeEventListener("any", listener as any);
+    };
+  }
+
   on<
     TSaboteurActionType extends Exclude<
       SaboteurAction.Response.ActionType,
@@ -88,40 +101,25 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     callback: (action: InstanceType<TSaboteurActionClass>) => void,
     options: { once?: boolean } = {},
   ) {
-    const target = SaboteurAction.Response.Private.actionTypes.includes(
-      actionType as any,
-    )
-      ? "private"
-      : "public";
-
-    const type = `${target}:${actionType}`;
-
-    const listener = (event: ResponseActionEvent) => {
-      callback(event.detail as any);
-    };
-
-    // TODO: Add {signal: this.socket.signal}
-    this.inTarget.addEventListener(type, listener as any, {
-      once: options.once,
-    });
-    return () => {
-      this.inTarget.removeEventListener(type, listener as any);
-    };
+    return this.onAny((action) => {
+      if (action.type !== actionType) return;
+      callback(action as any);
+    }, options);
   }
 
-  onAny(
-    callback: (action: SaboteurAction.Response.Actions) => void,
-    options: { once?: boolean } = {},
-  ) {
-    const listener = (event: ResponseActionEvent) => {
-      callback(event.detail as any);
+  onAnyOutgoing(
+    callback: (action: SaboteurAction.Request.Actions) => void,
+    options?: { once?: boolean },
+  ): UnsubscribeCallback {
+    const listener = (event: RequestActionEvent) => {
+      callback(event.detail.action);
     };
 
-    this.inTarget.addEventListener("any", listener as any, {
-      once: options.once,
+    this.outTarget.addEventListener("any", listener as any, {
+      once: options?.once,
     });
     return () => {
-      this.inTarget.removeEventListener("any", listener as any);
+      this.outTarget.removeEventListener("any", listener as any);
     };
   }
 
@@ -136,18 +134,9 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     callback: (action: InstanceType<TSaboteurActionClass>) => void,
     options: { once?: boolean } = {},
   ) {
-    const listener = (event: RequestActionEvent) => {
-      const { action } = event.detail;
+    return this.onAnyOutgoing((action) => {
       if (action.type !== actionType) return;
-
       callback(action as any);
-    };
-
-    this.outTarget.addEventListener("any", listener as any, {
-      once: options.once,
-    });
-    return () => {
-      this.outTarget.removeEventListener("any", listener as any);
-    };
+    }, options);
   }
 }
