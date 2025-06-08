@@ -2,15 +2,16 @@ import { useMemo, useState } from "react";
 
 import { twMerge } from "tailwind-merge";
 
+import { useGameSession } from "@/contexts/GameSessionContext";
+import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
 import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 type EquipmentModalProps = {
-  playerlist: AbstractSaboteurPlayer[];
-  card: SaboteurCard.Action.Sabotage | SaboteurCard.Action.Repair;
-  handNum: number;
+  playerlist?: AbstractSaboteurPlayer[];
+  equipCard: null | SaboteurCard.Action.Sabotage | SaboteurCard.Action.Repair;
   onClose: () => void;
 };
 
@@ -20,37 +21,58 @@ const TOOL_LABEL: Record<Tools, string> = {
   pickaxe: "곡괭이",
 };
 
-const EquipmentModal = ({
+export function EquipmentModal({
   playerlist,
-  card,
-  handNum,
+  equipCard,
   onClose,
-}: EquipmentModalProps) => {
+}: EquipmentModalProps) {
   const mode =
-    card instanceof SaboteurCard.Action.Sabotage ? "sabotage" : "repair";
+    equipCard instanceof SaboteurCard.Action.Sabotage ? "sabotage" : "repair";
   const [validationMsg, setValidationMsg] = useState<string>("");
   const [canUse, setCanUse] = useState<boolean>(false);
-  const [targetPlayer, setTargetPlayer] = useState<string>("");
+  const [targetPlayer, setTargetPlayer] =
+    useState<AbstractSaboteurPlayer | null>(null);
   const [brokenTools, setBrokenTools] = useState<Tools[]>([]);
   const [selectedTool, setSelectedTool] = useState<Tools | null>(null);
+  const { gameSession } = useGameSession();
+
+  const gridColClass = useMemo(() => {
+    const count = playerlist?.length ?? 0;
+
+    // 3~10만 처리
+    const colMap: Record<number, string> = {
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-3",
+      7: "grid-cols-4",
+      8: "grid-cols-4",
+      9: "grid-cols-5",
+      10: "grid-cols-5",
+    };
+
+    return colMap[count] ?? "grid-cols-4";
+  }, [playerlist]);
 
   const toolsName = useMemo(() => {
     if (mode === "repair") {
-      return (card as SaboteurCard.Action.Repair).tools
+      return (equipCard as SaboteurCard.Action.Repair).tools
         .map((tool) => TOOL_LABEL[tool])
         .join(", ");
     } else {
-      return TOOL_LABEL[(card as SaboteurCard.Action.Sabotage).tool[0]];
+      return TOOL_LABEL[(equipCard as SaboteurCard.Action.Sabotage).tool[0]];
     }
-  }, [card, mode]);
+  }, [equipCard, mode]);
 
   const handleClickPlayer = (player: AbstractSaboteurPlayer) => {
     const isRepair = mode === "repair";
-    const repairCard = isRepair ? (card as SaboteurCard.Action.Repair) : null;
+    const repairCard = isRepair
+      ? (equipCard as SaboteurCard.Action.Repair)
+      : null;
     const targetTools = isRepair
       ? repairCard!.tools.filter((t) => !player.status[t])
       : (() => {
-          const t = (card as SaboteurCard.Action.Sabotage).tool[0];
+          const t = (equipCard as SaboteurCard.Action.Sabotage).tool[0];
           return player.status[t] ? [t] : [];
         })();
     const usable = targetTools.length > 0;
@@ -61,7 +83,7 @@ const EquipmentModal = ({
       usable && targetTools.length === 1 ? targetTools[0] : null;
     setSelectedTool(chosenTool);
     setCanUse(usable && (mode !== "repair" || chosenTool !== null));
-    setTargetPlayer(player.name);
+    setTargetPlayer(player);
 
     // 메시지 설정: 선택 UI 있음 -> 빈 문자열, 단일 선택시 바로 메시지 노출, 실패시 불가 메시지
     if (!usable) {
@@ -77,18 +99,33 @@ const EquipmentModal = ({
   };
 
   const handleConfirm = () => {
-    if (canUse && (mode !== "repair" || selectedTool)) {
-      // TODO: Socket으로 변경
-      alert(
-        `type: ${mode}, player_name: ${targetPlayer}, hand_num: ${handNum}, tool: ${selectedTool}`,
+    if (!canUse || !targetPlayer || (mode === "repair" && !selectedTool))
+      return;
+
+    if (mode === "repair") {
+      gameSession.sendAction(
+        new SaboteurAction.Request.Repair({
+          player: targetPlayer,
+          card: equipCard as SaboteurCard.Action.Repair,
+          tool: selectedTool!,
+        }),
       );
-      onClose();
+    } else if (mode === "sabotage") {
+      gameSession.sendAction(
+        new SaboteurAction.Request.Sabotage({
+          player: targetPlayer,
+          card: equipCard as SaboteurCard.Action.Sabotage,
+          tool: selectedTool!,
+        }),
+      );
     }
+
+    onClose();
   };
 
   return (
     <dialog open className="modal" onCancel={onClose} onClose={onClose}>
-      <div className="relative modal-box w-11/12 min-w-xl">
+      <div className="relative modal-box w-11/12 max-w-5xl">
         <form method="dialog">
           <button
             type="button"
@@ -98,17 +135,20 @@ const EquipmentModal = ({
             ✕
           </button>
         </form>
-        <p className="mb-4 text-center text-lg font-semibold">
+        <p className="mb-4 text-center text-2xl font-semibold">
           {toolsName} {mode === "repair" ? "수리" : "파괴"}하기
         </p>
-        <div className="grid grid-cols-5 gap-4">
-          {playerlist.map((player) => (
+        <div className={`grid ${gridColClass} gap-4`}>
+          {playerlist?.map((player) => (
             <div
               key={player.name}
-              className="flex cursor-pointer flex-col items-center gap-2 border p-2 hover:bg-gray-300"
+              className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-gray-600 p-2 hover:bg-base-300 ${player.name === targetPlayer?.name && "border-warning ring-2 ring-warning"}`}
               onClick={() => handleClickPlayer(player)}
             >
-              <p>{player.name}</p>
+              <p>
+                {player.name}{" "}
+                {player.name === gameSession.myPlayer.name && "(나)"}
+              </p>
               <div className="flex h-[20px] justify-center gap-4">
                 <div className="flex items-center gap-1">
                   {(Object.entries(player.status) as [Tools, boolean][]).map(
@@ -179,6 +219,4 @@ const EquipmentModal = ({
       </form>
     </dialog>
   );
-};
-
-export default EquipmentModal;
+}

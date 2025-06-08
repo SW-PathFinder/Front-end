@@ -104,6 +104,7 @@ export namespace SaboteurAction {
       extends Request.Primitive<{
         player: AbstractSaboteurPlayer;
         card: SaboteurCard.Action.Repair;
+        tool: Tools;
       }>
       implements SocketTransformable
     {
@@ -119,6 +120,7 @@ export namespace SaboteurAction {
               gameSession.myPlayer,
               this.data.card,
             ),
+            tool: this.data.tool,
           },
           this.requestId,
         );
@@ -129,6 +131,7 @@ export namespace SaboteurAction {
       extends Request.Primitive<{
         player: AbstractSaboteurPlayer;
         card: SaboteurCard.Action.Sabotage;
+        tool: Tools;
       }>
       implements SocketTransformable
     {
@@ -144,6 +147,7 @@ export namespace SaboteurAction {
               gameSession.myPlayer,
               this.data.card,
             ),
+            tool: this.data.tool,
           },
           this.requestId,
         );

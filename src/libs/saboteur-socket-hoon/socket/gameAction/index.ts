@@ -85,6 +85,7 @@ export namespace SocketAction {
        */
       target: string;
       handNum: number;
+      tool: Tools;
     }> {
       static readonly type = "sabotage";
     }
@@ -95,6 +96,7 @@ export namespace SocketAction {
        */
       target: string;
       handNum: number;
+      tool: Tools;
     }> {
       static readonly type = "repair";
     }
