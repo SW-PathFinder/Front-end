@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
+import { useGameSession } from "@/contexts/GameSessionContext";
 import { GameBoard } from "@/libs/saboteur/board";
 import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
@@ -45,14 +46,24 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
     CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
   );
 
+  const { gameSession } = useGameSession();
   useDndMonitor({
-    onDragEnd: (event) => {
-      if (!event.over || !onDropCard) return;
+    onDragEnd: ({ over, active }) => {
+      if (!over || !onDropCard) return;
 
-      const { card } = event.active.data.current as DraggableCardData;
-      const { x, y, card: prevCard } = event.over.data.current as BoardSlotData;
+      const { card } = active.data.current as DraggableCardData;
+      const { x, y, card: prevCard } = over.data.current as BoardSlotData;
 
-      onDropCard(x, y, card, prevCard);
+      if (over) {
+        const dropZoneId = over.id;
+        const draggedId = active.id;
+
+        onDropCard(x, y, card, prevCard);
+        console.log(`드래그한 ${draggedId}가 ${dropZoneId} 위에 드롭됨`);
+      }
+
+      // console.log(gameSession.board.canPlaceCard(x, y, card));
+      // onDropCard(x, y, card, prevCard);
     },
   });
 
@@ -114,11 +125,12 @@ const BoardSlot = ({
   className?: string;
 }) => {
   const id = `droppable:${x}:${y}`;
-  const { setNodeRef } = useDroppable({
+  const { isOver, setNodeRef } = useDroppable({
     id,
     data: { x, y, card } as BoardSlotData,
   });
 
+  // Todo: drag on 구현
   return (
     <div
       id={id}
@@ -126,7 +138,7 @@ const BoardSlot = ({
       style={{ ...style, width: CARD_WIDTH, aspectRatio: CARD_RATIO }}
       className={twMerge(
         `relative flex snap-center items-center justify-center border border-gray-300`,
-        (x + y) % 2 === 0 ? "bg-base" : "bg-base-300",
+        `${isOver ? "bg-secondary ring-1 ring-secondary" : (x + y) % 2 === 0 ? "bg-base" : "bg-base-300"}`,
         className,
       )}
     >

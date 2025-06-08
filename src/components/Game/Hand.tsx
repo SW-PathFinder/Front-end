@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { useUniqueId } from "@dnd-kit/utilities";
 import { twMerge } from "tailwind-merge";
 
@@ -13,10 +15,12 @@ interface HandProps {
 
 export const Hand = ({ cards, className }: HandProps) => {
   const id = useUniqueId("hand");
+  const [hands, setHands] = useState<AbstractCard[]>([...cards]);
 
   return (
     <Droppable id={id} className={twMerge("relative w-16", className)}>
-      {cards.map((card, index) => {
+      {/* {cards.map((card, index) => { */}
+      {hands.map((card, index) => {
         const handTransform = getHandCardTransform(index, cards.length, {
           width: CARD_WIDTH,
           height: CARD_HEIGHT,
@@ -28,6 +32,7 @@ export const Hand = ({ cards, className }: HandProps) => {
             size={CARD_WIDTH}
             transform={handTransform}
             key={index}
+            setHands={setHands}
           />
         );
       })}

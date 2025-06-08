@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDndMonitor, useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
+import { useGameSession } from "@/contexts/GameSessionContext";
 import { AbstractCard } from "@/libs/saboteur/cards";
 
 interface CardProps {
@@ -17,6 +18,7 @@ interface CardProps {
   transform?: { x?: number; y?: number; rotate?: number };
   style?: React.CSSProperties;
   className?: string;
+  setHands?: React.Dispatch<React.SetStateAction<AbstractCard[]>>;
 }
 
 export const CARD_WIDTH = 60;
@@ -34,8 +36,11 @@ export const Card = ({
   transform,
   style,
   className,
+  setHands,
 }: CardProps) => {
   const [isFocusing, setIsFocusing] = useState(false);
+  const { gameSession } = useGameSession();
+
   const {
     isDragging,
     setNodeRef,
@@ -47,9 +52,11 @@ export const Card = ({
       if (event.active.id !== card.id) return;
       setIsFocusing(true);
     },
-    onDragEnd(event) {
-      if (event.active.id !== card.id) return;
+    onDragEnd({ active }) {
+      if (active.id !== card.id) return;
       setIsFocusing(false);
+      console.log(gameSession.board.canPlaceCard(x, y, card));
+      // setHands?.((prev) => prev.filter((card) => card.id !== active.id));
     },
   });
 
