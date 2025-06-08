@@ -121,7 +121,11 @@ export class SaboteurSession implements GameSession {
     this.board = new GameBoard();
 
     this.adapter.onAny((action) => {
-      action.update(this);
+      if (action.isUpdateAction()) action.update(this);
+    });
+
+    this.adapter.onAnyOutgoing((action) => {
+      if (action.isUpdateAction()) action.update(this);
     });
 
     this.adapter.onOutgoing("path", (reqAction) => {

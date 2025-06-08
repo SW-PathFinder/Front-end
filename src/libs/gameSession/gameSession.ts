@@ -20,13 +20,18 @@ export interface GameSession {
 export interface GameSessionAdapter {
   sendAction(action: object, gameSession: GameSession): void;
 
+  onAny(
+    callback: (action: object) => void,
+    options?: { once?: boolean },
+  ): UnsubscribeCallback;
+
   on(
     actionType: string,
     callback: (action: object) => void,
     options?: { once?: boolean },
   ): UnsubscribeCallback;
 
-  onAny(
+  onAnyOutgoing(
     callback: (action: object) => void,
     options?: { once?: boolean },
   ): UnsubscribeCallback;
