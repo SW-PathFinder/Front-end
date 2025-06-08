@@ -338,7 +338,7 @@ export namespace SocketAction {
       { x: number; y: number; card: number; reverse?: boolean }> {
         static readonly type = "rock_found";
 
-        toSaboteurAction(): [SaboteurAction.Response.Public.FoundRock] {
+        toSaboteurAction(): [SaboteurAction.Response.Public.RevealDestination] {
           const [x, y] = FixedArrayGrid2d.absoluteToRelative(
             this.data.y,
             this.data.x,
@@ -347,11 +347,20 @@ export namespace SocketAction {
             | SaboteurCard.Path.DestRockA
             | SaboteurCard.Path.DestRockB;
           return [
-            new SaboteurAction.Response.Public.FoundRock(
+            new SaboteurAction.Response.Public.RevealDestination(
               { x, y, card },
               this.requestId,
             ),
           ];
+        }
+      }
+
+      export class TimeOver extends AbstractBroadcastResponse<{}> {
+        static readonly type = "endTime";
+
+        // TODO: 해당하는 saboteur action 정의
+        toSaboteurAction(): [] {
+          return [];
         }
       }
 
@@ -362,7 +371,10 @@ export namespace SocketAction {
       }> {
         static readonly type = "round_end";
 
-        toSaboteurAction(): [SaboteurAction.Response.Public.RoundEnd] {
+        toSaboteurAction(): [
+          // SaboteurAction.Response.Public.RevealDestination,
+          SaboteurAction.Response.Public.RoundEnd,
+        ] {
           return [
             new SaboteurAction.Response.Public.RoundEnd(
               { ...this.data },
@@ -462,7 +474,7 @@ export namespace SocketAction {
       }> {
         static readonly type = "revealDest";
 
-        toSaboteurAction(): [SaboteurAction.Response.Private.RevealDest] {
+        toSaboteurAction(): [SaboteurAction.Response.Private.PeekDestination] {
           const [x, y] = FixedArrayGrid2d.absoluteToRelative(
             this.data.y,
             this.data.x,
@@ -473,7 +485,7 @@ export namespace SocketAction {
           ) as SaboteurCard.Path.AbstractDest;
 
           return [
-            new SaboteurAction.Response.Private.RevealDest(
+            new SaboteurAction.Response.Private.PeekDestination(
               { x, y, card },
               this.requestId,
             ),

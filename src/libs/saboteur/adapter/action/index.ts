@@ -357,15 +357,15 @@ export namespace SaboteurAction {
         }
       }
 
-      export class FoundRock
+      export class RevealDestination
         extends Response.Primitive<{
           x: number;
           y: number;
-          card: SaboteurCard.Path.DestRockA | SaboteurCard.Path.DestRockB;
+          card: SaboteurCard.Path.AbstractDest;
         }>
         implements UpdateAction
       {
-        static readonly type = "foundRock";
+        static readonly type = "revealDestination";
 
         readonly _isUpdateAction = true as const;
         update(gameSession: SaboteurSession): void {
@@ -448,7 +448,7 @@ export namespace SaboteurAction {
         | typeof Sabotage
         | typeof UseMap
         | typeof Discard
-        | typeof FoundRock
+        | typeof RevealDestination
         | typeof GameStart
         | typeof TurnChange
         | typeof RoundEnd
@@ -499,7 +499,7 @@ export namespace SaboteurAction {
         }
       }
 
-      export class RevealDest
+      export class PeekDestination
         extends Response.Primitive<{
           x: number;
           y: number;
@@ -507,7 +507,7 @@ export namespace SaboteurAction {
         }>
         implements UpdateAction
       {
-        static readonly type = "revealDest";
+        static readonly type = "peekDestination";
 
         readonly _isUpdateAction = true as const;
         update(gameSession: SaboteurSession): void {
@@ -576,7 +576,7 @@ export namespace SaboteurAction {
       export type ActionClass =
         | typeof RoundStart
         | typeof Draw
-        | typeof RevealDest
+        | typeof PeekDestination
         | typeof Rotate
         | typeof PlayerState
         | typeof ReceiveGold
