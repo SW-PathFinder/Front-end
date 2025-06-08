@@ -157,10 +157,6 @@ export namespace SocketAction {
     static fromPrimitive<T extends Response.Primitive>(
       primitive: T,
     ): AbstractResponse<T["data"]> {
-      console.warn("fromPrimitive", primitive);
-      if (Response.typeToClassMap[primitive.type] === undefined) {
-        console.warn("Unknown response type:", primitive);
-      }
       return new Response.typeToClassMap[primitive.type](
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primitive.data as any,

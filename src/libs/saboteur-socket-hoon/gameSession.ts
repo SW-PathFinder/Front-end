@@ -34,7 +34,6 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.outTarget.addEventListener("any", ((event: RequestActionEvent) => {
       const { action, primitive } = event.detail;
 
-      console.log({ action, primitive });
       this.socket.emit("game_action", {
         room: this.roomId,
         player: this.player.id,

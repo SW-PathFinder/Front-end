@@ -123,6 +123,26 @@ export class SaboteurSession implements GameSession {
     this.adapter.onAny((action) => {
       action.update(this);
     });
+
+    // const card
+    this.adapter.onOutgoing("path", (reqAction) => {
+      const card = reqAction.data.card;
+
+      const cardIndex = this.myPlayer.hands.findIndex((c) => c.id === card.id);
+      if (cardIndex === -1) throw new Error("Card not found in my hands.");
+
+      const unsubscribes = [
+        this.adapter.on("exception", (resAction) => {
+          if (reqAction.requestId !== resAction.requestId) return;
+          unsubscribes.forEach((unsubscribe) => unsubscribe());
+        }),
+        this.adapter.on("path", (resAction) => {
+          if (reqAction.requestId !== resAction.requestId) return;
+          this.myPlayer.use(cardIndex);
+          unsubscribes.forEach((unsubscribe) => unsubscribe());
+        }),
+      ];
+    });
   }
 
   get currentPlayer(): AbstractSaboteurPlayer {
