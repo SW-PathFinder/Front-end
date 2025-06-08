@@ -237,6 +237,7 @@ export namespace SocketAction {
           );
           const card = transformIdToCard(
             this.data.card,
+            this.data.reverse,
           ) as SaboteurCard.Path.AbstractCommon;
           return [
             new SaboteurAction.Response.Public.Path(
@@ -425,10 +426,10 @@ export namespace SocketAction {
             new SaboteurAction.Response.Private.RoundStart(
               {
                 hands: this.data.hand.map(
-                  ([cardId, reversed]) =>
+                  ([cardId, reverse]) =>
                     transformIdToCard(
                       cardId,
-                      reversed,
+                      reverse,
                     ) as SaboteurCard.Abstract.Playable,
                 ),
                 role: this.data.role,

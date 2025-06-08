@@ -61,13 +61,13 @@ export const Card = ({
     ...(transform && {
       "--tw-top": `${transform?.y ?? 0}px`,
       "--tw-left": `${transform?.x ?? 0}px`,
-      "--tw-rotate": `${(transform?.rotate ?? 0) + (isPathCard && card.flipped ? 180 : 0)}deg`,
+      "--tw-rotate": `${transform?.rotate ?? 0}deg`,
     }),
     ...(!fixed &&
       isFocusing && {
         "--tw-scale": isDragging ? 1 : 1.2,
         "--tw-z-index": 2,
-        "--tw-rotate": `${isPathCard && card.flipped ? 180 : 0}deg`,
+        "--tw-rotate": `0deg`,
       }),
     ...(dragTransform && {
       "--tw-translate-x": `${dragTransform.x}px`,
@@ -121,7 +121,10 @@ export const Card = ({
         />
       )}
       <div
-        style={{ backgroundImage: `url(${card.image})` }}
+        style={{
+          backgroundImage: `url(${card.image})`,
+          rotate: `${isPathCard && card.flipped ? 180 : 0}deg`,
+        }}
         className={twMerge(
           "absolute h-full w-full",
           "origin-center bg-cover bg-center bg-no-repeat",

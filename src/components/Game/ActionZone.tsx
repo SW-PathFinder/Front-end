@@ -1,7 +1,9 @@
 import { useDroppable, useDndMonitor } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
-import { PathCard } from "@/libs/saboteur/cards/path";
+import { useGameSession } from "@/contexts/GameSessionContext";
+import { SaboteurAction } from "@/libs/saboteur/adapter/action";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 
 interface ActionZoneProps {
   action: "discard" | "rotate";
@@ -9,18 +11,23 @@ interface ActionZoneProps {
 }
 
 export function ActionZone({ action, className }: ActionZoneProps) {
+  const { gameSession } = useGameSession();
   const { isOver, setNodeRef } = useDroppable({ id: action });
 
   useDndMonitor({
     onDragEnd: (event) => {
       if (event.over?.id === action) {
         const card = event.active.data.current?.card;
-        if (action === "rotate" && card instanceof PathCard.Abstract) {
-          // TODO: Implement rotation logic
-          // This is a placeholder for the actual rotation logic.
-          card.flipped = !card.flipped;
+        if (
+          action === "rotate" &&
+          card instanceof SaboteurCard.Path.AbstractCommon
+        ) {
+          gameSession.sendAction(new SaboteurAction.Request.Rotate({ card }));
+
           console.log("Rotated card:", card);
         } else if (action === "discard") {
+          gameSession.sendAction(new SaboteurAction.Request.Discard({ card }));
+
           console.log("Discarded card:", card);
         }
       }

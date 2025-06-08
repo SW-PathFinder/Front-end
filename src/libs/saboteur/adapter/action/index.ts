@@ -460,6 +460,7 @@ export namespace SaboteurAction {
 
         update(gameSession: SaboteurSession): void {
           // throw new Error("Method not implemented.");
+          // const { card } = this.data;
         }
       }
 
