@@ -300,7 +300,8 @@ export namespace SaboteurAction {
         static readonly type = "discard";
 
         update(gameSession: SaboteurSession): void {
-          // throw new Error("Method not implemented.");
+          const { handIndex } = this.data;
+          gameSession.myPlayer.use(handIndex);
         }
       }
 
@@ -419,7 +420,8 @@ export namespace SaboteurAction {
         static readonly type = "draw";
 
         update(gameSession: SaboteurSession): void {
-          // throw new Error("Method not implemented.");
+          const { card } = this.data;
+          gameSession.myPlayer.add(card);
         }
       }
 
