@@ -19,6 +19,7 @@ export interface EmitEvents {
     room: string;
     player: string;
     action: SocketAction.Request.Primitive;
+    requestId?: string;
   };
   chat: BaseEmitEvent<{ room: string; message: string }>;
 }

@@ -23,11 +23,17 @@ export interface GameSessionAdapter {
   on(
     actionType: string,
     callback: (action: object) => void,
-    gameSession: GameSession,
+    options?: { once?: boolean },
   ): UnsubscribeCallback;
 
   onAny(
     callback: (action: object) => void,
-    gameSession: GameSession,
+    options?: { once?: boolean },
+  ): UnsubscribeCallback;
+
+  onOutgoing(
+    actionType: string,
+    callback: (action: object) => void,
+    options?: { once?: boolean },
   ): UnsubscribeCallback;
 }

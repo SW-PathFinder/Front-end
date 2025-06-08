@@ -36,6 +36,10 @@ const Game = () => {
       card: SaboteurCard.Abstract.Playable,
       prevCard: SaboteurCard.Path.Abstract | null,
     ) => {
+      if (card instanceof SaboteurCard.Path.Abstract) {
+        gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
+      }
+
       // 지도 카드
       if (
         card instanceof SaboteurCard.Action.Map &&
