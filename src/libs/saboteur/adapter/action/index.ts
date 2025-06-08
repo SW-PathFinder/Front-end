@@ -13,6 +13,21 @@ interface UpdateAction {
   update(gameSession: SaboteurSession): void;
 }
 
+interface FailableAction {
+  _isFailable: true;
+  requestId: string;
+
+  /**
+   * 액션이 확정되었으므로 상태를 업데이트하는 코드를 적는 등의 활용 가능
+   */
+  onSuccess(gameSession: SaboteurSession): void;
+
+  /**
+   * 실패했을 떄 revert하는 등으로 활용 가능
+   */
+  onFail(gameSession: SaboteurSession): void;
+}
+
 abstract class AbstractAction<T = unknown> {
   readonly data: T;
   readonly requestId?: string;
@@ -29,6 +44,10 @@ abstract class AbstractAction<T = unknown> {
 
   isUpdateAction(): this is UpdateAction {
     return "_isUpdateAction" in this && !!this._isUpdateAction;
+  }
+
+  isFailableAction(): this is FailableAction {
+    return "_isFailable" in this && !!this._isFailable;
   }
 }
 
