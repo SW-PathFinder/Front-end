@@ -38,13 +38,18 @@ const Game = () => {
     ) => {
       if (card instanceof SaboteurCard.Path.Abstract) {
         gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
-      }
-
-      // 지도 카드
-      if (
+      } else if (
+        card instanceof SaboteurCard.Action.Destroy &&
+        prevCard instanceof SaboteurCard.Path.Abstract
+      ) {
+        gameSession.sendAction(
+          new SaboteurAction.Request.Destroy({ x, y, card }),
+        );
+      } else if (
         card instanceof SaboteurCard.Action.Map &&
         prevCard instanceof SaboteurCard.Path.Abstract
       ) {
+        // 지도 카드
         gameSession.adapter.on("revealDest", (data) => {
           console.log("지도 카드 사용 결과:", data);
           setDestInfo(data.data);
