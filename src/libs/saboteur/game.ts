@@ -46,7 +46,7 @@ export class SaboteurRoom implements GameRoom {
   readonly isPublic: boolean;
   readonly cardHelper: boolean;
 
-  private _remainSecond: number | null = null;
+  private _remainingSecond: number | null = null;
   private _isReady: boolean = false;
 
   constructor(
@@ -70,15 +70,15 @@ export class SaboteurRoom implements GameRoom {
     });
     this.adapter.onGameSessionReady((remainSecond) => {
       this._isReady = true;
-      this._remainSecond = remainSecond;
+      this._remainingSecond = remainSecond;
 
       const id = setInterval(() => {
-        if (this._remainSecond === null || this._remainSecond <= 0) {
+        if (this._remainingSecond === null || this._remainingSecond <= 0) {
           clearInterval(id);
           return;
         }
 
-        this._remainSecond -= 1;
+        this._remainingSecond -= 1;
       }, 1000);
     });
   }
@@ -91,8 +91,8 @@ export class SaboteurRoom implements GameRoom {
     return this._isReady;
   }
 
-  get remainSecond(): number | null {
-    return this._remainSecond;
+  get remainingSecond(): number | null {
+    return this._remainingSecond;
   }
 }
 export interface SaboteurRoom extends Reactive {}
@@ -111,6 +111,7 @@ export class SaboteurSession implements GameSession {
   readonly players: AbstractSaboteurPlayer[];
   readonly board: GameBoard;
   private _currentPlayerIndex: number = 0;
+  private _turnTimeLeft: number;
 
   constructor(
     adapter: SaboteurSessionAdapter,
@@ -126,6 +127,22 @@ export class SaboteurSession implements GameSession {
 
     this.adapter.onAnyOutgoing((action) => {
       if (action.isUpdateAction()) action.update(this);
+    });
+
+    // turn timer
+    this._turnTimeLeft = 0;
+    setInterval(() => {
+      if (this._turnTimeLeft > 0) this._turnTimeLeft -= 1;
+    }, 1000);
+    this.adapter.onTurnStart((currentPlayerId, duration) => {
+      const currentPlayerIndex = this.players.findIndex(
+        (player) => player.id === currentPlayerId,
+      );
+      if (currentPlayerIndex === -1)
+        throw new Error("Current player not found in the game session.");
+
+      this._currentPlayerIndex = currentPlayerIndex;
+      this._turnTimeLeft = duration;
     });
 
     this.adapter.onOutgoing("path", (reqAction) => {
@@ -187,6 +204,10 @@ export class SaboteurSession implements GameSession {
   // TODO: 소켓 연동
   get remainingCards(): number {
     return 6;
+  }
+
+  get turnRemainingSecond(): number {
+    return this._turnTimeLeft;
   }
 
   sendAction<TAction extends SaboteurAction.Request.Actions>(

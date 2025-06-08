@@ -139,4 +139,17 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       callback(action as any);
     }, options);
   }
+
+  onTurnStart(
+    callback: (currentPlayerId: string, duration: number) => void,
+  ): UnsubscribeCallback {
+    this.socket.on("turn_timer_started", (action) => {
+      const { current_player, duration } = action;
+      callback(current_player, duration);
+    });
+
+    return () => {
+      this.socket.off("turn_timer_started");
+    };
+  }
 }

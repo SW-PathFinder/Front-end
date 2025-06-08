@@ -165,7 +165,7 @@ const Game = () => {
               alt="card back"
             />
             <p>남은 카드 : {gameSession.remainingCards}장</p>
-            <p>남은 시간 : {gameSession.remainingTime}초</p>
+            <p>남은 시간 : {gameSession.turnRemainingSecond}초</p>
           </div>
           <aside className="bg-opacity-50 h-full w-48 overflow-auto rounded bg-base-300 p-2">
             <p className="text-center text-sm">게임 로그</p>

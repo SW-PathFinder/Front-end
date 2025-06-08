@@ -25,8 +25,9 @@ const WaitingRoom = () => {
 
   useEffect(() => {
     // 카운트 종료 시 게임 페이지로 이동
-    if (gameRoom.remainSecond == 0) navigate(`/saboteur/${gameRoom.id}/game/`);
-  }, [navigate, gameRoom.remainSecond, gameRoom.id]);
+    if (gameRoom.remainingSecond == 0)
+      navigate(`/saboteur/${gameRoom.id}/game/`);
+  }, [navigate, gameRoom.remainingSecond, gameRoom.id]);
 
   const handleCancel = () => {
     gameRoom.adapter.leaveRoom();
@@ -69,15 +70,15 @@ const WaitingRoom = () => {
 
       <button
         onClick={handleCancel}
-        disabled={gameRoom.remainSecond === 0}
-        className={`btn mb-6 w-full max-w-md btn-error ${gameRoom.remainSecond === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+        disabled={gameRoom.remainingSecond === 0}
+        className={`btn mb-6 w-full max-w-md btn-error ${gameRoom.remainingSecond === 0 ? "cursor-not-allowed opacity-50" : ""}`}
       >
         매칭 취소
       </button>
 
-      {gameRoom.remainSecond !== null && (
+      {gameRoom.remainingSecond !== null && (
         <div className="text-center text-xl font-bold">
-          게임이 {gameRoom.remainSecond}초 후에 자동으로 시작됩니다...
+          게임이 {gameRoom.remainingSecond}초 후에 자동으로 시작됩니다...
         </div>
       )}
     </div>

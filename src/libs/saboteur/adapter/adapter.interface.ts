@@ -43,4 +43,8 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
     callback: (action: InstanceType<TSaboteurActionClass>) => void,
     options?: { once?: boolean },
   ): UnsubscribeCallback;
+
+  onTurnStart(
+    callback: (currentPlayerId: string, duration: number) => void,
+  ): UnsubscribeCallback;
 }
