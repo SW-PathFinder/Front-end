@@ -316,6 +316,7 @@ export namespace SaboteurAction {
       export class FoundRock extends Response.Primitive<{
         x: number;
         y: number;
+        card: SaboteurCard.Path.DestRockA | SaboteurCard.Path.DestRockB;
       }> {
         static readonly type = "foundRock";
 

@@ -226,6 +226,7 @@ export namespace SocketAction {
         x: number;
         y: number;
         card: number;
+        reverse?: boolean;
       }> {
         static readonly type = "path";
 
@@ -249,7 +250,6 @@ export namespace SocketAction {
       export class DestroyPath extends AbstractBroadcastResponse<{
         x: number;
         y: number;
-        card: number;
       }> {
         static readonly type = "rockFail";
 
@@ -333,20 +333,21 @@ export namespace SocketAction {
         }
       }
 
-      export class FoundRock extends AbstractBroadcastResponse<
-        [absoluteY: number, absoluteX: number]
-      > {
+      export class FoundRock extends AbstractBroadcastResponse<// [absoluteY: number, absoluteX: number]
+      { x: number; y: number; card: number; reverse?: boolean }> {
         static readonly type = "rock_found";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.FoundRock] {
-          const [absoluteY, absoluteX] = this.data;
           const [x, y] = FixedArrayGrid2d.absoluteToRelative(
-            absoluteX,
-            absoluteY,
+            this.data.y,
+            this.data.x,
           );
+          const card = transformIdToCard(this.data.card, this.data.reverse) as
+            | SaboteurCard.Path.DestRockA
+            | SaboteurCard.Path.DestRockB;
           return [
             new SaboteurAction.Response.Public.FoundRock(
-              { x, y },
+              { x, y, card },
               this.requestId,
             ),
           ];
