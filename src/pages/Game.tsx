@@ -4,12 +4,14 @@ import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
 import { Board } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
+import { EquipmentModal } from "@/components/Game/EquipmentModal";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import RevealDestModal from "@/components/Game/RevealDestModal";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
+import { MySaboteurPlayer, OtherSaboteurPlayer } from "@/libs/saboteur/player";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 const Game = () => {
@@ -20,6 +22,10 @@ const Game = () => {
   const [destModalOpen, setDestModalOpen] = useState(false);
   const [destCard, setDestCard] = useState(
     null as null | SaboteurCard.Path.Abstract,
+  );
+  const [equipModalOpen, setEquipModalOpen] = useState(false);
+  const [equipCard, setEquipCard] = useState(
+    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
   );
 
   useEffect(() => {
@@ -36,6 +42,11 @@ const Game = () => {
       card: SaboteurCard.Abstract.Playable,
       prevCard: SaboteurCard.Path.Abstract | null,
     ) => {
+      // 내 턴이 아닐때 드롭 무시
+      if (!gameSession.currentPlayer.isMe()) {
+        return;
+      }
+
       if (card instanceof SaboteurCard.Path.Abstract) {
         gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
       } else if (
@@ -57,6 +68,13 @@ const Game = () => {
         gameSession.sendAction(
           new SaboteurAction.Request.UseMap({ x, y, card }),
         );
+      } else if (
+        card instanceof SaboteurCard.Action.Repair ||
+        card instanceof SaboteurCard.Action.Sabotage
+      ) {
+        // 장비 카드
+        setEquipCard(card);
+        setEquipModalOpen(true);
       }
     },
     [gameSession],
@@ -73,10 +91,13 @@ const Game = () => {
               : "" + " text-lg font-semibold"
           }
         >
-          나의 역할 : {gameSession.myPlayer.role}
+          나의 역할 :{" "}
+          {gameSession.myPlayer.role === PlayerRole.Saboteur
+            ? "방해꾼"
+            : "광부"}
         </p>
         <p className="text-lg font-semibold">
-          {gameSession.currentPlayer.name === gameSession.myPlayer.name
+          {gameSession.currentPlayer.isMe()
             ? "내 차례"
             : `${gameSession.currentPlayer.name}의 차례`}
         </p>
@@ -127,6 +148,13 @@ const Game = () => {
               revealedCard={destCard}
             />
           )}
+          {gameSession.currentPlayer.isMe() && equipModalOpen && (
+            <EquipmentModal
+              playerlist={gameSession.players}
+              equipCard={equipCard}
+              onClose={() => setEquipModalOpen(false)}
+            />
+          )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}
         <div className="p-x-4 mb-4 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto bg-base-200">
@@ -137,6 +165,7 @@ const Game = () => {
               alt="card back"
             />
             <p>남은 카드 : {gameSession.remainingCards}장</p>
+            <p>남은 시간 : {gameSession.remainingTime}초</p>
           </div>
           <aside className="bg-opacity-50 h-full w-48 overflow-auto rounded bg-base-300 p-2">
             <p className="text-center text-sm">게임 로그</p>

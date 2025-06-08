@@ -9,7 +9,7 @@ import {
 } from "@/libs/saboteur/player";
 import { Tools } from "@/libs/saboteur/types";
 
-import EquipmentModal from "./EquipmentModal";
+import { EquipmentModal } from "./EquipmentModal";
 
 const meta: Meta<typeof EquipmentModal> = {
   title: "Game/EquipmentModal",
@@ -90,16 +90,14 @@ export const Default = () => {
       {mode === "repair" && (
         <EquipmentModal
           playerlist={dummyList}
-          card={card1}
-          handNum={3}
+          equipCard={card1}
           onClose={handleClose}
         />
       )}
       {mode === "sabotage" && (
         <EquipmentModal
           playerlist={dummyList}
-          card={card2}
-          handNum={1}
+          equipCard={card2}
           onClose={handleClose}
         />
       )}

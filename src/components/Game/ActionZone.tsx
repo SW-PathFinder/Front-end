@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
+import { MySaboteurPlayer } from "@/libs/saboteur/player";
 
 interface ActionZoneProps {
   action: "discard" | "rotate";
@@ -25,7 +26,7 @@ export function ActionZone({ action, className }: ActionZoneProps) {
           gameSession.sendAction(new SaboteurAction.Request.Rotate({ card }));
 
           console.log("Rotated card:", card);
-        } else if (action === "discard") {
+        } else if (action === "discard" && gameSession.currentPlayer.isMe()) {
           gameSession.sendAction(new SaboteurAction.Request.Discard({ card }));
 
           console.log("Discarded card:", card);
