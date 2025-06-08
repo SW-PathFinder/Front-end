@@ -73,7 +73,10 @@ const Game = () => {
               : "" + " text-lg font-semibold"
           }
         >
-          나의 역할 : {gameSession.myPlayer.role}
+          나의 역할 :{" "}
+          {gameSession.myPlayer.role === PlayerRole.Saboteur
+            ? "방해꾼"
+            : "광부"}
         </p>
         <p className="text-lg font-semibold">
           {gameSession.currentPlayer.name === gameSession.myPlayer.name
