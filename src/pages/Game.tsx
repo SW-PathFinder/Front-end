@@ -11,6 +11,7 @@ import RevealDestModal from "@/components/Game/RevealDestModal";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
+import { MySaboteurPlayer, OtherSaboteurPlayer } from "@/libs/saboteur/player";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 const Game = () => {
@@ -42,7 +43,7 @@ const Game = () => {
       prevCard: SaboteurCard.Path.Abstract | null,
     ) => {
       // 내 턴이 아닐때 드롭 무시
-      if (gameSession.currentPlayer.name !== gameSession.myPlayer.name) {
+      if (!gameSession.currentPlayer.isMe()) {
         return;
       }
 
@@ -96,7 +97,7 @@ const Game = () => {
             : "광부"}
         </p>
         <p className="text-lg font-semibold">
-          {gameSession.currentPlayer.name === gameSession.myPlayer.name
+          {gameSession.currentPlayer.isMe()
             ? "내 차례"
             : `${gameSession.currentPlayer.name}의 차례`}
         </p>
@@ -147,14 +148,13 @@ const Game = () => {
               revealedCard={destCard}
             />
           )}
-          {gameSession.currentPlayer.name === gameSession.myPlayer.name &&
-            equipModalOpen && (
-              <EquipmentModal
-                playerlist={gameSession.players}
-                equipCard={equipCard}
-                onClose={() => setEquipModalOpen(false)}
-              />
-            )}
+          {gameSession.currentPlayer.isMe() && equipModalOpen && (
+            <EquipmentModal
+              playerlist={gameSession.players}
+              equipCard={equipCard}
+              onClose={() => setEquipModalOpen(false)}
+            />
+          )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}
         <div className="p-x-4 mb-4 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto bg-base-200">

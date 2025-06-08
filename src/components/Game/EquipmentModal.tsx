@@ -10,7 +10,7 @@ import { PLAYER_STATUS } from "@/libs/saboteur/resources";
 import { Tools } from "@/libs/saboteur/types";
 
 type EquipmentModalProps = {
-  playerlist?: AbstractSaboteurPlayer[];
+  playerlist: AbstractSaboteurPlayer[];
   equipCard: null | SaboteurCard.Action.Sabotage | SaboteurCard.Action.Repair;
   onClose: () => void;
 };
@@ -138,15 +138,14 @@ export function EquipmentModal({
           {toolsName} {mode === "repair" ? "수리" : "파괴"}하기
         </p>
         <div className={`grid ${gridColClass} gap-4`}>
-          {playerlist?.map((player) => (
+          {playerlist.map((player) => (
             <div
               key={player.name}
-              className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-gray-600 p-2 hover:bg-base-300 ${player.name === targetPlayer?.name && "border-warning ring-2 ring-warning"}`}
+              className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-gray-600 p-2 hover:bg-base-300 ${player.id === targetPlayer?.id && "border-warning ring-2 ring-warning"}`}
               onClick={() => handleClickPlayer(player)}
             >
               <p>
-                {player.name}{" "}
-                {player.name === gameSession.myPlayer.name && "(나)"}
+                {player.name} {player.isMe() && "(나)"}
               </p>
               <div className="flex h-[20px] justify-center gap-4">
                 <div className="flex items-center gap-1">

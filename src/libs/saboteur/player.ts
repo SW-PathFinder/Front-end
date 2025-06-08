@@ -31,6 +31,10 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
     return { ...this._status };
   }
 
+  isMe(): this is MySaboteurPlayer {
+    return this instanceof MySaboteurPlayer;
+  }
+
   someToolIsAvailable(tools: Tools[]): boolean {
     return tools.some((tool) => this._status[tool]);
   }

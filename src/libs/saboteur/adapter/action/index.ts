@@ -353,7 +353,7 @@ export namespace SaboteurAction {
         readonly _isUpdateAction = true as const;
         update(gameSession: SaboteurSession): void {
           const { handIndex } = this.data;
-          if (gameSession.currentPlayer instanceof MySaboteurPlayer) {
+          if (gameSession.currentPlayer.isMe()) {
             gameSession.currentPlayer.remove(handIndex);
           }
         }
