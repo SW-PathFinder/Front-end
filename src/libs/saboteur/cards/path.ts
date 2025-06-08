@@ -237,6 +237,13 @@ export namespace PathCard {
 
   export abstract class AbstractDest extends AbstractSpecial {
     type = "dest";
+    peeked: boolean;
+    bgImage = "/assets/saboteur/cards/bg_playable.png";
+
+    constructor(flipped: boolean = false, peeked: boolean = false) {
+      super(flipped);
+      this.peeked = peeked;
+    }
   }
 
   export class DestHidden extends AbstractDest {

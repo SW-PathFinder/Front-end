@@ -88,7 +88,6 @@ export const Card = ({
         setIsFocusing(false);
       }}
       style={{
-        backgroundImage: `url(${card.image})`,
         width: size,
         aspectRatio: CARD_RATIO,
         transition: [
@@ -102,7 +101,7 @@ export const Card = ({
         ...style,
       }}
       className={twMerge(
-        "absolute origin-center bg-cover bg-center bg-no-repeat",
+        "absolute isolate",
         "rounded-sm",
         "top-(--tw-top) left-(--tw-left) z-(--tw-z-index)",
         "translate-3d",
@@ -111,7 +110,24 @@ export const Card = ({
         className,
       )}
     >
-      {/* <img src={`${card.image}`} className="invisible" /> */}
+      {card instanceof SaboteurCard.Path.AbstractDest && card.peeked && (
+        <div
+          style={{ backgroundImage: `url(${card.bgImage})` }}
+          className={twMerge(
+            "absolute h-full w-full",
+            "origin-center bg-cover bg-center bg-no-repeat",
+            "mix-blend-soft-light",
+          )}
+        />
+      )}
+      <div
+        style={{ backgroundImage: `url(${card.image})` }}
+        className={twMerge(
+          "absolute h-full w-full",
+          "origin-center bg-cover bg-center bg-no-repeat",
+          "mix-blend-soft-light",
+        )}
+      />
     </div>
   );
 };

@@ -240,7 +240,7 @@ export namespace SocketAction {
           ) as SaboteurCard.Path.AbstractCommon;
           return [
             new SaboteurAction.Response.Public.Path(
-              { card, x, y },
+              { x, y, card },
               this.requestId,
             ),
           ];

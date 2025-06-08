@@ -321,7 +321,10 @@ export namespace SaboteurAction {
         static readonly type = "foundRock";
 
         update(gameSession: SaboteurSession): void {
-          // throw new Error("Method not implemented.");
+          const { x, y, card } = this.data;
+
+          // Place the rock card on the board
+          gameSession.board.revealDestination(x, y, card);
         }
       }
 
@@ -443,6 +446,10 @@ export namespace SaboteurAction {
 
         update(gameSession: SaboteurSession): void {
           // throw new Error("Method not implemented.");
+          const { x, y, card } = this.data;
+
+          card.peeked = true;
+          gameSession.board.revealDestination(x, y, card);
         }
       }
 

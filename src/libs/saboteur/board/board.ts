@@ -96,12 +96,18 @@ export class GameBoard {
   }
 
   revealDestination(
-    destId: 0 | 1 | 2,
+    x: number,
+    y: number,
     destCard: SaboteurCard.Path.AbstractDest,
   ): void {
-    const coordinates = GameBoard.destinationCoordinates[destId];
+    if (
+      !GameBoard.destinationCoordinates.find(
+        ([destX, destY]) => destX === x && destY === y,
+      )
+    )
+      throw new CardNotInCoordinatesError(x, y);
 
-    this._setCard(...coordinates, destCard);
+    this._setCard(x, y, destCard);
   }
 
   import(
