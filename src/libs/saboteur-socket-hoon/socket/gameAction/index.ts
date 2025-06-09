@@ -236,11 +236,17 @@ export namespace SocketAction {
             this.data.x,
           );
 
+          const card = transformIdToCard(
+            this.data.card,
+            this.data.reverse,
+          ) as SaboteurCard.Path.AbstractCommon;
+
           return [
             new SaboteurAction.Response.Public.Path({
               handNum: this.data.handNum,
               x,
               y,
+              card,
             }),
             new SaboteurAction.Response.Public.Discard({
               handNum: this.data.handNum,

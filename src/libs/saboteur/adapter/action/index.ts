@@ -170,17 +170,19 @@ export namespace SaboteurAction {
 
     export namespace Public {
       export class Path
-        extends Response.Primitive<{ handNum: number; x: number; y: number }>
+        extends Response.Primitive<{
+          handNum: number;
+          x: number;
+          y: number;
+          card: SaboteurCard.Path.AbstractCommon;
+        }>
         implements UpdateAction
       {
         static readonly type = "path";
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { handNum, x, y } = this.data;
-          const card = gameSession.myPlayer.hands[
-            handNum
-          ] as SaboteurCard.Path.AbstractCommon;
+          const { x, y, card } = this.data;
           gameSession.board.placeCard(x, y, card);
         }
       }
