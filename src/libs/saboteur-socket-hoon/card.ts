@@ -14,7 +14,7 @@ const cardIdToClassMap = {
   1: [SaboteurCard.Path.Way2D, false],
   2: [SaboteurCard.Path.Way3B, false],
   3: [SaboteurCard.Path.Way4, false],
-  4: [SaboteurCard.Path.Way3A, false],
+  4: [SaboteurCard.Path.Way3A, true],
   5: [SaboteurCard.Path.Way2C, false],
   6: [SaboteurCard.Path.Way2A, true],
   7: [SaboteurCard.Path.Way2B, false],
