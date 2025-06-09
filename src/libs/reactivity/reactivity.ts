@@ -104,7 +104,6 @@ export const Reactivity = (defaultReactive = true) =>
         return watch(
           this,
           (p, v) => {
-            console.log(`Reactivity: Property changed: ${p} = ${v}`);
             this[eventTargetSymbol].dispatchEvent(
               new CustomEvent(`${REACTIVITY_PREFIX}any`, {
                 detail: { propertyKey: p, value: v },
@@ -162,7 +161,6 @@ function watch(
   if (Object.getPrototypeOf(target) === null) return target;
   if (isReactive(target)) return target; // Already reactive
   Reflect.defineMetadata(reactiveMetadataKey, true, target);
-  console.log(`watch: Making object reactive: ${prefix}`);
 
   if (Array.isArray(target)) {
     // watchArrayChange(target, (methodName, arr) => {
@@ -231,9 +229,6 @@ function watch(
         return target[storeSymbol].get(key);
       },
       set(next) {
-        console.log(
-          `defineProperty: Setting property: ${propertyKey} to ${next}`,
-        );
         const prev = target[storeSymbol].get(key);
         if (prev === next) return; // No change, do not trigger callback
 
