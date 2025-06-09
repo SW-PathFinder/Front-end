@@ -13,6 +13,7 @@ interface PlayerStatusProps {
 const PlayerStatus = ({ item }: PlayerStatusProps) => {
   const { gameSession } = useGameSession();
   const isMe = item === gameSession.myPlayer;
+  console.log("PlayerStatus", item, isMe);
 
   const goldDisplay =
     isMe && item instanceof MySaboteurPlayer ? item.gold : "?";
@@ -20,7 +21,9 @@ const PlayerStatus = ({ item }: PlayerStatusProps) => {
   return (
     <div className="flex flex-row items-center justify-between border p-2 pt-1">
       <div className="flex flex-col gap-2">
-        <p>{item.name}</p>
+        <p>
+          {item.name} {item.name === gameSession.myPlayer.name ? "(나)" : ""}
+        </p>
         <div className="flex h-[20px] gap-4">
           <div className="flex items-center gap-1">
             {(Object.entries(item.status) as [Tools, boolean][]).map(

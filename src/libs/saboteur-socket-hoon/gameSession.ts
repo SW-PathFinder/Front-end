@@ -76,6 +76,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       if (type !== "game_update" && type !== "private_game_update") return;
 
       const socketAction = SocketAction.AbstractResponse.fromPrimitive(data);
+      console.log(
+        "Received Premitive game update:",
+        socketAction.type,
+        socketAction,
+      );
       const matchedRequestAction = socketAction.requestId
         ? this.requestIdMap.get(socketAction.requestId)
         : undefined;
@@ -90,6 +95,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     socketAction: SocketAction.AbstractResponse,
     matchedRequestAction?: SaboteurAction.Request.Actions,
   ) {
+    console.log("Send Premitive game update:", socketAction.type, socketAction);
     const actions = socketAction.toSaboteurAction(matchedRequestAction);
 
     for (const action of actions) {

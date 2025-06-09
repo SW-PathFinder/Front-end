@@ -97,7 +97,7 @@ export namespace PathCard {
       "/assets/saboteur/cards/path/39.png",
     ];
     protected readonly _roads = [
-      CardinalDirection.All ^ CardinalDirection.North,
+      CardinalDirection.All ^ CardinalDirection.South,
     ] as const;
   }
 
@@ -106,7 +106,7 @@ export namespace PathCard {
     protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
-      CardinalDirection.South,
+      CardinalDirection.North,
     ] as const;
   }
 
@@ -140,15 +140,15 @@ export namespace PathCard {
       "/assets/saboteur/cards/path/43.png",
     ];
     protected readonly _roads = [
-      CardinalDirection.East | CardinalDirection.South,
+      CardinalDirection.West | CardinalDirection.North,
     ] as const;
   }
 
   export class Block2A extends AbstractCommon {
     protected readonly _images = ["/assets/saboteur/cards/path/5.png"];
     protected readonly _roads = [
-      CardinalDirection.East,
-      CardinalDirection.South,
+      CardinalDirection.West,
+      CardinalDirection.North,
     ] as const;
   }
 
@@ -219,7 +219,7 @@ export namespace PathCard {
 
   export class Block1B extends AbstractCommon {
     protected readonly _images = ["/assets/saboteur/cards/path/7.png"];
-    protected readonly _roads = [CardinalDirection.South] as const;
+    protected readonly _roads = [CardinalDirection.North] as const;
   }
 
   export abstract class AbstractSpecial
