@@ -126,8 +126,6 @@ it("should track newly added properties", () => {
   const instance = new TestClass();
   instance.objectProp.newKey = { newVal: "oldValue" };
 
-  console.log(instance.objectProp.newKey);
-
   let changedValue = null;
   instance.on("objectProp.newKey.newVal", (_, value) => {
     changedValue = value;

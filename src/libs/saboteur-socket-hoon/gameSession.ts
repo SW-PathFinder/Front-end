@@ -11,11 +11,12 @@ import { HSSaboteurSocket, SocketAction } from "./socket";
 
 type RequestActionEvent = CustomEvent<{
   action: SaboteurAction.Request.Actions;
-  socketAction: SocketAction.Request.Actions;
+  // socketAction: SocketAction.Request.Actions;
+  gameSession: SaboteurSession;
 }>;
 type ResponseActionEvent = CustomEvent<{
   action: SaboteurAction.Response.Actions;
-  socketAction: SocketAction.Response.Actions;
+  socketAction: SocketAction.AbstractResponse;
   matchedRequestAction?: SaboteurAction.Request.Actions;
 }>;
 
@@ -48,14 +49,27 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.player = player;
 
     this.outTarget.addEventListener("any", ((event: RequestActionEvent) => {
-      const { socketAction } = event.detail;
+      const { action, gameSession } = event.detail;
 
-      this.socket.emit("game_action", {
-        room: this.roomId,
-        player: this.player.id,
-        action: socketAction.toPrimitive(),
-        requestId: socketAction.requestId,
-      });
+      const socketActions = this.toSocketActions(action, gameSession);
+
+      for (const socketAction of socketActions) {
+        if (!socketAction.isRequestActionType()) {
+          this.performIn(socketAction);
+          continue;
+        }
+
+        this.requestIdMap.set(socketAction.requestId, action);
+        setTimeout(() => {
+          this.requestIdMap.delete(socketAction.requestId);
+        }, 5000);
+        this.socket.emit("game_action", {
+          room: this.roomId,
+          player: this.player.id,
+          action: socketAction.toPrimitive(),
+          requestId: socketAction.requestId,
+        });
+      }
     }) as any);
 
     this.socket.onAny((type, data) => {
@@ -73,7 +87,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   }
 
   private performIn(
-    socketAction: SocketAction.Response.Actions,
+    socketAction: SocketAction.AbstractResponse,
     matchedRequestAction?: SaboteurAction.Request.Actions,
   ) {
     const actions = socketAction.toSaboteurAction(matchedRequestAction);
@@ -100,23 +114,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     action: TAction,
     gameSession: SaboteurSession,
   ) {
-    const socketActions = this.toSocketActions(action, gameSession);
-
-    for (const socketAction of socketActions) {
-      if (socketAction.isRequestActionType()) {
-        this.requestIdMap.set(socketAction.requestId, action);
-        setTimeout(() => {
-          this.requestIdMap.delete(socketAction.requestId);
-        }, 5000);
-        this.outTarget.dispatchEvent(
-          new CustomEvent("any", {
-            detail: { action, socketAction },
-          }) satisfies RequestActionEvent,
-        );
-      } else {
-        this.performIn(socketAction);
-      }
-    }
+    this.outTarget.dispatchEvent(
+      new CustomEvent("any", {
+        detail: { action, gameSession },
+      }) satisfies RequestActionEvent,
+    );
   }
 
   onAny(
