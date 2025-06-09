@@ -8,7 +8,6 @@ import { useGameRoom } from "@/contexts/GameRoomContext";
 import lobby_bg from "/bg/lobby_bg.png";
 
 const palette = [
-  // Using more opaque and slightly darker shades for better contrast with white text
   "bg-slate-700/90",
   "bg-neutral-700/90",
   "bg-stone-700/90",
@@ -80,8 +79,8 @@ const WaitingRoom = () => {
         >
           {gameRoom.players.map((player, idx) => (
             <div
-              key={idx}
-              className={`flex aspect-square flex-col items-center justify-center rounded-xl border-8 border-neutral-800 p-2 text-center text-xl text-white shadow-lg sm:text-2xl ${palette[idx]}`}
+              key={player.id || `player-${idx}`}
+              className={`flex aspect-square flex-col items-center justify-center rounded-xl border-8 border-neutral-800 p-2 text-center text-xl text-white shadow-lg sm:text-2xl ${palette[idx % palette.length]}`}
             >
               {idx === 0 && (
                 <Crown className="mb-1 h-5 w-5 text-yellow-400 sm:h-6 sm:w-6" />
@@ -91,10 +90,13 @@ const WaitingRoom = () => {
           ))}
 
           {Array.from({
-            length: gameRoom.capacity - gameRoom.players.length,
+            length: Math.max(
+              0,
+              (gameRoom.capacity || 0) - gameRoom.players.length,
+            ),
           }).map((_, idx) => (
             <div
-              key={gameRoom.players.length + idx}
+              key={`empty-${idx}`}
               className="flex aspect-square items-center justify-center rounded-xl border-8 border-neutral-800 bg-neutral-900/70 p-2 shadow-lg"
             >
               <span className="loading loading-lg text-white sm:loading-xl"></span>
