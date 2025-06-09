@@ -99,7 +99,8 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
 }
 
 export class MySaboteurPlayer extends AbstractSaboteurPlayer {
-  golds: number[] = [];
+  private _gold: number = 0;
+  private _lastRoundGold: number = 0;
 
   role: PlayerRole | null;
   private _hands: SaboteurCard.Abstract.Playable[];
@@ -107,21 +108,30 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   constructor({
     role,
     hands = [],
-    golds = [],
+    gold = 0,
     ...options
   }: AbstractPlayerOption & {
     role?: PlayerRole;
     hands?: SaboteurCard.Abstract.Playable[];
-    golds?: number[];
+    gold?: number;
   }) {
     super(options);
-    this.golds = golds;
+    this._gold = gold;
     this.role = role ?? null;
     this._hands = hands;
   }
 
   get gold(): number {
-    return this.golds.reduce((total, gold) => total + gold, 0);
+    return this._gold;
+  }
+
+  get lastRoundGold(): number {
+    return this._lastRoundGold;
+  }
+
+  set lastRoundGold(gold: number) {
+    this._lastRoundGold = gold;
+    this._gold += this._lastRoundGold;
   }
 
   get hands(): ReadonlyArray<SaboteurCard.Abstract.Playable> {
@@ -181,7 +191,7 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   }): void {
     super.sync(data);
 
-    if (data.gold !== undefined) this.gold = data.gold;
+    if (data.gold !== undefined) this._gold = data.gold;
     if (data.role !== undefined) this.role = data.role;
     if (data.hands !== undefined) this._hands = data.hands;
   }
