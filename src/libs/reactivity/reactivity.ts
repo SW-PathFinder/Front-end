@@ -5,17 +5,25 @@ import "reflect-metadata";
 type NestedNonFunctionKeys<
   T,
   TKeys extends keyof T & (string | number) = keyof T & (string | number),
+  TPrefix extends string = "",
 > = {
-  [K in TKeys]: T[K] extends Function
-    ? never
-    : T[K] extends object
-      ? `${K}` | `${K}.${NestedNonFunctionKeys<T[K]>}`
-      : `${K}`;
+  [K in TKeys]: K extends `${TPrefix}${string | number}`
+    ? T[K] extends Function
+      ? never
+      : T[K] extends Array<infer U>
+        ?
+            | `${K}`
+            | `${K}.${number}`
+            | `${K}.${number}.${NestedNonFunctionKeys<U>}`
+        : T[K] extends object
+          ? `${K}` | `${K}.${NestedNonFunctionKeys<T[K]>}`
+          : `${K}`
+    : never;
 }[TKeys];
 
 type GetPropertyByNestedKey<
   T,
-  TNestedKey extends string,
+  TNestedKey extends string | number,
 > = TNestedKey extends `${infer TKey extends keyof T & (string | number)}.${infer TRest}`
   ? GetPropertyByNestedKey<T[TKey], TRest>
   : TNestedKey extends keyof T & (string | number)
@@ -26,7 +34,13 @@ export interface ReactiveObject {
   on<TThis extends object, TKey extends NestedNonFunctionKeys<TThis>>(
     this: TThis,
     propertyKey: TKey,
-    callback: (value: GetPropertyByNestedKey<TThis, TKey>) => void,
+    callback: (
+      // @ts-expect-error FIXME later
+      propertyKey: NestedNonFunctionKeys<TThis, TKey>,
+      value: GetPropertyByNestedKey<TThis, TKey>,
+    ) => void,
+    /** @default true */
+    exact?: boolean,
   ): void;
   onAny<TThis extends object>(
     this: TThis,
@@ -90,6 +104,7 @@ export const Reactivity = (defaultReactive = true) =>
         return watch(
           this,
           (p, v) => {
+            console.log(`Reactivity: Property changed: ${p} = ${v}`);
             this[eventTargetSymbol].dispatchEvent(
               new CustomEvent(`${REACTIVITY_PREFIX}any`, {
                 detail: { propertyKey: p, value: v },
@@ -109,9 +124,15 @@ export const Reactivity = (defaultReactive = true) =>
         );
       }
 
-      on(propertyKey: any, callback: (property: any) => void): void {
+      on(
+        propertyKey: any,
+        callback: (propertyKey: any, property: any) => void,
+        exact: boolean = true,
+      ): void {
         this.onAny((p, v) => {
-          if (String(p).startsWith(String(propertyKey))) callback(v);
+          if (!String(p).startsWith(String(propertyKey))) return;
+          if (exact && p !== propertyKey) return;
+          callback(p, v);
         });
       }
 
@@ -141,37 +162,58 @@ function watch(
   if (Object.getPrototypeOf(target) === null) return target;
   if (isReactive(target)) return target; // Already reactive
   Reflect.defineMetadata(reactiveMetadataKey, true, target);
-  // console.log("Reactivity: watch", prefix, target);
+  console.log(`watch: Making object reactive: ${prefix}`);
 
-  target = new Proxy(target, {
-    set(target, p, newValue, receiver) {
-      if (typeof p === "symbol" || (filter && !filter(target, p)))
-        return Reflect.set(target, p, newValue, receiver);
+  if (Array.isArray(target)) {
+    // watchArrayChange(target, (methodName, arr) => {
+    //   console.log(`watchArrayChange: ${target} ${methodName} called`);
+    //   for (const index in arr) {
+    //     arr[index] = watch(arr[index], callback, filter, `${prefix}${index}`);
+    //   }
+    //   callback(prefix, arr);
+    // });
 
-      // console.log(
-      //   `Proxy: Setting property: ${prefix}${p.toString()} to ${newValue}`,
-      // );
-      const prevValue = target[p];
-      if (prevValue === newValue) return true;
+    target = new Proxy(target, {
+      get(target, p, receiver) {
+        const result = Reflect.get(target, p, receiver);
+        return result;
+      },
+      set(target, p, newValue, receiver) {
+        if (typeof p === "symbol" || (filter && !filter(target, p)))
+          return Reflect.set(target, p, newValue, receiver);
 
-      // unwatch previous value if it was reactive
-      // TODO: revert reactivity of previous value
+        // console.log(
+        //   `Proxy: Setting property: ${prefix}${p.toString()} to ${newValue}`,
+        // );
+        const prevValue = target[p as any];
+        if (prevValue === newValue) return true;
 
-      newValue = watch(newValue, callback, filter, `${prefix}${p.toString()}.`);
+        // unwatch previous value if it was reactive
+        // TODO: revert reactivity of previous value
 
-      const result = Reflect.set(target, p, newValue, receiver);
-      if (result) callback(`${prefix}${p.toString()}`, newValue);
-      return result;
-    },
-    deleteProperty(target, p) {
-      if (typeof p === "symbol") return Reflect.deleteProperty(target, p);
+        newValue = watch(
+          newValue,
+          callback,
+          filter,
+          `${prefix}${p.toString()}.`,
+        );
 
-      // console.log(`Proxy: Deleting property: ${prefix}${p.toString()}`);
-      const result = Reflect.deleteProperty(target, p);
-      if (result) callback(`${prefix}${p.toString()}`, undefined);
-      return result;
-    },
-  });
+        const result = Reflect.set(target, p, newValue, receiver);
+        if (result) callback(`${prefix}${p.toString()}`, newValue);
+        return result;
+      },
+      deleteProperty(target, p) {
+        if (typeof p === "symbol") return Reflect.deleteProperty(target, p);
+
+        // console.log(`Proxy: Deleting property: ${prefix}${p.toString()}`);
+        const result = Reflect.deleteProperty(target, p);
+        if (result) callback(`${prefix}${p.toString()}`, undefined);
+        return result;
+      },
+    });
+
+    return target;
+  }
 
   const allKeys = [...Object.keys(target)];
   target[storeSymbol] = target[storeSymbol] || new Map();
@@ -189,26 +231,17 @@ function watch(
         return target[storeSymbol].get(key);
       },
       set(next) {
-        // console.log(
-        //   `defineProperty: Setting property: ${propertyKey} to ${next}`,
-        // );
+        console.log(
+          `defineProperty: Setting property: ${propertyKey} to ${next}`,
+        );
         const prev = target[storeSymbol].get(key);
         if (prev === next) return; // No change, do not trigger callback
 
-        watch(next, callback, filter, `${propertyKey}.`);
+        next = watch(next, callback, filter, `${propertyKey}.`);
 
         target[storeSymbol].set(key, next);
         callback(propertyKey, next);
       },
-    });
-  }
-
-  if (Array.isArray(target)) {
-    watchArrayChange(target, (methodName, arr) => {
-      arr.forEach((item, index) => {
-        watch(item, callback, filter, `${prefix}${index}`);
-      });
-      callback(prefix, arr);
     });
   }
 

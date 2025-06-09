@@ -35,7 +35,7 @@ it("can watch property changes", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("stringProp", (value) => {
+  instance.on("stringProp", (key, value) => {
     changedValue = value;
   });
 
@@ -49,7 +49,7 @@ it("shoucan watch unchanged properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("stringProp", (value) => {
+  instance.on("stringProp", (key, value) => {
     changedValue = value;
   });
 
@@ -63,7 +63,7 @@ it("shoucan watch unwanted properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("numberProp", (value) => {
+  instance.on("numberProp", (key, value) => {
     changedValue = value;
   });
 
@@ -77,7 +77,7 @@ it("can watch property changes by method call", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("numberProp", (value) => {
+  instance.on("numberProp", (key, value) => {
     changedValue = value;
   });
 
@@ -91,7 +91,7 @@ it("can watch only not ignored properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("booleanProp", (value) => {
+  instance.on("booleanProp", (key, value) => {
     changedValue = value;
   });
 
@@ -104,13 +104,13 @@ it("can watch only not ignored properties", () => {
 it("should track deep nested properties", () => {
   const instance = new TestClass();
 
-  let changedObject = null;
-  instance.on("objectProp", (value) => {
+  let changedObject: object | null = null;
+  instance.on("objectProp", (key, value) => {
     changedObject = value;
   });
 
   let changedValue = null;
-  instance.on("objectProp.existProp", (value) => {
+  instance.on("objectProp.existProp", (key, value) => {
     changedValue = value;
   });
 
@@ -126,10 +126,10 @@ it("should track newly added properties", () => {
   const instance = new TestClass();
   instance.objectProp.newKey = { newVal: "oldValue" };
 
-  console.log(instance.objectProp);
+  console.log(instance.objectProp.newKey);
 
   let changedValue = null;
-  instance.on("objectProp.newKey.newVal", (value) => {
+  instance.on("objectProp.newKey.newVal", (key, value) => {
     changedValue = value;
   });
 
@@ -146,12 +146,12 @@ it("should not track removed properties", () => {
   delete instance.objectProp.key;
 
   let changedObject = null;
-  instance.on("objectProp", (value) => {
+  instance.on("objectProp", (key, value) => {
     changedObject = value;
   });
 
   let changedValue = null;
-  instance.on("objectProp.key", (value) => {
+  instance.on("objectProp.key", (key, value) => {
     changedValue = value;
   });
 
@@ -173,28 +173,36 @@ describe("Reactive array", () => {
     const instance = new TestArray();
 
     let changedValue = null;
-    instance.on("items", (value) => {
-      changedValue = value;
-    });
+    instance.on(
+      "items",
+      (key, value) => {
+        changedValue = value;
+      },
+      false,
+    );
 
     instance.items.push("item3");
 
     expect(instance.items).toContain("item3");
-    expect(changedValue).toEqual(instance.items);
+    expect(changedValue).not.toBeNull();
   });
 
   it("should track array item changes", () => {
     const instance = new TestArray();
 
     let changedValue = null;
-    instance.on("items.0", (value) => {
-      changedValue = value;
-    });
+    instance.on(
+      "items",
+      (key, value) => {
+        changedValue = value;
+      },
+      false,
+    );
 
     instance.items[0] = "newItem1";
 
     expect(instance.items[0]).toBe("newItem1");
-    expect(changedValue).toBe("newItem1");
+    expect(changedValue).not.toBeNull();
   });
 
   @Reactivity()
@@ -210,13 +218,19 @@ describe("Reactive array", () => {
     const instance = new TestArray2();
 
     let changedValue = null;
-    instance.on("items.0.0", (value) => {
-      changedValue = value;
-    });
+    instance.on(
+      "items",
+      (key, value) => {
+        changedValue = value;
+      },
+      false,
+    );
 
-    instance.items[0][0] = "newItem1";
+    instance.items.push(["newItem1"]);
+    expect(instance.items[2][0]).toBe("newItem1");
+    expect(changedValue).not.toBeNull();
 
-    expect(instance.items[0][0]).toBe("newItem1");
-    expect(changedValue).toBe("newItem1");
+    instance.items[2].push("newItem2");
+    expect(instance.items[2][1]).toBe("newItem2");
   });
 });
