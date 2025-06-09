@@ -147,7 +147,8 @@ export class SaboteurSession implements GameSession {
 
     this.adapter.onAnyOutgoing((action) => {
       console.log("action sent:", action);
-      if (action.isUpdateAction()) action.update(this);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (action.isUpdateAction()) (action as any).update(this);
     });
 
     // turn timer

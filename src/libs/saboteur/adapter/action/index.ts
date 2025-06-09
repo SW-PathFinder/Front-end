@@ -138,18 +138,17 @@ export namespace SaboteurAction {
       readonly _isConsumeCard = true as const;
     }
 
-    export class Rotate
-      extends Request.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
-      implements UpdateAction
-    {
+    export class Rotate extends Request.Primitive<{
+      card: SaboteurCard.Path.AbstractCommon;
+    }> {
+      // implements UpdateAction
       static readonly type = "rotate";
 
-      readonly _isUpdate = true as const;
-      update(gameSession: SaboteurSession): void {
-        console.log(gameSession);
-        const { card } = this.data;
-        card.flipped = !card.flipped;
-      }
+      // readonly _isUpdate = true as const;
+      // update(): void {
+      //   const { card } = this.data;
+      //   card.flipped = !card.flipped;
+      // }
     }
 
     export type ActionClass =
@@ -241,8 +240,7 @@ export namespace SaboteurAction {
         static readonly type = "useMap";
 
         readonly _isUpdate = true as const;
-        update(gameSession: SaboteurSession): void {
-          console.log(gameSession);
+        update(): void {
           // TODO: 다른사람이 지도 썼을때 모달같은거 띄우기
           // throw new Error("Method not implemented.");
         }
@@ -333,8 +331,7 @@ export namespace SaboteurAction {
         static readonly type = "gameEnd";
 
         readonly _isUpdate = true as const;
-        update(gameSession: SaboteurSession): void {
-          console.log(gameSession);
+        update(): void {
           // TODO: Implement game end logic
           // const { golds } = this.data;
           // // cleanup game session?
@@ -403,6 +400,8 @@ export namespace SaboteurAction {
           const { card } = this.data;
           const cardInDeck = gameSession.cardPool.removeByKind(card);
           if (!cardInDeck) {
+            // // eslint-disable-next-line no-debugger
+            // debugger;
             throw new Error(
               `Card ${this.data.card.type} not found in the deck for draw.`,
             );
@@ -431,15 +430,17 @@ export namespace SaboteurAction {
         }
       }
 
-      export class Rotate extends Response.Primitive<{
-        card: SaboteurCard.Path.AbstractCommon;
-      }> {
+      export class Rotate
+        extends Response.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
+        implements UpdateAction
+      {
         static readonly type = "rotate";
 
-        // update(gameSession: SaboteurSession): void {
-        //   // throw new Error("Method not implemented.");
-        //   // const { card } = this.data;
-        // }
+        readonly _isUpdate = true as const;
+        update(): void {
+          const { card } = this.data;
+          card.flipped = !card.flipped;
+        }
       }
 
       export class PlayerState extends Response.Primitive<{
@@ -470,7 +471,6 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          console.log(gameSession);
           const { gold } = this.data;
           gameSession.myPlayer.lastRoundGold = gold;
         }
