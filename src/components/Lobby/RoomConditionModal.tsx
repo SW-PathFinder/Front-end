@@ -79,7 +79,7 @@ const RoomConditionModal = ({
 
   return (
     <dialog open className="modal" onCancel={onClose} onClose={onClose}>
-      <div className="relative modal-box w-1/2 min-w-md">
+      <div className="relative modal-box w-1/2 min-w-md bg-neutral-900">
         {/* 닫기 버튼 */}
         <form method="dialog">
           <button
@@ -162,7 +162,7 @@ const RoomConditionModal = ({
         {/* 생성 버튼 */}
         <button
           type="button"
-          className={`btn mt-4 w-full ${mode === "create" ? "btn-secondary" : "btn-accent"}`}
+          className={`btn mt-4 w-full btn-soft ${mode === "create" ? "btn-secondary" : "btn-accent"}`}
           onClick={mode === "create" ? clickCreate : clickMatch}
         >
           {mode === "create" ? "방 생성하기" : "매칭하기"}

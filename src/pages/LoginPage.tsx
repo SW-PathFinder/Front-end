@@ -9,6 +9,7 @@ import * as yup from "yup";
 import { useSocketRequest } from "@/contexts/SocketContext";
 
 import { useAuth } from "../contexts/AuthContext";
+import login_bg from "/bg/saboteur_bg.png";
 
 interface LoginFormValues {
   nickname: string;
@@ -58,25 +59,19 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-base-100">
-      <div className="mb-6 flex items-center justify-center">
-        <img src="/logo.png" alt="Logo" />
+    <div
+      className="flex min-h-screen flex-col items-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${login_bg})` }}
+    >
+      <div className="absolute top-12">
+        <img src="/logo.png" alt="Logo" className="w-4xl" />
       </div>
-      <div className="w-full max-w-md">
+      <div className="absolute bottom-18 w-full max-w-sm">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-y-4"
         >
           <div className="flex flex-col gap-y-2">
-            <input
-              type="text"
-              placeholder="닉네임을 입력하세요"
-              {...register("nickname", {
-                onChange: () => setServerError(null),
-              })}
-              className={`input w-full ${errors.nickname || serverError ? "input-warning" : ""}`}
-              disabled={isSubmitting}
-            />
             {(errors.nickname?.message || serverError) && (
               <div role="alert" className="alert alert-warning">
                 <svg
@@ -95,10 +90,19 @@ const LoginPage = () => {
                 {errors.nickname?.message || serverError}
               </div>
             )}
+            <input
+              type="text"
+              placeholder="닉네임을 입력하세요"
+              {...register("nickname", {
+                onChange: () => setServerError(null),
+              })}
+              className={`input input-xl w-full text-center ${errors.nickname || serverError ? "input-warning" : ""}`}
+              disabled={isSubmitting}
+            />
           </div>
           <button
             type="submit"
-            className="btn w-full btn-primary"
+            className="btn w-full btn-soft btn-xl"
             disabled={isSubmitting}
           >
             {isSubmitting ? "확인 중..." : "확인"}
