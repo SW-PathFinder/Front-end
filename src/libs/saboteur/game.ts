@@ -215,25 +215,5 @@ export class SaboteurSession implements GameSession {
   ): void {
     this.adapter.sendAction(action, this);
   }
-
-  // private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
-  //   this.round = data.round;
-
-  //   data.hands.forEach((card) => this.myPlayer.add(card));
-  //   this.myPlayer.role = data.role;
-
-  //   this.players.forEach((player) => {
-  //     if (player instanceof OtherSaboteurPlayer)
-  //       player.handCount = OtherSaboteurPlayer.getInitialHandCount(
-  //         this.players.length,
-  //       );
-  //   });
-  // }
-
-  // private onRoundEnd({ data }: SaboteurAction.Response.Private.RoundEnd) {
-  //   this.players.forEach((player) => {
-  //     player.resetRoundState();
-  //   });
-  // }
 }
 export interface SaboteurSession extends Reactive {}
