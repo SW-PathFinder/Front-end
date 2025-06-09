@@ -21,12 +21,12 @@ export const GameRoomProvider = ({
 }: PropsWithChildren<{ gameRoom: SaboteurRoom }>) => {
   // const socket = useSocket();
   const [gameSession, setGameSession] = useState<SaboteurSession | null>(null);
+  useEffect(() => {
+    console.log("GameRoomProvider", gameRoom, gameSession);
+  }, [gameRoom, gameSession]);
 
   useEffect(() => {
     const unsubscribes = [
-      // gameRoom.adapter.onPlayerJoin((player) => {}),
-      // gameRoom.adapter.onPlayerLeave((player) => {}),
-      // gameRoom.adapter.onGameSessionReady(() => {}),
       gameRoom.adapter.onGameSessionStart((gameSession) => {
         setGameSession(gameSession);
       }),
