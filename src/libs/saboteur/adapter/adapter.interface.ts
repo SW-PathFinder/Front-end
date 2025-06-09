@@ -1,7 +1,7 @@
 import { GameSessionAdapter } from "@/libs/gameSession";
-import { SaboteurSession } from "@/libs/saboteur/game";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
+import { SaboteurSession } from "../game";
 import { SaboteurAction } from "./action";
 
 export interface SaboteurSessionAdapter extends GameSessionAdapter {

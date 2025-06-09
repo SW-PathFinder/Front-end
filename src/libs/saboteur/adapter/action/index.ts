@@ -1,11 +1,11 @@
-import { SaboteurCard } from "@/libs/saboteur/cards";
-import { SaboteurSession } from "@/libs/saboteur/game";
+import { SaboteurCard } from "../../cards";
+import { SaboteurSession } from "../../game";
 import {
   AbstractSaboteurPlayer,
   MySaboteurPlayer,
   OtherSaboteurPlayer,
-} from "@/libs/saboteur/player";
-import { PlayerRole, Tools } from "@/libs/saboteur/types";
+} from "../../player";
+import { PlayerRole, Tools } from "../../types";
 
 interface UpdateAction {
   _isUpdateAction: true;
@@ -216,7 +216,7 @@ export namespace SaboteurAction {
         update(gameSession: SaboteurSession): void {
           const { handIndex } = this.data;
           if (gameSession.currentPlayer.isMe()) {
-            gameSession.currentPlayer.remove(handIndex);
+            gameSession.currentPlayer.removeByIndex(handIndex);
           }
         }
       }
@@ -338,7 +338,15 @@ export namespace SaboteurAction {
 
           gameSession.round = round;
 
-          hands.forEach((card) => gameSession.myPlayer.add(card));
+          hands.forEach((card) => {
+            const cardInDeck = gameSession.deck.removeByKind(card);
+            if (!cardInDeck) {
+              throw new Error(
+                `Card ${card.type} not found in the deck for round start.`,
+              );
+            }
+            gameSession.myPlayer.append(cardInDeck);
+          });
           gameSession.myPlayer.role = role;
 
           gameSession.players.forEach((player) => {
@@ -358,8 +366,13 @@ export namespace SaboteurAction {
 
         readonly _isUpdateAction = true as const;
         update(gameSession: SaboteurSession): void {
-          const { card } = this.data;
-          gameSession.myPlayer.add(card);
+          const cardInDeck = gameSession.deck.removeByKind(this.data.card);
+          if (!cardInDeck) {
+            throw new Error(
+              `Card ${this.data.card.type} not found in the deck for draw.`,
+            );
+          }
+          gameSession.myPlayer.append(cardInDeck);
         }
       }
 
@@ -401,12 +414,13 @@ export namespace SaboteurAction {
           role: PlayerRole | null;
           hands: SaboteurCard.Abstract.Playable[];
         };
-        currentPlayerId: string;
         players: {
           id: string;
           handCount: number;
           status: Record<Tools, boolean>;
         }[];
+        currentPlayerId: string;
+        deckCount: number;
         board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
       }> {
         static readonly type = "playerState";

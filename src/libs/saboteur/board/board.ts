@@ -1,12 +1,12 @@
+import { CardinalDirection, SaboteurCard } from "../cards";
 import {
   CardAlreadyExistsError,
   CardIndestructibleError,
   CardNotInCoordinatesError,
   PathNotConnectedError,
   PathNotReachableError,
-} from "@/libs/saboteur/board/error";
-import { Grid2d, MapGrid2d } from "@/libs/saboteur/board/grid2d";
-import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
+} from "./error";
+import { Grid2d, MapGrid2d } from "./grid2d";
 
 export class GameBoard {
   private grid: Grid2d<SaboteurCard.Path.Abstract> =

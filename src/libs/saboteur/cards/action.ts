@@ -1,5 +1,5 @@
-import { AbstractCard } from "@/libs/saboteur/cards/base";
-import { Tools } from "@/libs/saboteur/types";
+import { Tools } from "../types";
+import { AbstractCard } from "./base";
 
 export namespace ActionCard {
   export abstract class Abstract
@@ -22,6 +22,14 @@ export namespace ActionCard {
       super();
       this.tool = [tool];
       this.image = SABOTAGE_ACTION_CARD_ASSETS[tool];
+    }
+
+    isSame(card: AbstractCard): card is Sabotage {
+      return (
+        super.isSame(card) &&
+        card instanceof Sabotage &&
+        this.tool[0] === card.tool[0]
+      );
     }
   }
 
@@ -49,6 +57,15 @@ export namespace ActionCard {
             : 1,
       ) as AvailableRepairToolSet;
       this.image = `/assets/saboteur/cards/action/repair_${tools.map((tool) => tool[0].toLowerCase()).join("")}.png`;
+    }
+
+    isSame(card: AbstractCard): card is Repair {
+      return (
+        super.isSame(card) &&
+        card instanceof Repair &&
+        this.tools.length === card.tools.length &&
+        this.tools.every((tool, index) => tool === card.tools[index])
+      );
     }
   }
 

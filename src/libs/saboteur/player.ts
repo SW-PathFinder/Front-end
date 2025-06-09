@@ -1,6 +1,7 @@
 import { GameSessionPlayer } from "@/libs/gameSession";
-import { AbstractCard } from "@/libs/saboteur/cards";
-import { PlayerRole, Tools } from "@/libs/saboteur/types";
+
+import { SaboteurCard } from "./cards";
+import { PlayerRole, Tools } from "./types";
 
 interface AbstractPlayerOption {
   id: string;
@@ -88,7 +89,7 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   gold: number;
 
   role: PlayerRole | null;
-  private _hands: AbstractCard.Playable[];
+  private _hands: SaboteurCard.Abstract.Playable[];
 
   constructor({
     role,
@@ -97,7 +98,7 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     ...options
   }: AbstractPlayerOption & {
     role?: PlayerRole;
-    hands?: AbstractCard.Playable[];
+    hands?: SaboteurCard.Abstract.Playable[];
     gold?: number;
   }) {
     super(options);
@@ -106,7 +107,7 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     this._hands = hands;
   }
 
-  get hands(): ReadonlyArray<AbstractCard.Playable> {
+  get hands(): ReadonlyArray<SaboteurCard.Abstract.Playable> {
     return this._hands;
   }
 
@@ -114,20 +115,20 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this._hands.length;
   }
 
-  add(card: AbstractCard.Playable): this {
+  append(card: SaboteurCard.Abstract.Playable): this {
     this._hands.push(card);
 
     return this;
   }
 
-  remove(cardIndex: number): AbstractCard.Playable {
+  removeByIndex(cardIndex: number): SaboteurCard.Abstract.Playable {
     if (cardIndex < 0 || cardIndex >= this._hands.length) {
       throw new Error("Invalid card index");
     }
     return this._hands.splice(cardIndex, 1)[0];
   }
 
-  insert(cardIndex: number, card: AbstractCard.Playable): this {
+  insert(cardIndex: number, card: SaboteurCard.Abstract.Playable): this {
     if (cardIndex < 0 || cardIndex > this._hands.length) {
       throw new Error("Invalid card index");
     }

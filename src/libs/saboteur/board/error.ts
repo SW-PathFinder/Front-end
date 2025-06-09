@@ -1,4 +1,4 @@
-import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
+import { CardinalDirection, SaboteurCard } from "../cards";
 
 export class GameBoardError extends Error {}
 export class CardPlacementError extends GameBoardError {

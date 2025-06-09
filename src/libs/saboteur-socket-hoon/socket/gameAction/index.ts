@@ -553,6 +553,7 @@ export namespace SocketAction {
         // global turn state
         currentPlayerId: string;
         board: { x: number; y: number; cardId: number; reverse: boolean }[];
+        deckCount: number;
         players: {
           playerId: string;
           tool: { mineCart: boolean; pickaxe: boolean; lantern: boolean };
@@ -578,7 +579,6 @@ export namespace SocketAction {
                       ) as SaboteurCard.Abstract.Playable,
                   ),
                 },
-                currentPlayerId: this.data.currentPlayerId,
                 players: this.data.players.map(
                   ({ playerId: id, handCount, tool: status }) => ({
                     id,
@@ -586,6 +586,8 @@ export namespace SocketAction {
                     status,
                   }),
                 ),
+                currentPlayerId: this.data.currentPlayerId,
+                deckCount: this.data.deckCount,
                 board: this.data.board.map(
                   ({ cardId, reverse, ...absoluteCoord }) => {
                     const [x, y] = FixedArrayGrid2d.absoluteToRelative(

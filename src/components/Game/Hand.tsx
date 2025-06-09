@@ -1,13 +1,13 @@
 import { useUniqueId } from "@dnd-kit/utilities";
 import { twMerge } from "tailwind-merge";
 
-import { AbstractCard } from "@/libs/saboteur/cards";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 
 import { Card, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import { Droppable } from "./Dnd";
 
 interface HandProps {
-  cards: readonly AbstractCard.Playable[];
+  cards: readonly SaboteurCard.Abstract.Playable[];
   className?: string;
 }
 

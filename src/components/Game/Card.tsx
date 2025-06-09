@@ -42,14 +42,14 @@ export const Card = ({
     setNodeRef,
     listeners,
     transform: dragTransform,
-  } = useDraggable({ id: card.id, data: { card }, disabled: fixed });
+  } = useDraggable({ id: card.uid, data: { card }, disabled: fixed });
   useDndMonitor({
     onDragStart(event) {
-      if (event.active.id !== card.id) return;
+      if (event.active.id !== card.uid) return;
       setIsFocusing(true);
     },
     onDragEnd(event) {
-      if (event.active.id !== card.id) return;
+      if (event.active.id !== card.uid) return;
       setIsFocusing(false);
     },
   });
@@ -77,7 +77,7 @@ export const Card = ({
 
   return (
     <div
-      id={`${card.id}`}
+      id={`${card.uid}`}
       ref={setNodeRef}
       {...listeners}
       onMouseEnter={() => {

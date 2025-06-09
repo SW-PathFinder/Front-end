@@ -176,7 +176,7 @@ function getHandNumOfCard(
   myPlayer: MySaboteurPlayer,
   card: SaboteurCard.Abstract,
 ) {
-  return myPlayer.hands.findIndex((c) => c.id === card.id);
+  return myPlayer.hands.findIndex((c) => c.uid === card.uid);
 }
 
 const saboteurRequestActionMapper: {
