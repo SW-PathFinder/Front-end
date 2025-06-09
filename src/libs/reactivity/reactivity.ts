@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-// import onChange from "on-change";
-import "reflect-metadata";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import "reflect-metadata";
 
 type NestedNonFunctionKeys<
   T,
@@ -89,35 +87,9 @@ export const Reactivity = (defaultReactive = true) =>
         super(...args);
         NonReactive(this, eventTargetSymbol);
 
-        // const ignoreKeys = (
-        //   (Reflect.getMetadata(ignoreKeysMetadataKey, this) ?? []) as string[]
-        // ).reduce((acc, key) => {
-        //   if (
-        //     Reflect.getMetadata(ignoreMetadataKey, this, key) ??
-        //     defaultReactive
-        //   )
-        //     acc.push(key);
-        //   return acc;
-        // }, [] as string[]);
-
-        // return onChange(
-        //   this,
-        //   function (path, value, previousValue, applyData) {
-        //     console.log({ path, value, previousValue, applyData });
-
-        //     this[eventTargetSymbol].dispatchEvent(
-        //       new CustomEvent(`${REACTIVITY_PREFIX}any`, {
-        //         detail: { propertyKey: path, value },
-        //       }),
-        //     );
-        //   },
-        //   { ignoreDetached: true, ignoreKeys: ignoreKeys },
-        // );
-
-        return watchProperties(
+        return watch(
           this,
           (p, v) => {
-            // console.log(`Property changed: ${p} =`, v);
             this[eventTargetSymbol].dispatchEvent(
               new CustomEvent(`${REACTIVITY_PREFIX}any`, {
                 detail: { propertyKey: p, value: v },
@@ -153,13 +125,13 @@ export const Reactivity = (defaultReactive = true) =>
     };
   }) as ClassDecorator;
 
-function watchProperties<T = any>(
+function watch<T = any>(
   target: T,
   callback: (propertyKey: string | number, nextValue: any) => void,
   filter?: (target: any, targetPropertyKey: string) => boolean,
   prefix?: string,
 ): T;
-function watchProperties(
+function watch(
   target: any,
   callback: (propertyKey: string | number, nextValue: any) => void,
   filter?: (target: any, targetPropertyKey: string) => boolean,
@@ -170,22 +142,11 @@ function watchProperties(
   if (isReactive(target)) return target; // Already reactive
   Reflect.defineMetadata(reactiveMetadataKey, true, target);
 
-  if (Array.isArray(target)) {
-    watchArrayChange(target, (methodName, arr) => {
-      arr.forEach((item, index) => {
-        watchProperties(item, callback, filter, `${prefix}${index}`);
-      });
-      callback(prefix, arr);
-    });
-
-    return target;
-  }
-
   target = new Proxy(target, {
     set(target, p, newValue, receiver) {
-      if (typeof p !== "string" && typeof p !== "number") {
+      if (typeof p === "symbol")
         return Reflect.set(target, p, newValue, receiver);
-      }
+
       // console.log(
       //   `Proxy: Setting property: ${prefix}${p.toString()} to ${newValue}`,
       // );
@@ -195,13 +156,32 @@ function watchProperties(
       // unwatch previous value if it was reactive
       // TODO: revert reactivity of previous value
 
-      watchProperties(newValue, callback, filter, `${prefix}${p.toString()}.`);
+      watch(newValue, callback, filter, `${prefix}${p.toString()}.`);
 
       const result = Reflect.set(target, p, newValue, receiver);
       if (result) callback(`${prefix}${p.toString()}`, newValue);
       return result;
     },
+    deleteProperty(target, p) {
+      if (typeof p === "symbol") return Reflect.deleteProperty(target, p);
+
+      // console.log(`Proxy: Deleting property: ${prefix}${p.toString()}`);
+      const result = Reflect.deleteProperty(target, p);
+      if (result) callback(`${prefix}${p.toString()}`, undefined);
+      return result;
+    },
   });
+
+  if (Array.isArray(target)) {
+    // watchArrayChange(target, (methodName, arr) => {
+    //   arr.forEach((item, index) => {
+    //     watch(item, callback, filter, `${prefix}${index}`);
+    //   });
+    //   callback(prefix, arr);
+    // });
+
+    return target;
+  }
 
   const allKeys = [...Object.keys(target)];
   target[storeSymbol] = target[storeSymbol] || new Map();
@@ -213,7 +193,7 @@ function watchProperties(
     target[storeSymbol].set(key, value);
     const propertyKey = `${prefix}${key.toString()}`;
 
-    watchProperties(value, callback, filter, `${propertyKey}.`);
+    watch(value, callback, filter, `${propertyKey}.`);
 
     Object.defineProperty(target, key, {
       get() {
@@ -226,7 +206,7 @@ function watchProperties(
         const prev = target[storeSymbol].get(key);
         if (prev === next) return; // No change, do not trigger callback
 
-        watchProperties(next, callback, filter, `${propertyKey}.`);
+        watch(next, callback, filter, `${propertyKey}.`);
 
         target[storeSymbol].set(key, next);
         callback(propertyKey, next);
@@ -237,28 +217,33 @@ function watchProperties(
   return target;
 }
 
-const arrayMutableMethods = [
-  "push",
-  "pop",
-  "shift",
-  "unshift",
-  "splice",
-  "sort",
-  "reverse",
-];
-function watchArrayChange(
-  arr: any[],
-  callback: (methodName: string, arr: any[]) => void,
-) {
-  for (const method of arrayMutableMethods) {
-    const originalMethod = arr[method as any];
-    if (typeof originalMethod !== "function") continue;
+// TODO: Implement unwatch functionality
+// watch한
+// function unwatch<T = any>() {}
 
-    arr[method as any] = function (...args: any[]) {
-      const result = originalMethod.apply(this, args);
+// TODO: Implement array reactivity for optimization
+// const arrayMutableMethods = [
+//   "push",
+//   "pop",
+//   "shift",
+//   "unshift",
+//   "splice",
+//   "sort",
+//   "reverse",
+// ];
+// function watchArrayChange(
+//   arr: any[],
+//   callback: (methodName: string, arr: any[]) => void,
+// ) {
+//   for (const method of arrayMutableMethods) {
+//     const originalMethod = arr[method as any];
+//     if (typeof originalMethod !== "function") continue;
 
-      callback(method, this);
-      return result;
-    };
-  }
-}
+//     arr[method as any] = function (...args: any[]) {
+//       const result = originalMethod.apply(this, args);
+
+//       callback(method, this);
+//       return result;
+//     };
+//   }
+// }
