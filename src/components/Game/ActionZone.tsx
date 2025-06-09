@@ -40,9 +40,9 @@ export function ActionZone({ action, className }: ActionZoneProps) {
     "flex items-center justify-center rounded border-2 border-dashed transition-colors";
   const activeClass = isOver
     ? action === "discard"
-      ? "border-solid border-error ring-4 ring-error bg-base-300"
-      : "border-solid border-info ring-4 ring-info bg-base-300"
-    : "bg-base-200 hover:bg-base-300";
+      ? "border-solid border-error ring-4 ring-error"
+      : "border-solid border-info ring-4 ring-info"
+    : "bg-base-200/50";
 
   return (
     <div ref={setNodeRef} className={twMerge(base, className, activeClass)}>

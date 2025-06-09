@@ -27,8 +27,9 @@ const LobbyPage = () => {
       className="flex min-h-screen flex-col justify-between bg-cover bg-center"
       style={{ backgroundImage: `url(${lobby_bg})` }}
     >
-      <div className="backdrop-blur-none"></div>
-      <p className="mt-12 text-center text-5xl font-bold">Welcome! {userId}</p>
+      <p className="mt-12 text-center text-5xl font-bold">
+        환영합니다! {userId}님
+      </p>
       <div className="absolute top-8 right-8 flex gap-4">
         <RulebookButton />
         <SettingsButton />
