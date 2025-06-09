@@ -138,10 +138,17 @@ export namespace SaboteurAction {
       readonly _isConsumeCard = true as const;
     }
 
-    export class Rotate extends Request.Primitive<{
-      card: SaboteurCard.Path.AbstractCommon;
-    }> {
+    export class Rotate
+      extends Request.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
+      implements UpdateAction
+    {
       static readonly type = "rotate";
+
+      readonly _isUpdate = true as const;
+      update(gameSession: SaboteurSession): void {
+        const { card } = this.data;
+        card.flipped = !card.flipped;
+      }
     }
 
     export type ActionClass =

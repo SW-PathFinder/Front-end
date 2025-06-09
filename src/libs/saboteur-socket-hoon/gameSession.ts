@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { defaultRotatedList } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
@@ -212,13 +213,27 @@ const saboteurRequestActionMapper: {
   [T in SaboteurAction.Request.ActionType]: ActionMapper<T>;
 } = {
   path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
-    return [
+    const defaultRotated = defaultRotatedList.includes(
+      action.data.card.constructor as any,
+    );
+    const isRotated = action.data.card.flipped === defaultRotated;
+    const actions: SocketAction.Actions[] = [];
+    if (isRotated) {
+      actions.push(
+        new SocketAction.Request.RotatePath({
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        }),
+      );
+    }
+    actions.push(
       new SocketAction.Request.PlacePath({
         x: action.data.x,
         y: action.data.y,
         handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
       }),
-    ];
+    );
+
+    return actions;
   },
   destroy(
     action: SaboteurAction.Request.Destroy,
@@ -273,9 +288,9 @@ const saboteurRequestActionMapper: {
   },
   rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
     return [
-      new SocketAction.Request.RotatePath({
-        handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
-      }),
+      // new SocketAction.Request.RotatePath({
+      //   handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+      // }),
     ];
   },
 };
