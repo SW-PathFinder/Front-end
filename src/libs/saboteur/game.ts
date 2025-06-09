@@ -130,6 +130,7 @@ export class SaboteurSession implements GameSession {
     setInterval(() => {
       if (this._turnTimeLeft > 0) this._turnTimeLeft -= 1;
     }, 1000);
+
     this.adapter.onTurnStart((currentPlayerId, duration) => {
       const currentPlayerIndex = this.players.findIndex(
         (player) => player.id === currentPlayerId,
@@ -141,25 +142,23 @@ export class SaboteurSession implements GameSession {
       this._turnTimeLeft = duration;
     });
 
-    this.adapter.onOutgoing("path", (reqAction) => {
-      const card = reqAction.data.card;
+    this.adapter.onAnyOutgoing((reqAction) => {
+      if (!reqAction.isConsumeCardAction()) return;
 
+      const card = reqAction.data.card;
       const cardIndex = this.myPlayer.hands.findIndex(
         (c) => c.uid === card.uid,
       );
       if (cardIndex === -1) throw new Error("Card not found in my hands.");
 
-      const unsubscribes = [
-        this.adapter.on("exception", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-        }),
-        this.adapter.on("path", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
+      const unsubscribe = this.adapter.onAnyOutgoing((resAction) => {
+        if (reqAction.requestId !== resAction.requestId) return;
+        if (!(resAction instanceof SaboteurAction.Response.Private.Exception)) {
           this.myPlayer.removeByIndex(cardIndex);
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-        }),
-      ];
+        }
+
+        unsubscribe();
+      });
     });
 
     this.adapter.onOutgoing("rotate", (reqAction) => {

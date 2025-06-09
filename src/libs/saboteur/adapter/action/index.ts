@@ -27,6 +27,10 @@ interface FailableAction {
   onFail(gameSession: SaboteurSession): void;
 }
 
+interface ConsumeCardAction {
+  _isConsumeCard: true;
+}
+
 abstract class AbstractAction<T = unknown> {
   readonly data: T;
   readonly requestId?: string;
@@ -48,6 +52,10 @@ abstract class AbstractAction<T = unknown> {
   isFailableAction(): this is FailableAction {
     return "_isFailable" in this && !!this._isFailable;
   }
+
+  isConsumeCardAction(): this is ConsumeCardAction {
+    return "_isConsumeCard" in this && !!this._isConsumeCard;
+  }
 }
 
 export namespace SaboteurAction {
@@ -60,49 +68,77 @@ export namespace SaboteurAction {
       }
     }
 
-    export class Path extends Request.Primitive<{
-      x: number;
-      y: number;
-      card: SaboteurCard.Path.AbstractCommon;
-    }> {
+    export class Path
+      extends Request.Primitive<{
+        x: number;
+        y: number;
+        card: SaboteurCard.Path.AbstractCommon;
+      }>
+      implements ConsumeCardAction
+    {
       static readonly type = "path";
+
+      readonly _isConsumeCard = true as const;
     }
 
-    export class Destroy extends Request.Primitive<{
-      x: number;
-      y: number;
-      card: SaboteurCard.Action.Destroy;
-    }> {
+    export class Destroy
+      extends Request.Primitive<{
+        x: number;
+        y: number;
+        card: SaboteurCard.Action.Destroy;
+      }>
+      implements ConsumeCardAction
+    {
       static readonly type = "destroy";
+
+      readonly _isConsumeCard = true as const;
     }
 
-    export class Repair extends Request.Primitive<{
-      player: AbstractSaboteurPlayer;
-      card: SaboteurCard.Action.Repair;
-      tool: Tools;
-    }> {
+    export class Repair
+      extends Request.Primitive<{
+        player: AbstractSaboteurPlayer;
+        card: SaboteurCard.Action.Repair;
+        tool: Tools;
+      }>
+      implements ConsumeCardAction
+    {
       static readonly type = "repair";
+
+      readonly _isConsumeCard = true as const;
     }
 
-    export class Sabotage extends Request.Primitive<{
-      player: AbstractSaboteurPlayer;
-      card: SaboteurCard.Action.Sabotage;
-    }> {
+    export class Sabotage
+      extends Request.Primitive<{
+        player: AbstractSaboteurPlayer;
+        card: SaboteurCard.Action.Sabotage;
+      }>
+      implements ConsumeCardAction
+    {
       static readonly type = "sabotage";
+
+      readonly _isConsumeCard = true as const;
     }
 
-    export class UseMap extends Request.Primitive<{
-      x: number;
-      y: number;
-      card: SaboteurCard.Action.Map;
-    }> {
+    export class UseMap
+      extends Request.Primitive<{
+        x: number;
+        y: number;
+        card: SaboteurCard.Action.Map;
+      }>
+      implements ConsumeCardAction
+    {
       static readonly type = "useMap";
+
+      readonly _isConsumeCard = true as const;
     }
 
-    export class Discard extends Request.Primitive<{
-      card: SaboteurCard.Abstract.Playable;
-    }> {
+    export class Discard
+      extends Request.Primitive<{ card: SaboteurCard.Abstract.Playable }>
+      implements ConsumeCardAction
+    {
       static readonly type = "discard";
+
+      readonly _isConsumeCard = true as const;
     }
 
     export class Rotate extends Request.Primitive<{
