@@ -581,10 +581,14 @@ export namespace SocketAction {
                 ),
               },
               players: this.data.players.map(
-                ({ playerId: id, handCount, tool: status }) => ({
+                ({ playerId: id, handCount, tool: bannedStatus }) => ({
                   id,
                   handCount,
-                  status,
+                  status: {
+                    mineCart: !bannedStatus.mineCart,
+                    pickaxe: !bannedStatus.pickaxe,
+                    lantern: !bannedStatus.lantern,
+                  },
                 }),
               ),
               currentPlayerId: this.data.currentPlayerId,
