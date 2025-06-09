@@ -1,12 +1,10 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { Navigate } from "react-router";
 import * as yup from "yup";
-
-import { useSocketRequest } from "@/contexts/SocketContext";
 
 import { useAuth } from "../contexts/AuthContext";
 import login_bg from "/bg/saboteur_bg.png";

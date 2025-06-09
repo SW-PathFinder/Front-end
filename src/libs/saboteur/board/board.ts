@@ -187,6 +187,28 @@ export class GameBoard {
     return false;
   }
 
+  sync(
+    sparseRepresentation: {
+      x: number;
+      y: number;
+      card: SaboteurCard.Path.Abstract;
+    }[],
+  ) {
+    this._clear();
+
+    for (const { x, y, card } of sparseRepresentation) {
+      // if (card instanceof SaboteurCard.Path.AbstractDest) {
+      //   this._setCard(x, y, card);
+      //   continue;
+      // }
+
+      // const [canPlace, error] = this.canPlaceCard(x, y, card);
+      // if (!canPlace && !(error instanceof PathNotReachableError)) throw error;
+
+      this._setCard(x, y, card);
+    }
+  }
+
   private _clear(): void {
     this.grid.clear();
   }

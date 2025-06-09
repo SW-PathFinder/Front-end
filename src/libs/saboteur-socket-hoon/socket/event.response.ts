@@ -39,7 +39,10 @@ export interface ListenEvents {
 
   quick_match_result: FailableListenEvent<{ room: RoomData }>;
 
-  join_game_result: FailableListenEvent<{ room: RoomData }>;
+  join_game_result: FailableListenEvent<{
+    room: RoomData;
+    playerState: SocketAction.Response.Private.PlayerState["data"];
+  }>;
 
   player_joined: BaseListenEvent & {
     /** @description joined player id */

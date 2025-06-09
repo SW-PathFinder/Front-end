@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 import { useGameSession } from "@/contexts/GameSessionContext";
 
@@ -19,7 +19,7 @@ const RoundSummaryModal = ({
 }: RoundSummaryModalProps) => {
   const { gameSession } = useGameSession();
   const [remaining, setRemaining] = useState<number>(30);
-  const goldEarned = gameSession.myPlayer.golds.at(-1) || 0;
+  const goldEarned = gameSession.myPlayer.lastRoundGold;
   const winnerLabel = winner === "worker" ? "광부 승리!" : "방해꾼 승리!";
   const myName = gameSession.myPlayer.name;
   const isWinner = roles[myName] === winner;

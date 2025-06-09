@@ -62,6 +62,12 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
         setTimeout(() => {
           this.requestIdMap.delete(socketAction.requestId);
         }, 5000);
+
+        // console.log(
+        //   "Send Primitive game update:",
+        //   socketAction.type,
+        //   socketAction,
+        // );
         this.socket.emit("game_action", {
           room: this.roomId,
           player: this.player.id,
@@ -75,11 +81,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       if (type !== "game_update" && type !== "private_game_update") return;
 
       const socketAction = SocketAction.AbstractResponse.fromPrimitive(data);
-      console.log(
-        "Received Premitive game update:",
-        socketAction.type,
-        socketAction,
-      );
+      // console.log(
+      //   "Received Primitive game update:",
+      //   socketAction.type,
+      //   socketAction,
+      // );
       const matchedRequestAction = socketAction.requestId
         ? this.requestIdMap.get(socketAction.requestId)
         : undefined;
@@ -94,7 +100,6 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     socketAction: SocketAction.AbstractResponse,
     matchedRequestAction?: SaboteurAction.Request.Actions,
   ) {
-    console.log("Send Premitive game update:", socketAction.type, socketAction);
     const actions = socketAction.toSaboteurAction(matchedRequestAction);
 
     for (const action of actions) {
@@ -220,20 +225,20 @@ const saboteurRequestActionMapper: {
   [T in SaboteurAction.Request.ActionType]: ActionMapper<T>;
 } = {
   path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
-    const isRotated = action.data.card.flipped;
+    const { card } = action.data;
     const actions: SocketAction.Actions[] = [];
-    if (isRotated) {
-      actions.push(
-        new SocketAction.Request.RotatePath({
-          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
-        }),
-      );
-    }
+    // if (card.flipped) {
+    //   actions.push(
+    //     new SocketAction.Request.RotatePath({
+    //       handNum: getHandNumOfCard(gameSession.myPlayer, card),
+    //     }),
+    //   );
+    // }
     actions.push(
       new SocketAction.Request.PlacePath({
         x: action.data.x,
         y: action.data.y,
-        handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        handNum: getHandNumOfCard(gameSession.myPlayer, card),
       }),
     );
 
@@ -293,9 +298,9 @@ const saboteurRequestActionMapper: {
   rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
     console.log(action, gameSession);
     return [
-      // new SocketAction.Request.RotatePath({
-      //   handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
-      // }),
+      new SocketAction.Request.RotatePath({
+        handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+      }),
     ];
   },
 };

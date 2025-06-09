@@ -32,5 +32,5 @@ export interface GameRoomAdapter {
     callback: (gameSession: GameSession) => void,
   ): UnsubscribeCallback;
 
-  // getGameSession(): GameSession | null;
+  createGameSession(players: GameRoomPlayer[]): GameSession;
 }

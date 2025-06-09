@@ -19,23 +19,7 @@ export const GameRoomProvider = ({
   gameRoom,
   children,
 }: PropsWithChildren<{ gameRoom: SaboteurRoom }>) => {
-  // const socket = useSocket();
-  const [gameSession, setGameSession] = useState<SaboteurSession | null>(null);
-  useEffect(() => {
-    console.log("GameRoomProvider", gameRoom, gameSession);
-  }, [gameRoom, gameSession]);
-
-  useEffect(() => {
-    const unsubscribes = [
-      gameRoom.adapter.onGameSessionStart((gameSession) => {
-        setGameSession(gameSession);
-      }),
-    ];
-
-    return () => {
-      for (const unsubscribe of unsubscribes) unsubscribe();
-    };
-  }, [gameRoom]);
+  const gameSession = gameRoom.gameSession;
 
   return (
     <GameRoomContext value={{ gameRoom, gameSession }}>
