@@ -57,16 +57,6 @@ export namespace PathCard {
         card.isOpen(CardinalDirection.rotateHalf(direction))
       );
     }
-
-    isSame(card: AbstractCard): card is PathCard.Abstract {
-      return (
-        super.isSame(card) &&
-        card instanceof PathCard.Abstract &&
-        this.destructible === card.destructible &&
-        this.roads.length === card.roads.length &&
-        this.roads.every((road, index) => road === card.roads[index])
-      );
-    }
   }
 
   export abstract class AbstractCommon
