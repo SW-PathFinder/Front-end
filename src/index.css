@@ -1,6 +1,26 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@font-face {
+  font-family: 'MyFont';
+  src: url('/fonts/NeoDunggeunmoPro-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@theme {
+  --font-display: 'MyFont';
+}
+
 body {
   overflow: hidden;
+  font-family: 'MyFont', sans-serif;
+}
+
+.card-hover-style {
+  @apply hover:border-warning hover:hover:shadow-lg hover:ring-2 ring-warning hover:bg-gray-900;
+}
+
+.card-style {
+  @apply relative flex flex-1 cursor-pointer flex-col rounded-2xl border-6 border-neutral bg-neutral-800/50 p-4 transition-all duration-300;
 }

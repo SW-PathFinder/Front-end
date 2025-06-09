@@ -49,7 +49,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
 
   return (
     <dialog open className="modal" onCancel={onClose} onClose={onClose}>
-      <div className="relative modal-box w-1/2 min-w-md">
+      <div className="relative modal-box w-1/2 min-w-md bg-neutral-900">
         {/* 닫기 버튼 */}
         <form method="dialog">
           <button
@@ -103,7 +103,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
         <div className="modal-action flex justify-center">
           <button
             type="button"
-            className="btn w-full btn-primary"
+            className="btn w-full btn-soft btn-primary"
             onClick={() => {
               if (value.length === 4) {
                 clickSearch();

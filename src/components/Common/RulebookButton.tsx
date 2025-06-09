@@ -8,14 +8,14 @@ export const RulebookButton = () => {
       <button onClick={() => setOpen(true)}>
         <img
           className="h-16 w-16 hover:cursor-pointer"
-          src="/buttons/rule_button.svg"
+          src="/buttons/rulebook.png"
           alt="rule book"
         />
       </button>
       {open && (
         <div className="modal-open modal" onClick={() => setOpen(false)}>
           <div
-            className="relative modal-box max-w-3xl bg-base-300"
+            className="relative modal-box max-w-3xl bg-neutral-900"
             onClick={(e) => e.stopPropagation()}
           >
             <button
