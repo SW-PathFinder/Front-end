@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { defaultRotatedList } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
@@ -63,6 +62,12 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
         setTimeout(() => {
           this.requestIdMap.delete(socketAction.requestId);
         }, 5000);
+
+        // console.log(
+        //   "Send Primitive game update:",
+        //   socketAction.type,
+        //   socketAction,
+        // );
         this.socket.emit("game_action", {
           room: this.roomId,
           player: this.player.id,
@@ -76,11 +81,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       if (type !== "game_update" && type !== "private_game_update") return;
 
       const socketAction = SocketAction.AbstractResponse.fromPrimitive(data);
-      console.log(
-        "Received Premitive game update:",
-        socketAction.type,
-        socketAction,
-      );
+      // console.log(
+      //   "Received Primitive game update:",
+      //   socketAction.type,
+      //   socketAction,
+      // );
       const matchedRequestAction = socketAction.requestId
         ? this.requestIdMap.get(socketAction.requestId)
         : undefined;
@@ -95,7 +100,6 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     socketAction: SocketAction.AbstractResponse,
     matchedRequestAction?: SaboteurAction.Request.Actions,
   ) {
-    console.log("Send Premitive game update:", socketAction.type, socketAction);
     const actions = socketAction.toSaboteurAction(matchedRequestAction);
 
     for (const action of actions) {
@@ -221,15 +225,12 @@ const saboteurRequestActionMapper: {
   [T in SaboteurAction.Request.ActionType]: ActionMapper<T>;
 } = {
   path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
-    const defaultRotated = defaultRotatedList.includes(
-      action.data.card.constructor as any,
-    );
-    const isRotated = action.data.card.flipped === defaultRotated;
+    const { card } = action.data;
     const actions: SocketAction.Actions[] = [];
-    if (isRotated) {
+    if (card.flipped) {
       actions.push(
         new SocketAction.Request.RotatePath({
-          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+          handNum: getHandNumOfCard(gameSession.myPlayer, card),
         }),
       );
     }
@@ -237,7 +238,7 @@ const saboteurRequestActionMapper: {
       new SocketAction.Request.PlacePath({
         x: action.data.x,
         y: action.data.y,
-        handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        handNum: getHandNumOfCard(gameSession.myPlayer, card),
       }),
     );
 
