@@ -230,23 +230,16 @@ export namespace SocketAction {
       }> {
         static readonly type = "path";
 
-        toSaboteurAction(requestAction?: SaboteurAction.Request.Actions) {
+        toSaboteurAction() {
           const [x, y] = FixedArrayGrid2d.absoluteToRelative(
             this.data.y,
             this.data.x,
           );
 
-          let card = transformIdToCard(
+          const card = transformIdToCard(
             this.data.card,
             this.data.reverse,
           ) as SaboteurCard.Path.AbstractCommon;
-          if (
-            requestAction &&
-            "card" in requestAction.data &&
-            requestAction.data.card.isSame(card)
-          ) {
-            card = requestAction.data.card as typeof card;
-          }
 
           return [
             new SaboteurAction.Response.Public.Discard({

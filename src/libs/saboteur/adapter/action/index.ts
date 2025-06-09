@@ -398,15 +398,15 @@ export namespace SaboteurAction {
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { card } = this.data;
-          const cardInDeck = gameSession.cardPool.removeByKind(card);
-          if (!cardInDeck) {
-            // // eslint-disable-next-line no-debugger
-            // debugger;
-            throw new Error(
-              `Card ${this.data.card.type} not found in the deck for draw.`,
-            );
-          }
-          gameSession.myPlayer.append(cardInDeck);
+          // const cardInDeck = gameSession.cardPool.removeByKind(card);
+          // if (!cardInDeck) {
+          //   // // eslint-disable-next-line no-debugger
+          //   // debugger;
+          //   throw new Error(
+          //     `Card ${this.data.card.type} not found in the deck for draw.`,
+          //   );
+          // }
+          gameSession.myPlayer.append(card);
         }
       }
 
