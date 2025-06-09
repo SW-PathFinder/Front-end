@@ -63,11 +63,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
           this.requestIdMap.delete(socketAction.requestId);
         }, 5000);
 
-        // console.log(
-        //   "Send Primitive game update:",
-        //   socketAction.type,
-        //   socketAction,
-        // );
+        console.log(
+          "Send Primitive game update:",
+          socketAction.type,
+          socketAction,
+        );
         this.socket.emit("game_action", {
           room: this.roomId,
           player: this.player.id,
@@ -81,11 +81,11 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
       if (type !== "game_update" && type !== "private_game_update") return;
 
       const socketAction = SocketAction.AbstractResponse.fromPrimitive(data);
-      // console.log(
-      //   "Received Primitive game update:",
-      //   socketAction.type,
-      //   socketAction,
-      // );
+      console.log(
+        "Received Primitive game update:",
+        socketAction.type,
+        socketAction,
+      );
       const matchedRequestAction = socketAction.requestId
         ? this.requestIdMap.get(socketAction.requestId)
         : undefined;
@@ -296,7 +296,6 @@ const saboteurRequestActionMapper: {
     ];
   },
   rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
-    console.log(action, gameSession);
     return [
       new SocketAction.Request.RotatePath({
         handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),

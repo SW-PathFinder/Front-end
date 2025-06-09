@@ -170,24 +170,23 @@ export namespace SaboteurAction {
 
     export namespace Public {
       export class Path
-        extends Response.Primitive<{
-          x: number;
-          y: number;
-          card: SaboteurCard.Path.AbstractCommon;
-        }>
+        extends Response.Primitive<{ handNum: number; x: number; y: number }>
         implements UpdateAction
       {
         static readonly type = "path";
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { x, y, card } = this.data;
+          const { handNum, x, y } = this.data;
+          const card = gameSession.myPlayer.hands[
+            handNum
+          ] as SaboteurCard.Path.AbstractCommon;
           gameSession.board.placeCard(x, y, card);
         }
       }
 
       export class Destroy
-        extends Response.Primitive<{ x: number; y: number }>
+        extends Response.Primitive<{ handNum: number; x: number; y: number }>
         implements UpdateAction
       {
         static readonly type = "destroy";
@@ -200,7 +199,11 @@ export namespace SaboteurAction {
       }
 
       export class Repair
-        extends Response.Primitive<{ tool: Tools; playerId: string }>
+        extends Response.Primitive<{
+          handNum: number;
+          tool: Tools;
+          playerId: string;
+        }>
         implements UpdateAction
       {
         static readonly type = "repair";
@@ -217,7 +220,11 @@ export namespace SaboteurAction {
       }
 
       export class Sabotage
-        extends Response.Primitive<{ tool: Tools; playerId: string }>
+        extends Response.Primitive<{
+          handNum: number;
+          tool: Tools;
+          playerId: string;
+        }>
         implements UpdateAction
       {
         static readonly type = "sabotage";
@@ -234,7 +241,7 @@ export namespace SaboteurAction {
       }
 
       export class UseMap
-        extends Response.Primitive<{ x: number; y: number }>
+        extends Response.Primitive<{ handNum: number; x: number; y: number }>
         implements UpdateAction
       {
         static readonly type = "useMap";
@@ -247,17 +254,17 @@ export namespace SaboteurAction {
       }
 
       export class Discard
-        extends Response.Primitive<{ handIndex: number }>
+        extends Response.Primitive<{ handNum: number }>
         implements UpdateAction
       {
         static readonly type = "discard";
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { handIndex } = this.data;
+          const { handNum } = this.data;
           if (gameSession.currentPlayer.isMe()) {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
-            gameSession.currentPlayer.removeByIndex(handIndex);
+            gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
             gameSession.cardPool.addUnknownUsedCardCount(1);
             if (
@@ -431,15 +438,18 @@ export namespace SaboteurAction {
       }
 
       export class Rotate
-        extends Response.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
+        extends Response.Primitive<{ handNum: number }>
         implements UpdateAction
       {
         static readonly type = "rotate";
 
         readonly _isUpdate = true as const;
-        update(): void {
-          const { card } = this.data;
-          card.flipped = !card.flipped;
+        update(gameSession: SaboteurSession): void {
+          const { handNum } = this.data;
+          const card = gameSession.myPlayer.hands[handNum];
+          if (card instanceof SaboteurCard.Path.AbstractCommon) {
+            card.flipped = !card.flipped;
+          }
         }
       }
 

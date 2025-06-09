@@ -236,16 +236,15 @@ export namespace SocketAction {
             this.data.x,
           );
 
-          const card = transformIdToCard(
-            this.data.card,
-            this.data.reverse,
-          ) as SaboteurCard.Path.AbstractCommon;
-
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
+            new SaboteurAction.Response.Public.Path({
+              handNum: this.data.handNum,
+              x,
+              y,
             }),
-            new SaboteurAction.Response.Public.Path({ x, y, card }),
+            new SaboteurAction.Response.Public.Discard({
+              handNum: this.data.handNum,
+            }),
           ];
         }
       }
@@ -263,10 +262,14 @@ export namespace SocketAction {
             this.data.x,
           );
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
+            new SaboteurAction.Response.Public.Destroy({
+              handNum: this.data.handNum,
+              x,
+              y,
             }),
-            new SaboteurAction.Response.Public.Destroy({ x, y }),
+            new SaboteurAction.Response.Public.Discard({
+              handNum: this.data.handNum,
+            }),
           ];
         }
       }
@@ -281,12 +284,13 @@ export namespace SocketAction {
 
         toSaboteurAction() {
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
-            }),
             new SaboteurAction.Response.Public.Sabotage({
+              handNum: this.data.handNum,
               tool: this.data.cardType,
               playerId: this.data.target,
+            }),
+            new SaboteurAction.Response.Public.Discard({
+              handNum: this.data.handNum,
             }),
           ];
         }
@@ -302,12 +306,13 @@ export namespace SocketAction {
 
         toSaboteurAction() {
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
-            }),
             new SaboteurAction.Response.Public.Repair({
+              handNum: this.data.handNum,
               tool: this.data.cardType,
               playerId: this.data.target,
+            }),
+            new SaboteurAction.Response.Public.Discard({
+              handNum: this.data.handNum,
             }),
           ];
         }
@@ -326,10 +331,14 @@ export namespace SocketAction {
             absoluteY,
           );
           return [
-            new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
+            new SaboteurAction.Response.Public.UseMap({
+              handNum: this.data.handNum,
+              x,
+              y,
             }),
-            new SaboteurAction.Response.Public.UseMap({ x, y }),
+            new SaboteurAction.Response.Public.Discard({
+              handNum: this.data.handNum,
+            }),
           ];
         }
       }
@@ -342,7 +351,7 @@ export namespace SocketAction {
         toSaboteurAction(): [SaboteurAction.Response.Public.Discard] {
           return [
             new SaboteurAction.Response.Public.Discard({
-              handIndex: this.data.handNum,
+              handNum: this.data.handNum,
             }),
           ];
         }
@@ -498,6 +507,7 @@ export namespace SocketAction {
       }
 
       export class RotatePathCard extends AbstractPrivateResponse<{
+        handNum: number;
         card: number;
       }> {
         static readonly type = "reversePath";
@@ -505,9 +515,7 @@ export namespace SocketAction {
         toSaboteurAction(): [SaboteurAction.Response.Private.Rotate] {
           return [
             new SaboteurAction.Response.Private.Rotate({
-              card: transformIdToCard(
-                this.data.card,
-              ) as SaboteurCard.Path.AbstractCommon,
+              handNum: this.data.handNum,
             }),
           ];
         }

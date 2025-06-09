@@ -57,7 +57,7 @@ export class GameBoard {
   }
 
   placeCard(x: number, y: number, card: SaboteurCard.Path.Abstract): void {
-    const [canPlace, error] = this.canPlaceCard(x, y, card);
+    const [canPlace] = this.canPlaceCard(x, y, card);
     // if (!canPlace) throw error;
     console.log(
       `XXX Placing card at (${x}, ${y}): ${canPlace ? "Success" : "Failed"} ${card.image}, ${card.flipped} , card
