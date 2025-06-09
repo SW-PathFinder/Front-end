@@ -478,7 +478,7 @@ export namespace SaboteurAction {
         update(gameSession: SaboteurSession): void {
           console.log(gameSession);
           const { gold } = this.data;
-          gameSession.myPlayer.gold += gold;
+          gameSession.myPlayer.golds.push(gold);
         }
       }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
@@ -46,13 +46,12 @@ const Game = () => {
   }, [gameSession.board, destInfo]);
 
   // 라운드 종료 모달
-  const [isRoundEnd, setIsRoundEnd] = useState(false);
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
+  const isRoundEnd = roundResult !== null;
 
   useEffect(() => {
     // 라운드 종료 시
     gameSession.adapter.on("roundEnd", (action) => {
-      setIsRoundEnd(true);
       setDestInfo(null);
       setDestCard(null);
       setDestModalOpen(false);
@@ -202,10 +201,10 @@ const Game = () => {
           {isRoundEnd && (
             <RoundSummaryModal
               isOpen={isRoundEnd}
-              onClose={() => setIsRoundEnd(false)}
-              currentRound={roundResult?.currentRound ?? 0}
-              winner={roundResult?.winner ?? "worker"}
-              roles={roundResult?.roles ?? {}}
+              onClose={() => setRoundResult(null)}
+              currentRound={roundResult.currentRound}
+              winner={roundResult.winner}
+              roles={roundResult.roles}
             />
           )}
           {isGameEnd && isRoundEnd === false && (

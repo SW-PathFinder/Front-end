@@ -19,8 +19,10 @@ const RoundSummaryModal = ({
 }: RoundSummaryModalProps) => {
   const { gameSession } = useGameSession();
   const [remaining, setRemaining] = useState<number>(30);
-  const [goldEarned, setGoldEarned] = useState<number>(0); // Placeholder for gold earned, should be set based on game logic
-  const currentUser = gameSession.myPlayer.name;
+  const goldEarned = gameSession.myPlayer.golds.at(-1) || 0;
+  const winnerLabel = winner === "worker" ? "광부 승리!" : "방해꾼 승리!";
+  const myName = gameSession.myPlayer.name;
+  const isWinner = roles[myName] === winner;
 
   useEffect(() => {
     if (isOpen) setRemaining(30);
@@ -37,11 +39,6 @@ const RoundSummaryModal = ({
   }, [isOpen, remaining, onClose]);
 
   if (!isOpen) return null;
-
-  const winnerLabel = winner === "worker" ? "광부 승리!" : "방해꾼 승리!";
-
-  const currentRole = roles[currentUser];
-  const isWinner = currentRole === winner;
 
   return (
     <dialog open className="modal-open modal">
@@ -66,7 +63,7 @@ const RoundSummaryModal = ({
             {Object.entries(roles).map(([name, role]) => (
               <li key={name} className="flex items-center justify-between">
                 <span>
-                  {name} {gameSession.myPlayer.name === name ? "(나)" : ""}
+                  {name} {myName === name ? "(나)" : ""}
                 </span>
                 <span
                   className={
@@ -84,7 +81,7 @@ const RoundSummaryModal = ({
 
         <div className="mb-2 text-center">
           {isWinner ? (
-            <p className="text-primary">
+            <p className="text-warning">
               획득한 금액: <span className="font-bold">{goldEarned} 골드</span>
             </p>
           ) : (

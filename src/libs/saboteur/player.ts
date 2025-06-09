@@ -86,7 +86,7 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
 }
 
 export class MySaboteurPlayer extends AbstractSaboteurPlayer {
-  gold: number;
+  golds: number[] = [];
 
   role: PlayerRole | null;
   private _hands: SaboteurCard.Abstract.Playable[];
@@ -94,17 +94,21 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   constructor({
     role,
     hands = [],
-    gold = 0,
+    golds = [],
     ...options
   }: AbstractPlayerOption & {
     role?: PlayerRole;
     hands?: SaboteurCard.Abstract.Playable[];
-    gold?: number;
+    golds?: number[];
   }) {
     super(options);
-    this.gold = gold;
+    this.golds = golds;
     this.role = role ?? null;
     this._hands = hands;
+  }
+
+  get gold(): number {
+    return this.golds.reduce((total, gold) => total + gold, 0);
   }
 
   get hands(): ReadonlyArray<SaboteurCard.Abstract.Playable> {
