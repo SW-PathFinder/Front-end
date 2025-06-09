@@ -111,7 +111,7 @@ export const Reactivity = (defaultReactive = true) =>
 
       on(propertyKey: any, callback: (property: any) => void): void {
         this.onAny((p, v) => {
-          if (p === propertyKey) callback(v);
+          if (String(p).startsWith(String(propertyKey))) callback(v);
         });
       }
 
@@ -127,13 +127,13 @@ export const Reactivity = (defaultReactive = true) =>
 
 function watch<T = any>(
   target: T,
-  callback: (propertyKey: string | number, nextValue: any) => void,
+  callback: (propertyKey: string, nextValue: any) => void,
   filter?: (target: any, targetPropertyKey: string) => boolean,
   prefix?: string,
 ): T;
 function watch(
   target: any,
-  callback: (propertyKey: string | number, nextValue: any) => void,
+  callback: (propertyKey: string, nextValue: any) => void,
   filter?: (target: any, targetPropertyKey: string) => boolean,
   prefix = "",
 ) {
@@ -141,10 +141,11 @@ function watch(
   if (Object.getPrototypeOf(target) === null) return target;
   if (isReactive(target)) return target; // Already reactive
   Reflect.defineMetadata(reactiveMetadataKey, true, target);
+  // console.log("Reactivity: watch", prefix, target);
 
   target = new Proxy(target, {
     set(target, p, newValue, receiver) {
-      if (typeof p === "symbol")
+      if (typeof p === "symbol" || (filter && !filter(target, p)))
         return Reflect.set(target, p, newValue, receiver);
 
       // console.log(
@@ -156,7 +157,7 @@ function watch(
       // unwatch previous value if it was reactive
       // TODO: revert reactivity of previous value
 
-      watch(newValue, callback, filter, `${prefix}${p.toString()}.`);
+      newValue = watch(newValue, callback, filter, `${prefix}${p.toString()}.`);
 
       const result = Reflect.set(target, p, newValue, receiver);
       if (result) callback(`${prefix}${p.toString()}`, newValue);
@@ -172,28 +173,16 @@ function watch(
     },
   });
 
-  if (Array.isArray(target)) {
-    // watchArrayChange(target, (methodName, arr) => {
-    //   arr.forEach((item, index) => {
-    //     watch(item, callback, filter, `${prefix}${index}`);
-    //   });
-    //   callback(prefix, arr);
-    // });
-
-    return target;
-  }
-
   const allKeys = [...Object.keys(target)];
   target[storeSymbol] = target[storeSymbol] || new Map();
 
   for (const key of allKeys) {
     if (filter && !filter(target, key)) continue;
 
-    const value = target[key];
-    target[storeSymbol].set(key, value);
     const propertyKey = `${prefix}${key.toString()}`;
+    const value = watch(target[key], callback, filter, `${propertyKey}.`);
 
-    watch(value, callback, filter, `${propertyKey}.`);
+    target[storeSymbol].set(key, value);
 
     Object.defineProperty(target, key, {
       get() {
@@ -214,6 +203,15 @@ function watch(
     });
   }
 
+  if (Array.isArray(target)) {
+    watchArrayChange(target, (methodName, arr) => {
+      arr.forEach((item, index) => {
+        watch(item, callback, filter, `${prefix}${index}`);
+      });
+      callback(prefix, arr);
+    });
+  }
+
   return target;
 }
 
@@ -222,28 +220,28 @@ function watch(
 // function unwatch<T = any>() {}
 
 // TODO: Implement array reactivity for optimization
-// const arrayMutableMethods = [
-//   "push",
-//   "pop",
-//   "shift",
-//   "unshift",
-//   "splice",
-//   "sort",
-//   "reverse",
-// ];
-// function watchArrayChange(
-//   arr: any[],
-//   callback: (methodName: string, arr: any[]) => void,
-// ) {
-//   for (const method of arrayMutableMethods) {
-//     const originalMethod = arr[method as any];
-//     if (typeof originalMethod !== "function") continue;
+const arrayMutableMethods = [
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "splice",
+  "sort",
+  "reverse",
+];
+function watchArrayChange(
+  arr: any[],
+  callback: (methodName: string, arr: any[]) => void,
+) {
+  for (const method of arrayMutableMethods) {
+    const originalMethod = arr[method as any];
+    if (typeof originalMethod !== "function") continue;
 
-//     arr[method as any] = function (...args: any[]) {
-//       const result = originalMethod.apply(this, args);
+    arr[method as any] = function (...args: any[]) {
+      const result = originalMethod.apply(this, args);
 
-//       callback(method, this);
-//       return result;
-//     };
-//   }
-// }
+      callback(method, this);
+      return result;
+    };
+  }
+}

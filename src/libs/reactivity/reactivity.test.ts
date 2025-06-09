@@ -31,7 +31,7 @@ class TestClass {
 }
 interface TestClass extends ReactiveObject {}
 
-it("should tract property changes", () => {
+it("can watch property changes", () => {
   const instance = new TestClass();
 
   let changedValue = null;
@@ -45,7 +45,7 @@ it("should tract property changes", () => {
   expect(changedValue).toBe(instance.stringProp);
 });
 
-it("should not tract unchanged properties", () => {
+it("shoucan watch unchanged properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
@@ -59,7 +59,7 @@ it("should not tract unchanged properties", () => {
   expect(changedValue).toBeNull();
 });
 
-it("should not tract unwanted properties", () => {
+it("shoucan watch unwanted properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
@@ -73,7 +73,7 @@ it("should not tract unwanted properties", () => {
   expect(changedValue).toBeNull();
 });
 
-it("should tract property changes by method call", () => {
+it("can watch property changes by method call", () => {
   const instance = new TestClass();
 
   let changedValue = null;
@@ -87,7 +87,7 @@ it("should tract property changes by method call", () => {
   expect(changedValue).toBe(instance.numberProp);
 });
 
-it("should tract only not ignored properties", () => {
+it("can watch only not ignored properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
@@ -126,6 +126,8 @@ it("should track newly added properties", () => {
   const instance = new TestClass();
   instance.objectProp.newKey = { newVal: "oldValue" };
 
+  console.log(instance.objectProp);
+
   let changedValue = null;
   instance.on("objectProp.newKey.newVal", (value) => {
     changedValue = value;
@@ -163,7 +165,6 @@ it("should not track removed properties", () => {
 describe("Reactive array", () => {
   @Reactivity()
   class TestArray {
-    @Reactive
     public items: string[] = ["item1", "item2"];
   }
   interface TestArray extends ReactiveObject {}
@@ -193,6 +194,29 @@ describe("Reactive array", () => {
     instance.items[0] = "newItem1";
 
     expect(instance.items[0]).toBe("newItem1");
+    expect(changedValue).toBe("newItem1");
+  });
+
+  @Reactivity()
+  class TestArray2 {
+    public items: string[][] = [
+      ["item1", "item2", "item3"],
+      ["item4", "item5"],
+    ];
+  }
+  interface TestArray2 extends ReactiveObject {}
+
+  it("should track array in array changes", () => {
+    const instance = new TestArray2();
+
+    let changedValue = null;
+    instance.on("items.0.0", (value) => {
+      changedValue = value;
+    });
+
+    instance.items[0][0] = "newItem1";
+
+    expect(instance.items[0][0]).toBe("newItem1");
     expect(changedValue).toBe("newItem1");
   });
 });
