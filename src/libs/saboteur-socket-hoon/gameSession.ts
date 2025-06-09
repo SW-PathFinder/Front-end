@@ -16,7 +16,7 @@ type RequestActionEvent = CustomEvent<{
 }>;
 type ResponseActionEvent = CustomEvent<{
   action: SaboteurAction.Response.Actions;
-  socketAction: SocketAction.Response.Actions;
+  socketAction: SocketAction.AbstractResponse;
   matchedRequestAction?: SaboteurAction.Request.Actions;
 }>;
 
@@ -87,7 +87,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
   }
 
   private performIn(
-    socketAction: SocketAction.Response.Actions,
+    socketAction: SocketAction.AbstractResponse,
     matchedRequestAction?: SaboteurAction.Request.Actions,
   ) {
     const actions = socketAction.toSaboteurAction(matchedRequestAction);
