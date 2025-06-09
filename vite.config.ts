@@ -7,5 +7,4 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: [{ find: "@/", replacement: "/src/" }] },
-  base: "/path-finder/",
 });
