@@ -69,7 +69,7 @@ const RoundSummaryModal = ({
                       : "font-semibold"
                   }
                 >
-                  {name} {myName === name ? "(나)" : ""}
+                  {name} {myName === name && "(나)"}
                 </span>
                 <span
                   className={
