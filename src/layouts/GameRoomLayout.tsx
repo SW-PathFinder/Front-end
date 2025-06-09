@@ -21,13 +21,18 @@ export const GameRoomLayout = () => {
 
   // reconnect previous game room if exists
   const params = useParams<{ roomId?: string }>();
-  const joinExistRoom = useSocketRequest("join_game", "join_game_result");
+  const joinExistRoom = useSocketRequest("join_game", [
+    "join_game_result",
+    "error",
+  ]);
 
   const connectExistingRoom = useCallback(
     async (userId: string, roomId: string) => {
       try {
         setIsLoading(true);
         const result = await joinExistRoom({ player: userId, room: roomId });
+        if (result.event === "error") throw new Error(result.data);
+
         setGameRoom({
           id: result.data.room.room_id,
           players: result.data.room.players.map((pid) => ({

@@ -85,8 +85,7 @@ export interface ListenEvents {
     message: string;
   };
 
-  // error: (data: { id: number;
-  // success: false; message: string; requestId?: string }) => void;
+  error: { id: number; success: false; message: string; requestId?: string };
 }
 
 export type ListenEventType = keyof ListenEvents;
