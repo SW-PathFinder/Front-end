@@ -1,3 +1,5 @@
+import { v7 } from "uuid";
+
 import { SaboteurCard } from "../../cards";
 import { SaboteurSession } from "../../game";
 import {
@@ -64,7 +66,7 @@ export namespace SaboteurAction {
       readonly eventType = "request";
 
       constructor(data: T) {
-        super(data, crypto.randomUUID());
+        super(data, v7());
       }
     }
 

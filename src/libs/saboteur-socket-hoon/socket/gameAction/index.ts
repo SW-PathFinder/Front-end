@@ -1,3 +1,5 @@
+import { v7 } from "uuid";
+
 import { transformIdToCard } from "@/libs/saboteur-socket-hoon/card";
 import { FixedArrayGrid2d } from "@/libs/saboteur-socket-hoon/fixedGrid2d";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
@@ -44,7 +46,7 @@ export namespace SocketAction {
 
     constructor(data: T, requestId?: string) {
       super(data);
-      this.requestId = requestId ?? crypto.randomUUID();
+      this.requestId = requestId ?? v7();
     }
 
     toPrimitive(): Request.Primitive {
