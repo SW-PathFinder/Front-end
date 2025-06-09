@@ -51,6 +51,11 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
   resetRoundState(): void {
     this._status = { lantern: true, pickaxe: true, mineCart: true };
   }
+
+  sync(data: { status?: Partial<Record<Tools, boolean>> }): void {
+    if (data.status !== undefined)
+      this._status = { ...this._status, ...data.status };
+  }
 }
 
 export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
@@ -67,6 +72,14 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
   resetRoundState(): void {
     super.resetRoundState();
     this.handCount = 0;
+  }
+
+  sync(data: {
+    status?: Partial<Record<Tools, boolean>>;
+    handCount?: number;
+  }): void {
+    super.sync(data);
+    if (data.handCount !== undefined) this.handCount = data.handCount;
   }
 
   static readonly handCountPerPlayersMap: Record<number, number> = {
@@ -152,7 +165,20 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
 
   resetRoundState(): void {
     super.resetRoundState();
-    this._hands = [];
     this.role = null;
+    this._hands = [];
+  }
+
+  sync(data: {
+    status?: Partial<Record<Tools, boolean>>;
+    gold?: number;
+    role?: PlayerRole | null;
+    hands?: SaboteurCard.Abstract.Playable[];
+  }): void {
+    super.sync(data);
+
+    if (data.gold !== undefined) this.gold = data.gold;
+    if (data.role !== undefined) this.role = data.role;
+    if (data.hands !== undefined) this._hands = data.hands;
   }
 }

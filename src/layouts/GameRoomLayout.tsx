@@ -32,6 +32,7 @@ export const GameRoomLayout = () => {
           isPublic: result.data.room.is_public,
           cardHelper: result.data.room.card_helper,
           sessionExists: result.data.room.is_started,
+          playerState: result.data.playerState,
         });
       } finally {
         setIsLoading(false);

@@ -1,24 +1,40 @@
+import { AbstractSaboteurPlayer } from "@/libs/saboteur/player";
+
 import { Tools } from "../types";
 import { SaboteurCard } from "./index";
 
-export class SaboteurDeck {
-  cards: SaboteurCard.Abstract.Playable[] = [];
+export class SaboteurCardPool {
+  private readonly _cards: SaboteurCard.Abstract.Playable[] =
+    SaboteurCardPool.init();
+  private unknownUsedCardCount: number = 0;
+  private _usedCards: SaboteurCard.Abstract.Playable[] = [];
 
   constructor() {
     this.reset();
   }
 
-  reset(): void {
-    this.cards = SaboteurDeck.init();
-    this.shuffle();
+  get cards(): ReadonlyArray<SaboteurCard.Abstract.Playable> {
+    return this._cards.filter(
+      (card) => !this._usedCards.some((usedCard) => usedCard.isSame(card)),
+    );
   }
 
-  shuffle(): void {
-    for (let i = this.cards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-    }
+  getRemainingCount(): number {
+    return this._cards.length - this.unknownUsedCardCount;
   }
+
+  reset(): void {
+    // this.shuffle();
+    this._usedCards = [];
+    this.unknownUsedCardCount = 0;
+  }
+
+  // shuffle(): void {
+  //   for (let i = this.cards.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+  //   }
+  // }
 
   findByUid(card: SaboteurCard.Abstract.Playable): number {
     return this.cards.findIndex((c) => c.uid === card.uid);
@@ -31,11 +47,12 @@ export class SaboteurDeck {
   protected removeByIndex(
     index: number,
   ): SaboteurCard.Abstract.Playable | undefined {
-    if (index < 0 || index >= this.cards.length) {
-      return undefined;
-    }
+    if (index < 0 || index >= this.cards.length) return undefined;
 
-    return this.cards.splice(index, 1)[0];
+    const card = this.cards[index];
+    this._usedCards.push(card);
+
+    return card;
   }
 
   removeByUid(
@@ -52,8 +69,26 @@ export class SaboteurDeck {
     return this.removeByIndex(index);
   }
 
-  drawOnTop(): SaboteurCard.Abstract.Playable | undefined {
-    return this.cards.pop();
+  // drawOnTop(): SaboteurCard.Abstract.Playable | undefined {
+  //   const card = this.cards.at(-1);
+  //   if (card) this._usedCards.push(card);
+  //   return card;
+  // }
+
+  sync(
+    cardsUsed: SaboteurCard.Abstract.Playable[],
+    players: AbstractSaboteurPlayer[],
+  ) {
+    this.reset();
+    this._usedCards.push(...cardsUsed);
+
+    for (const player of players) {
+      if (player.isMe()) {
+        this._usedCards.push(...player.hands);
+      } else {
+        this.unknownUsedCardCount += player.handCount;
+      }
+    }
   }
 
   protected static init(): SaboteurCard.Abstract.Playable[] {

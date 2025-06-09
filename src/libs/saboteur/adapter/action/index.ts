@@ -383,7 +383,7 @@ export namespace SaboteurAction {
           gameSession.round = round;
 
           hands.forEach((card) => {
-            const cardInDeck = gameSession.deck.removeByKind(card);
+            const cardInDeck = gameSession.cardPool.removeByKind(card);
             if (!cardInDeck) {
               throw new Error(
                 `Card ${card.type} not found in the deck for round start.`,
@@ -411,7 +411,7 @@ export namespace SaboteurAction {
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { card } = this.data;
-          const cardInDeck = gameSession.deck.removeByKind(card);
+          const cardInDeck = gameSession.cardPool.removeByKind(card);
           if (!cardInDeck) {
             throw new Error(
               `Card ${this.data.card.type} not found in the deck for draw.`,
@@ -454,6 +454,7 @@ export namespace SaboteurAction {
 
       export class PlayerState extends Response.Primitive<{
         round: number;
+        cardUsed: SaboteurCard.Abstract.Playable[];
         myPlayer: {
           gold: number;
           role: PlayerRole | null;
@@ -469,10 +470,6 @@ export namespace SaboteurAction {
         board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
       }> {
         static readonly type = "playerState";
-
-        // update(gameSession: SaboteurSession): void {
-        //   // throw new Error("Method not implemented.");
-        // }
       }
 
       export class ReceiveGold

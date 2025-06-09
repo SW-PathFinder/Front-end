@@ -140,14 +140,14 @@ export namespace SocketAction {
   {
     readonly _actionType = "response" as const;
 
-    id: number;
+    id?: number;
     readonly target: "all" | (string & {});
     readonly requestId?: string;
 
     constructor(
       data: T,
       target: "all" | (string & {}),
-      id: number,
+      id?: number,
       requestId?: string,
     ) {
       super(data);
@@ -175,7 +175,7 @@ export namespace SocketAction {
 
   export namespace Response {
     export interface Primitive extends SocketAction.Primitive {
-      id: number;
+      id?: number;
       requestId?: string;
       target: "all" | (string & {});
     }
@@ -547,6 +547,8 @@ export namespace SocketAction {
 
         // game round state
         role: PlayerRole;
+        // card id list
+        cardUsed: number[];
 
         // personal turn state
         hands: { cardId: number; reverse?: boolean }[];
@@ -568,6 +570,10 @@ export namespace SocketAction {
           return [
             new SaboteurAction.Response.Private.PlayerState({
               round: this.data.round,
+              cardUsed: this.data.cardUsed.map(
+                (cardId) =>
+                  transformIdToCard(cardId) as SaboteurCard.Abstract.Playable,
+              ),
               myPlayer: {
                 gold: this.data.gold,
                 role: this.data.role,
