@@ -248,28 +248,28 @@ function watch(
 // function unwatch<T = any>() {}
 
 // TODO: Implement array reactivity for optimization
-const arrayMutableMethods = [
-  "push",
-  "pop",
-  "shift",
-  "unshift",
-  "splice",
-  "sort",
-  "reverse",
-];
-function watchArrayChange(
-  arr: any[],
-  callback: (methodName: string, arr: any[]) => void,
-) {
-  for (const method of arrayMutableMethods) {
-    const originalMethod = arr[method as any];
-    if (typeof originalMethod !== "function") continue;
+// const arrayMutableMethods = [
+//   "push",
+//   "pop",
+//   "shift",
+//   "unshift",
+//   "splice",
+//   "sort",
+//   "reverse",
+// ];
+// function watchArrayChange(
+//   arr: any[],
+//   callback: (methodName: string, arr: any[]) => void,
+// ) {
+//   for (const method of arrayMutableMethods) {
+//     const originalMethod = arr[method as any];
+//     if (typeof originalMethod !== "function") continue;
 
-    arr[method as any] = function (...args: any[]) {
-      const result = originalMethod.apply(this, args);
+//     arr[method as any] = function (...args: any[]) {
+//       const result = originalMethod.apply(this, args);
 
-      callback(method, this);
-      return result;
-    };
-  }
-}
+//       callback(method, this);
+//       return result;
+//     };
+//   }
+// }

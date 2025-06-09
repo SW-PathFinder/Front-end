@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { GameBoard } from "@/libs/saboteur/board";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 
 import { Board, BOARD_ROWS, BOARD_COLS } from "./Board";
@@ -19,14 +20,18 @@ cards[9][15] = new SaboteurCard.Path.DestGold();
 cards[11][15] = new SaboteurCard.Path.DestRockA();
 cards[13][15] = new SaboteurCard.Path.DestRockB();
 
-const BoardStory = ({
-  cards,
-}: {
-  cards: (SaboteurCard.Path.Abstract | null)[][];
-}) => {
+const boards = new GameBoard();
+boards.import([
+  [[7, 11], new SaboteurCard.Path.Origin()],
+  [[15, 9], new SaboteurCard.Path.DestGold()],
+  [[15, 11], new SaboteurCard.Path.DestRockA()],
+  [[15, 13], new SaboteurCard.Path.DestRockB()],
+]);
+
+const BoardStory = () => {
   return (
     <DndZone>
-      <Board cards={cards} />
+      <Board board={boards} />
     </DndZone>
   );
 };
