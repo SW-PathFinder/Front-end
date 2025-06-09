@@ -151,7 +151,7 @@ export class SaboteurSession implements GameSession {
       );
       if (cardIndex === -1) throw new Error("Card not found in my hands.");
 
-      const unsubscribe = this.adapter.onAnyOutgoing((resAction) => {
+      const unsubscribe = this.adapter.onAny((resAction) => {
         if (reqAction.requestId !== resAction.requestId) return;
         if (!(resAction instanceof SaboteurAction.Response.Private.Exception)) {
           this.myPlayer.removeByIndex(cardIndex);
