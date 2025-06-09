@@ -63,16 +63,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     login(storedId)
       .catch((error) => {
         console.error("Login error:", error);
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "message" in error &&
-          typeof (error as { message?: unknown }).message === "string" &&
-          (error as { message: string }).message !==
-            "이미 사용 중인 사용자 이름입니다."
-        ) {
-          logout();
-        }
+        logout();
       })
       .finally(() => {
         isFetchingRef.current = false;
