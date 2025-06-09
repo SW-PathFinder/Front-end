@@ -41,7 +41,7 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
    * 보드 좌상단 슬롯의 좌표
    * @todo setAnchorCoord를 옮겨 보드 위치 변환
    */
-  const [anchorCoord, setAnchorCoord] = useState<[number, number]>(() =>
+  const [anchorCoord, _] = useState<[number, number]>(() =>
     CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
   );
 

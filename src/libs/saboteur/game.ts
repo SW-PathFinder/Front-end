@@ -133,7 +133,7 @@ export class SaboteurSession implements GameSession {
       if (this._turnTimeLeft > 0) this._turnTimeLeft -= 1;
     }, 1000);
 
-    this.adapter.onTurnStart((currentPlayerId, duration) => {
+    this.adapter.onTurnStart((_, duration) => {
       this._turnTimeLeft = duration;
     });
   }
