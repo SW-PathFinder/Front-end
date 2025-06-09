@@ -592,8 +592,8 @@ export namespace SocketAction {
               board: this.data.board.map(
                 ({ cardId, reverse, ...absoluteCoord }) => {
                   const [x, y] = FixedArrayGrid2d.absoluteToRelative(
-                    absoluteCoord.x,
                     absoluteCoord.y,
+                    absoluteCoord.x,
                   );
                   const card = transformIdToCard(
                     cardId,
