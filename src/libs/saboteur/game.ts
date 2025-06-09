@@ -4,19 +4,14 @@ import {
   GameRoomAdapter,
   GameSession,
 } from "@/libs/gameSession";
-import { NonReactive, Reactive, Reactivity } from "@/libs/reactivity";
-import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
-import { SaboteurAction } from "@/libs/saboteur/adapter/action";
-import { GameBoard } from "@/libs/saboteur/board";
-import { SaboteurCard } from "@/libs/saboteur/cards";
-import {
-  AbstractSaboteurPlayer,
-  MySaboteurPlayer,
-} from "@/libs/saboteur/player";
+import { Reactivity, NonReactive, ReactiveObject } from "@/libs/reactivity";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
-// export const BOARD_ROWS = 23;
-// export const BOARD_COLS = 23;
+import { SaboteurSessionAdapter } from "./adapter";
+import { SaboteurAction } from "./adapter/action";
+import { GameBoard } from "./board";
+import { SaboteurDeck } from "./cards/deck";
+import { AbstractSaboteurPlayer, MySaboteurPlayer } from "./player";
 
 export interface SaboteurRoomAdapter extends GameRoomAdapter {
   onGameSessionStart(
@@ -46,7 +41,7 @@ export class SaboteurRoom implements GameRoom {
   readonly isPublic: boolean;
   readonly cardHelper: boolean;
 
-  private _remainSecond: number | null = null;
+  private _remainingSecond: number | null = null;
   private _isReady: boolean = false;
 
   constructor(
@@ -70,15 +65,15 @@ export class SaboteurRoom implements GameRoom {
     });
     this.adapter.onGameSessionReady((remainSecond) => {
       this._isReady = true;
-      this._remainSecond = remainSecond;
+      this._remainingSecond = remainSecond;
 
       const id = setInterval(() => {
-        if (this._remainSecond === null || this._remainSecond <= 0) {
+        if (this._remainingSecond === null || this._remainingSecond <= 0) {
           clearInterval(id);
           return;
         }
 
-        this._remainSecond -= 1;
+        this._remainingSecond -= 1;
       }, 1000);
     });
   }
@@ -91,11 +86,11 @@ export class SaboteurRoom implements GameRoom {
     return this._isReady;
   }
 
-  get remainSecond(): number | null {
-    return this._remainSecond;
+  get remainingSecond(): number | null {
+    return this._remainingSecond;
   }
 }
-export interface SaboteurRoom extends Reactive {}
+export interface SaboteurRoom extends ReactiveObject {}
 
 export interface SaboteurSessionOptions {
   players: AbstractSaboteurPlayer[];
@@ -109,8 +104,11 @@ export class SaboteurSession implements GameSession {
   round: number = 0;
   // turn: number = 0;
   readonly players: AbstractSaboteurPlayer[];
-  readonly board: GameBoard;
+  readonly board = new GameBoard();
+  readonly deck = new SaboteurDeck();
+
   private _currentPlayerIndex: number = 0;
+  private _turnTimeLeft: number;
 
   constructor(
     adapter: SaboteurSessionAdapter,
@@ -118,30 +116,25 @@ export class SaboteurSession implements GameSession {
   ) {
     this.adapter = adapter;
     this.players = players;
-    this.board = new GameBoard();
 
     this.adapter.onAny((action) => {
-      action.update(this);
+      console.log("action received:", action);
+      if (action.isUpdateAction()) action.update(this);
     });
 
-    // const card
-    this.adapter.onOutgoing("path", (reqAction) => {
-      const card = reqAction.data.card;
+    this.adapter.onAnyOutgoing((action) => {
+      console.log("action sent:", action);
+      if (action.isUpdateAction()) action.update(this);
+    });
 
-      const cardIndex = this.myPlayer.hands.findIndex((c) => c.id === card.id);
-      if (cardIndex === -1) throw new Error("Card not found in my hands.");
+    // turn timer
+    this._turnTimeLeft = 0;
+    setInterval(() => {
+      if (this._turnTimeLeft > 0) this._turnTimeLeft -= 1;
+    }, 1000);
 
-      const unsubscribes = [
-        this.adapter.on("exception", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-        }),
-        this.adapter.on("path", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
-          this.myPlayer.remove(cardIndex);
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-        }),
-      ];
+    this.adapter.onTurnStart((currentPlayerId, duration) => {
+      this._turnTimeLeft = duration;
     });
   }
 
@@ -165,30 +158,14 @@ export class SaboteurSession implements GameSession {
     return 6;
   }
 
+  get turnRemainingSecond(): number {
+    return this._turnTimeLeft;
+  }
+
   sendAction<TAction extends SaboteurAction.Request.Actions>(
     action: TAction,
   ): void {
     this.adapter.sendAction(action, this);
   }
-
-  // private onRoundStart({ data }: SaboteurAction.Response.Private.RoundStart) {
-  //   this.round = data.round;
-
-  //   data.hands.forEach((card) => this.myPlayer.add(card));
-  //   this.myPlayer.role = data.role;
-
-  //   this.players.forEach((player) => {
-  //     if (player instanceof OtherSaboteurPlayer)
-  //       player.handCount = OtherSaboteurPlayer.getInitialHandCount(
-  //         this.players.length,
-  //       );
-  //   });
-  // }
-
-  // private onRoundEnd({ data }: SaboteurAction.Response.Private.RoundEnd) {
-  //   this.players.forEach((player) => {
-  //     player.resetRoundState();
-  //   });
-  // }
 }
-export interface SaboteurSession extends Reactive {}
+export interface SaboteurSession extends ReactiveObject {}

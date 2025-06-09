@@ -1,7 +1,7 @@
 import { GameSessionAdapter } from "@/libs/gameSession";
-import { SaboteurSession } from "@/libs/saboteur/game";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
+import { SaboteurSession } from "../game";
 import { SaboteurAction } from "./action";
 
 export interface SaboteurSessionAdapter extends GameSessionAdapter {
@@ -9,6 +9,11 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
     action: TAction,
     gameSession: SaboteurSession,
   ): void;
+
+  onAny(
+    callback: (action: SaboteurAction.Response.Actions) => void,
+    options?: { once?: boolean },
+  ): UnsubscribeCallback;
 
   on<
     TSaboteurActionType extends SaboteurAction.Response.ActionType,
@@ -22,8 +27,8 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
     options?: { once?: boolean },
   ): UnsubscribeCallback;
 
-  onAny(
-    callback: (action: SaboteurAction.Response.Actions) => void,
+  onAnyOutgoing(
+    callback: (action: SaboteurAction.Request.Actions) => void,
     options?: { once?: boolean },
   ): UnsubscribeCallback;
 
@@ -37,5 +42,9 @@ export interface SaboteurSessionAdapter extends GameSessionAdapter {
     actionType: TSaboteurActionType,
     callback: (action: InstanceType<TSaboteurActionClass>) => void,
     options?: { once?: boolean },
+  ): UnsubscribeCallback;
+
+  onTurnStart(
+    callback: (currentPlayerId: string, duration: number) => void,
   ): UnsubscribeCallback;
 }

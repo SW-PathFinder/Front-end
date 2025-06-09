@@ -9,14 +9,14 @@ export const SettingsButton = () => {
       <button onClick={() => setOpen(true)}>
         <img
           className="h-16 w-16 hover:cursor-pointer"
-          src="/buttons/setting_button.svg"
+          src="/buttons/setting.png"
           alt="settings"
         />
       </button>
       {open && (
         <div className="modal-open modal" onClick={() => setOpen(false)}>
           <div
-            className="relative modal-box"
+            className="relative modal-box bg-neutral-900"
             onClick={(e) => e.stopPropagation()}
           >
             <button

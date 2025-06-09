@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { io } from "socket.io-client";
+import { v7 } from "uuid";
 
 import {
   EmitEvents,
@@ -110,7 +111,7 @@ export function useSocketRequest(
         "requestId"
       >,
     ) => {
-      const requestId = crypto.randomUUID();
+      const requestId = v7();
 
       const promise = new Promise<{
         event: ResponsibleListenEventType;

@@ -4,6 +4,7 @@ import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
 import { Board } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
+import { EquipmentModal } from "@/components/Game/EquipmentModal";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import RevealDestModal from "@/components/Game/RevealDestModal";
@@ -11,6 +12,9 @@ import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { PlayerRole } from "@/libs/saboteur/types";
+
+import lobby_bg from "/bg/game_bg.png";
+import emoji_icon from "/buttons/emoji_icon.png";
 
 const Game = () => {
   const { gameSession } = useGameSession();
@@ -20,6 +24,10 @@ const Game = () => {
   const [destModalOpen, setDestModalOpen] = useState(false);
   const [destCard, setDestCard] = useState(
     null as null | SaboteurCard.Path.Abstract,
+  );
+  const [equipModalOpen, setEquipModalOpen] = useState(false);
+  const [equipCard, setEquipCard] = useState(
+    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
   );
 
   useEffect(() => {
@@ -36,42 +44,53 @@ const Game = () => {
       card: SaboteurCard.Abstract.Playable,
       prevCard: SaboteurCard.Path.Abstract | null,
     ) => {
-      if (card instanceof SaboteurCard.Path.Abstract) {
-        gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
+      // 내 턴이 아닐때 드롭 무시
+      if (!gameSession.currentPlayer.isMe()) {
+        return;
       }
 
-      // 지도 카드
-      if (
+      if (card instanceof SaboteurCard.Path.Abstract) {
+        gameSession.sendAction(new SaboteurAction.Request.Path({ x, y, card }));
+      } else if (
+        card instanceof SaboteurCard.Action.Destroy &&
+        prevCard instanceof SaboteurCard.Path.Abstract
+      ) {
+        gameSession.sendAction(
+          new SaboteurAction.Request.Destroy({ x, y, card }),
+        );
+      } else if (
         card instanceof SaboteurCard.Action.Map &&
         prevCard instanceof SaboteurCard.Path.Abstract
       ) {
-        gameSession.adapter.on("revealDest", (data) => {
+        // 지도 카드
+        gameSession.adapter.on("peekDestination", (data) => {
           console.log("지도 카드 사용 결과:", data);
           setDestInfo(data.data);
         });
         gameSession.sendAction(
           new SaboteurAction.Request.UseMap({ x, y, card }),
         );
+      } else if (
+        card instanceof SaboteurCard.Action.Repair ||
+        card instanceof SaboteurCard.Action.Sabotage
+      ) {
+        // 장비 카드
+        setEquipCard(card);
+        setEquipModalOpen(true);
       }
     },
     [gameSession],
   );
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-base-200 px-4 md:px-8">
+    <div
+      className="flex h-screen w-full flex-col overflow-hidden bg-cover bg-center px-4 md:px-8"
+      style={{ backgroundImage: `url(${lobby_bg})` }}
+    >
       {/* 상단: 플레이어 차례 */}
-      <header className="flex flex-col items-center justify-center bg-base-200 p-4">
-        <p
-          className={
-            gameSession.myPlayer.role === PlayerRole.Saboteur
-              ? "text-red-500"
-              : "" + " text-lg font-semibold"
-          }
-        >
-          나의 역할 : {gameSession.myPlayer.role}
-        </p>
-        <p className="text-lg font-semibold">
-          {gameSession.currentPlayer.name === gameSession.myPlayer.name
+      <header className="m-2 flex flex-col items-center justify-center p-4">
+        <p className="text-3xl font-semibold">
+          {gameSession.currentPlayer.isMe()
             ? "내 차례"
             : `${gameSession.currentPlayer.name}의 차례`}
         </p>
@@ -79,13 +98,13 @@ const Game = () => {
       {/* 메인 영역: 좌측 사이드바, 보드, 로그 */}
       <div className="flex overflow-hidden">
         {/* 좌측 사이드바 */}
-        <aside className="mr-6 flex w-[200px] flex-shrink-0 flex-col items-start gap-4 self-center overflow-auto bg-base-200 p-4">
+        <aside className="mr-6 flex w-[200px] flex-shrink-0 flex-col items-start gap-4 self-center overflow-auto p-4">
           <PlayerList list={gameSession.players} />
           <div className="flex w-full items-center justify-evenly">
             <RulebookButton />
             <img
               className="h-16 w-16 cursor-pointer"
-              src="/buttons/emoji_button.svg"
+              src={emoji_icon}
               alt="emoji chat"
             />
           </div>
@@ -122,19 +141,39 @@ const Game = () => {
               revealedCard={destCard}
             />
           )}
+          {gameSession.currentPlayer.isMe() && equipModalOpen && (
+            <EquipmentModal
+              playerlist={gameSession.players}
+              equipCard={equipCard}
+              onClose={() => setEquipModalOpen(false)}
+            />
+          )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}
-        <div className="p-x-4 mb-4 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto bg-base-200">
-          <div className="flex w-[150px] flex-col items-center gap-4">
-            <img
-              className="w-1/2 rounded-xl shadow-2xs"
-              src="/assets/saboteur/cards/bg_playable.png"
-              alt="card back"
-            />
-            <p>남은 카드 : {gameSession.remainingCards}장</p>
+        <div className="p-x-4 mb-8 ml-6 flex flex-shrink-0 flex-col items-center gap-4 overflow-auto rounded border-2 bg-base-300/50 p-4 shadow-lg">
+          <div className="flex w-[150px] flex-col items-center">
+            <p
+              className={
+                gameSession.myPlayer.role === PlayerRole.Saboteur
+                  ? "text-red-500"
+                  : "" + "text-xl font-semibold"
+              }
+            >
+              나의 역할 :{" "}
+              {gameSession.myPlayer.role === PlayerRole.Saboteur
+                ? "방해꾼"
+                : "광부"}
+            </p>
+            <p className="text-center text-lg text-secondary">
+              남은 시간 : {gameSession.turnRemainingSecond}초
+            </p>
+            <p className="text-center text-lg text-primary">
+              남은 카드 : {gameSession.remainingCards}장
+            </p>
           </div>
-          <aside className="bg-opacity-50 h-full w-48 overflow-auto rounded bg-base-300 p-2">
-            <p className="text-center text-sm">게임 로그</p>
+          <div className="divider m-0 p-0"></div>
+          <aside className="h-full w-48 overflow-auto rounded p-2">
+            <p className="text-center text-2xl">게임 로그</p>
           </aside>
         </div>
       </div>

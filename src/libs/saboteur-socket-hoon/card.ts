@@ -14,7 +14,7 @@ const cardIdToClassMap = {
   1: [SaboteurCard.Path.Way2D, false],
   2: [SaboteurCard.Path.Way3B, false],
   3: [SaboteurCard.Path.Way4, false],
-  4: [SaboteurCard.Path.Way3A, false],
+  4: [SaboteurCard.Path.Way3A, true],
   5: [SaboteurCard.Path.Way2C, false],
   6: [SaboteurCard.Path.Way2A, true],
   7: [SaboteurCard.Path.Way2B, false],
@@ -39,6 +39,13 @@ const cardIdToClassMap = {
   26: [SaboteurCard.Action.Map],
   27: [SaboteurCard.Action.Destroy],
 } as const;
+
+export const defaultRotatedList = [
+  SaboteurCard.Path.Way2A,
+  SaboteurCard.Path.Block1B,
+  SaboteurCard.Path.Block3A,
+  SaboteurCard.Path.Block2A,
+];
 
 export type CardId = keyof typeof cardIdToClassMap;
 export type PlayableCardId = Exclude<

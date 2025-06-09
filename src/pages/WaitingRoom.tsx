@@ -1,32 +1,50 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { useGameRoom } from "@/contexts/GameRoomContext";
 
+import lobby_bg from "/bg/lobby_bg.png";
+
 const palette = [
-  "bg-blue-300",
-  "bg-red-200",
-  "bg-yellow-200",
-  "bg-green-200",
-  "bg-purple-200",
-  "bg-cyan-200",
-  "bg-orange-200",
-  "bg-indigo-200",
-  "bg-pink-200",
-  "bg-teal-200",
+  "bg-slate-700/90",
+  "bg-neutral-700/90",
+  "bg-stone-700/90",
+  "bg-red-700/90",
+  "bg-orange-700/90",
+  "bg-amber-700/90",
+  "bg-lime-700/90",
+  "bg-emerald-700/90",
+  "bg-cyan-700/90",
+  "bg-sky-700/90",
 ];
 
 const WaitingRoom = () => {
   const navigate = useNavigate();
-
   const { gameRoom } = useGameRoom();
+
+  const gridColClass = useMemo(() => {
+    const count = gameRoom.capacity ?? 0;
+    const colMap: Record<number, string> = {
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-4",
+      7: "grid-cols-4",
+      8: "grid-cols-4",
+      9: "grid-cols-5",
+      10: "grid-cols-5",
+    };
+    return colMap[count] || "grid-cols-4";
+  }, [gameRoom.capacity]);
 
   useEffect(() => {
     // 카운트 종료 시 게임 페이지로 이동
-    if (gameRoom.remainSecond == 0) navigate(`/saboteur/${gameRoom.id}/game/`);
-  }, [navigate, gameRoom.remainSecond, gameRoom.id]);
+    if (gameRoom.remainingSecond === 0) {
+      navigate(`/saboteur/${gameRoom.id}/game/`);
+    }
+  }, [navigate, gameRoom.remainingSecond, gameRoom.id]);
 
   const handleCancel = () => {
     gameRoom.adapter.leaveRoom();
@@ -34,52 +52,69 @@ const WaitingRoom = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-base-100 p-6">
-      <div className="mb-6 w-full max-w-md rounded bg-primary p-4 shadow">
-        <p className="text-center text-lg font-semibold text-white">
-          현재인원 : {gameRoom.players.length} | 정원 : {gameRoom.capacity} |
-          방코드 : {gameRoom.id}
-        </p>
+    <div
+      className="flex min-h-screen flex-col items-center justify-between bg-cover bg-center p-4 sm:p-6 md:p-8"
+      style={{ backgroundImage: `url(${lobby_bg})` }}
+    >
+      <p className="mt-4 mb-2 text-center text-5xl font-bold text-white sm:text-6xl">
+        대기실
+      </p>
+
+      <div className="mb-3 flex flex-col items-center gap-x-6 gap-y-2 text-lg font-semibold text-white sm:mb-4 sm:flex-row sm:text-xl">
+        <p>현재인원 : {gameRoom.players.length}</p>
+        <p>정원 : {gameRoom.capacity}</p>
+        <p>방코드 : {gameRoom.id}</p>
       </div>
+
+      {gameRoom.remainingSecond !== null && (
+        <div className="mb-3 text-center text-xl font-bold text-white sm:mb-4 sm:text-2xl">
+          게임이 {gameRoom.remainingSecond}초 후에 자동으로 시작됩니다...
+        </div>
+      )}
 
       {/* 참가자 목록 */}
-      <div className="mb-6 grid w-full max-w-md grid-cols-2 grid-rows-5 gap-4">
-        {gameRoom.players.map((player, idx) => (
-          <div
-            key={idx}
-            className={`rounded p-2 text-center text-black shadow ${palette[idx]}`}
-          >
-            {idx === 0 && (
-              <Crown className="mr-1 inline-block h-4 w-4 text-yellow-500" />
-            )}
-            {player.name}
-          </div>
-        ))}
+      <div className="flex w-full max-w-md flex-1 items-center justify-center sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
+        <div
+          className={`grid ${gridColClass} w-full items-stretch gap-4 sm:gap-6`}
+        >
+          {gameRoom.players.map((player, idx) => (
+            <div
+              key={player.id || `player-${idx}`}
+              className={`flex aspect-square flex-col items-center justify-center rounded-xl border-8 border-neutral-800 p-2 text-center text-xl text-white shadow-lg sm:text-2xl ${palette[idx % palette.length]}`}
+            >
+              {idx === 0 && (
+                <Crown className="mb-1 h-5 w-5 text-yellow-400 sm:h-6 sm:w-6" />
+              )}
+              <span className="break-all">{player.name}</span>
+            </div>
+          ))}
 
-        {/* 빈 슬롯 */}
-        {Array.from({
-          length: gameRoom.capacity - gameRoom.players.length,
-        }).map((_, idx) => (
-          <div
-            key={gameRoom.players.length + idx}
-            className="rounded bg-base-300 p-2 shadow"
-          />
-        ))}
+          {Array.from({
+            length: Math.max(
+              0,
+              (gameRoom.capacity || 0) - gameRoom.players.length,
+            ),
+          }).map((_, idx) => (
+            <div
+              key={`empty-${idx}`}
+              className="flex aspect-square items-center justify-center rounded-xl border-8 border-neutral-800 bg-neutral-900/70 p-2 shadow-lg"
+            >
+              <span className="loading loading-lg text-white sm:loading-xl"></span>
+            </div>
+          ))}
+        </div>
       </div>
 
+      {/* 매칭 취소 버튼 */}
       <button
         onClick={handleCancel}
-        disabled={gameRoom.remainSecond === 0}
-        className={`btn mb-6 w-full max-w-md btn-error ${gameRoom.remainSecond === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+        disabled={gameRoom.remainingSecond === 0}
+        className={`btn mt-4 mb-2 btn-wide text-lg btn-xl btn-error sm:mt-6 sm:text-xl ${
+          gameRoom.remainingSecond === 0 ? "cursor-not-allowed opacity-50" : ""
+        }`}
       >
         매칭 취소
       </button>
-
-      {gameRoom.remainSecond !== null && (
-        <div className="text-center text-xl font-bold">
-          게임이 {gameRoom.remainSecond}초 후에 자동으로 시작됩니다...
-        </div>
-      )}
     </div>
   );
 };

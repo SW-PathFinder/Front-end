@@ -1,4 +1,4 @@
-import { Tools } from "@/libs/saboteur/types";
+import { Tools } from "../types";
 
 export const PLAYER_STATUS: Record<Tools, { enable: string; disable: string }> =
   {

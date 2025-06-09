@@ -31,18 +31,18 @@ const HandStory = ({ cards }: { cards: SaboteurCard.Abstract.Playable[] }) => {
       );
       if (!container || container.item) return;
 
-      const activeCard = cards.find((card) => card.id === active.id);
+      const activeCard = cards.find((card) => card.uid === active.id);
       if (!activeCard) return;
 
       setContainers((prev) =>
         prev.map((c) => {
           if (c.id === container.id) return { ...c, item: activeCard };
-          if (c.item && c.item.id === active.id)
+          if (c.item && c.item.uid === active.id)
             return { ...c, item: undefined };
           return c;
         }),
       );
-      setHand((prev) => prev.filter((card) => card.id !== active.id));
+      setHand((prev) => prev.filter((card) => card.uid !== active.id));
     },
   });
 

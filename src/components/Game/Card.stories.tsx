@@ -51,3 +51,21 @@ export const Translated: Story = {
     </DndZone>
   ),
 };
+
+export const Dest: Story = {
+  args: { card: new SaboteurCard.Path.DestHidden(false, false) },
+  render: (args) => (
+    <DndZone>
+      <Card {...args} />
+    </DndZone>
+  ),
+};
+
+export const DestRevealed: Story = {
+  args: { card: new SaboteurCard.Path.DestGold(false, true) },
+  render: (args) => (
+    <DndZone>
+      <Card {...args} />
+    </DndZone>
+  ),
+};

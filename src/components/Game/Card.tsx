@@ -42,14 +42,14 @@ export const Card = ({
     setNodeRef,
     listeners,
     transform: dragTransform,
-  } = useDraggable({ id: card.id, data: { card }, disabled: fixed });
+  } = useDraggable({ id: card.uid, data: { card }, disabled: fixed });
   useDndMonitor({
     onDragStart(event) {
-      if (event.active.id !== card.id) return;
+      if (event.active.id !== card.uid) return;
       setIsFocusing(true);
     },
     onDragEnd(event) {
-      if (event.active.id !== card.id) return;
+      if (event.active.id !== card.uid) return;
       setIsFocusing(false);
     },
   });
@@ -61,13 +61,13 @@ export const Card = ({
     ...(transform && {
       "--tw-top": `${transform?.y ?? 0}px`,
       "--tw-left": `${transform?.x ?? 0}px`,
-      "--tw-rotate": `${(transform?.rotate ?? 0) + (isPathCard && card.flipped ? 180 : 0)}deg`,
+      "--tw-rotate": `${transform?.rotate ?? 0}deg`,
     }),
     ...(!fixed &&
       isFocusing && {
         "--tw-scale": isDragging ? 1 : 1.2,
         "--tw-z-index": 2,
-        "--tw-rotate": `${isPathCard && card.flipped ? 180 : 0}deg`,
+        "--tw-rotate": `0deg`,
       }),
     ...(dragTransform && {
       "--tw-translate-x": `${dragTransform.x}px`,
@@ -77,7 +77,7 @@ export const Card = ({
 
   return (
     <div
-      id={`${card.id}`}
+      id={`${card.uid}`}
       ref={setNodeRef}
       {...listeners}
       onMouseEnter={() => {
@@ -88,7 +88,6 @@ export const Card = ({
         setIsFocusing(false);
       }}
       style={{
-        backgroundImage: `url(${card.image})`,
         width: size,
         aspectRatio: CARD_RATIO,
         transition: [
@@ -102,7 +101,7 @@ export const Card = ({
         ...style,
       }}
       className={twMerge(
-        "absolute origin-center bg-cover bg-center bg-no-repeat",
+        "absolute isolate",
         "rounded-sm",
         "top-(--tw-top) left-(--tw-left) z-(--tw-z-index)",
         "translate-3d",
@@ -111,7 +110,27 @@ export const Card = ({
         className,
       )}
     >
-      {/* <img src={`${card.image}`} className="invisible" /> */}
+      {card instanceof SaboteurCard.Path.AbstractDest && card.peeked && (
+        <div
+          style={{ backgroundImage: `url(${card.bgImage})` }}
+          className={twMerge(
+            "absolute h-full w-full",
+            "origin-center bg-cover bg-center bg-no-repeat",
+            "mix-blend-soft-light",
+          )}
+        />
+      )}
+      <div
+        style={{
+          backgroundImage: `url(${card.image})`,
+          rotate: `${isPathCard && card.flipped ? 180 : 0}deg`,
+        }}
+        className={twMerge(
+          "absolute h-full w-full",
+          "origin-center bg-cover bg-center bg-no-repeat",
+          "mix-blend-soft-light",
+        )}
+      />
     </div>
   );
 };

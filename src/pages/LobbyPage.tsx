@@ -8,6 +8,10 @@ import LogoutModal from "../components/Lobby/LogoutModal";
 import RoomConditionModal from "../components/Lobby/RoomConditionModal";
 import RoomSearchModal from "../components/Lobby/RoomSearchModal";
 import { useAuth } from "../contexts/AuthContext";
+import lobby_bg from "/bg/lobby_bg.png";
+import create_tn from "/thumbnail/createRoom.png";
+import quick_tn from "/thumbnail/quickmatch.png";
+import search_tn from "/thumbnail/searchRoom.png";
 
 const LobbyPage = () => {
   const [fastMatchOpen, setFastMatchOpen] = useState<boolean>(false);
@@ -19,78 +23,93 @@ const LobbyPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-base-300 pt-12">
-      <div className="fixed top-4 z-50 flex w-full max-w-md justify-between pt-4">
-        <div className="wrap flex h-fit w-fit justify-center">
-          <p className="text-5xl font-bold">
-            Welcome,
-            <br />
-            {userId}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <RulebookButton />
-          <SettingsButton />
-        </div>
+    <div
+      className="flex min-h-screen flex-col justify-between bg-cover bg-center"
+      style={{ backgroundImage: `url(${lobby_bg})` }}
+    >
+      <p className="mt-12 text-center text-5xl font-bold">
+        환영합니다! {userId}님
+      </p>
+      <div className="absolute top-8 right-8 flex gap-4">
+        <RulebookButton />
+        <SettingsButton />
       </div>
-      <div className="my-10 flex h-full w-full max-w-md flex-col justify-between gap-10 pt-20">
-        <div className="flex h-full flex-col items-center justify-between gap-4 overflow-auto">
-          <div className="flex w-full flex-col items-center gap-4">
-            <button
-              className="btn w-full btn-accent"
-              onClick={() => setFastMatchOpen(true)}
-            >
-              빠른 매칭
-            </button>
-            <button
-              className="btn w-full btn-secondary"
-              onClick={() => {
-                setCreateOpen(true);
-              }}
-            >
-              방 생성
-            </button>
-            <button
-              className="btn w-full btn-primary"
-              onClick={() => setSearchOpen(true)}
-            >
-              방 코드 검색
-            </button>
+      <div className="mx-12 flex flex-1 items-center justify-center gap-12 p-4">
+        <div
+          className="card-style card-hover-style"
+          onClick={() => setFastMatchOpen(true)}
+        >
+          <div className="pointer-events-none absolute inset-0" />
+          <div className="relative z-10 flex flex-col items-center">
+            <img
+              src={quick_tn}
+              alt="Logo"
+              className="mx-auto mb-4 w-4xl rounded-2xl border-4 border-neutral"
+            />
+            <div className="text-center text-2xl font-bold">빠른 매칭</div>
           </div>
-          <button
-            className="btn w-full btn-soft btn-warning"
-            onClick={() => setLogoutOpen(true)}
-          >
-            로그아웃
-          </button>
         </div>
-        {/* 빠른 매칭 */}
-        <RoomConditionModal
-          isOpen={fastMatchOpen}
-          onClose={() => setFastMatchOpen(false)}
-          mode="fastMatch"
-        />
-        {/* 방 생성 */}
-        <RoomConditionModal
-          isOpen={createOpen}
-          onClose={() => setCreateOpen(false)}
-          mode="create"
-        />
-        <RoomSearchModal
-          isOpen={searchOpen}
-          onClose={() => setSearchOpen(false)}
-        />
-        <LogoutModal
-          isOpen={logoutOpen}
-          onClose={() => setLogoutOpen(false)}
-          onConfirm={() => {
-            // TODO: 실제 로그아웃 처리 로직
-            logout();
-            navigate("/login");
-            setLogoutOpen(false);
-          }}
-        />
+        <div
+          className="card-style card-hover-style"
+          onClick={() => setCreateOpen(true)}
+        >
+          <div className="pointer-events-none absolute inset-0" />
+          <div className="relative z-10 flex flex-col items-center">
+            <img
+              src={create_tn}
+              alt="Logo"
+              className="mx-auto mb-4 w-4xl rounded-2xl border-4 border-neutral"
+            />
+            <div className="text-center text-2xl font-bold">방 생성</div>
+          </div>
+        </div>
+        <div
+          className="card-style card-hover-style"
+          onClick={() => setSearchOpen(true)}
+        >
+          <div className="pointer-events-none absolute inset-0" />
+          <div className="relative z-10 flex flex-col items-center">
+            <img
+              src={search_tn}
+              alt="Logo"
+              className="mx-auto mb-4 w-4xl rounded-2xl border-4 border-neutral"
+            />
+            <div className="text-center text-2xl font-bold">방 코드 검색</div>
+          </div>
+        </div>
       </div>
+      <button
+        className="btn mb-8 ml-8 self-start btn-lg btn-neutral"
+        onClick={() => setLogoutOpen(true)}
+      >
+        로그아웃
+      </button>
+      {/* 빠른 매칭 */}
+      <RoomConditionModal
+        isOpen={fastMatchOpen}
+        onClose={() => setFastMatchOpen(false)}
+        mode="fastMatch"
+      />
+      {/* 방 생성 */}
+      <RoomConditionModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+        mode="create"
+      />
+      <RoomSearchModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
+      <LogoutModal
+        isOpen={logoutOpen}
+        onClose={() => setLogoutOpen(false)}
+        onConfirm={() => {
+          // TODO: 실제 로그아웃 처리 로직
+          logout();
+          navigate("/login");
+          setLogoutOpen(false);
+        }}
+      />
     </div>
   );
 };

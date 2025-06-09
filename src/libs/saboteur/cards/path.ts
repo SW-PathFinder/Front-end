@@ -1,15 +1,16 @@
-import { AbstractCard } from "@/libs/saboteur/cards/base";
-import { CardinalDirection } from "@/libs/saboteur/cards/direction";
+import { AbstractCard } from "./base";
+import { CardinalDirection } from "./direction";
 
 export namespace PathCard {
   export abstract class Abstract extends AbstractCard {
     type = "path";
-    flipped: boolean;
-    abstract readonly destructible: boolean;
 
+    abstract readonly destructible: boolean;
     protected abstract readonly _roads: readonly CardinalDirection[];
     protected abstract readonly _images: string[];
     private imageIdx: number | null = null;
+
+    flipped: boolean;
 
     constructor(flipped: boolean = false) {
       super();
@@ -67,19 +68,19 @@ export namespace PathCard {
   }
 
   export class Way4 extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/16.png",
       "/assets/saboteur/cards/path/17.png",
       "/assets/saboteur/cards/path/25.png",
       "/assets/saboteur/cards/path/26.png",
       "/assets/saboteur/cards/path/28.png",
     ];
-    protected _roads = [CardinalDirection.All] as const;
+    protected readonly _roads = [CardinalDirection.All] as const;
   }
 
   export class Block4 extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/15.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/15.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
       CardinalDirection.South,
@@ -88,21 +89,21 @@ export namespace PathCard {
   }
 
   export class Way3A extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/1.png",
       "/assets/saboteur/cards/path/34.png",
       "/assets/saboteur/cards/path/36.png",
       "/assets/saboteur/cards/path/37.png",
       "/assets/saboteur/cards/path/39.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.All ^ CardinalDirection.North,
     ] as const;
   }
 
   export class Block3A extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/38.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/38.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
       CardinalDirection.South,
@@ -110,21 +111,21 @@ export namespace PathCard {
   }
 
   export class Way3B extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/13.png",
       "/assets/saboteur/cards/path/18.png",
       "/assets/saboteur/cards/path/19.png",
       "/assets/saboteur/cards/path/21.png",
       "/assets/saboteur/cards/path/30.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.All ^ CardinalDirection.West,
     ] as const;
   }
 
   export class Block3B extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/29.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/29.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.South,
       CardinalDirection.North,
@@ -132,93 +133,93 @@ export namespace PathCard {
   }
 
   export class Way2A extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/0.png",
       "/assets/saboteur/cards/path/3.png",
       "/assets/saboteur/cards/path/40.png",
       "/assets/saboteur/cards/path/43.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.East | CardinalDirection.South,
     ] as const;
   }
 
   export class Block2A extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/5.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/5.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.South,
     ] as const;
   }
 
   export class Way2B extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/4.png",
       "/assets/saboteur/cards/path/10.png",
       "/assets/saboteur/cards/path/24.png",
       "/assets/saboteur/cards/path/33.png",
       "/assets/saboteur/cards/path/41.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.East | CardinalDirection.North,
     ] as const;
   }
 
   export class Block2B extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/2.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/2.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.North,
     ] as const;
   }
 
   export class Way2C extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/9.png",
       "/assets/saboteur/cards/path/20.png",
       "/assets/saboteur/cards/path/35.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.East | CardinalDirection.West,
     ] as const;
   }
 
   export class Block2C extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/42.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/42.png"];
+    protected readonly _roads = [
       CardinalDirection.East,
       CardinalDirection.West,
     ] as const;
   }
 
   export class Way2D extends AbstractCommon {
-    protected _images = [
+    protected readonly _images = [
       "/assets/saboteur/cards/path/11.png",
       "/assets/saboteur/cards/path/12.png",
       "/assets/saboteur/cards/path/22.png",
       "/assets/saboteur/cards/path/23.png",
     ];
-    protected _roads = [
+    protected readonly _roads = [
       CardinalDirection.South | CardinalDirection.North,
     ] as const;
   }
 
   export class Block2D extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/32.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/32.png"];
+    protected readonly _roads = [
       CardinalDirection.South,
       CardinalDirection.North,
     ] as const;
   }
 
   export class Block1A extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/31.png"];
-    protected _roads = [CardinalDirection.East] as const;
+    protected readonly _images = ["/assets/saboteur/cards/path/31.png"];
+    protected readonly _roads = [CardinalDirection.East] as const;
   }
 
   export class Block1B extends AbstractCommon {
-    protected _images = ["/assets/saboteur/cards/path/7.png"];
-    protected _roads = [CardinalDirection.South] as const;
+    protected readonly _images = ["/assets/saboteur/cards/path/7.png"];
+    protected readonly _roads = [CardinalDirection.South] as const;
   }
 
   export abstract class AbstractSpecial
@@ -231,34 +232,41 @@ export namespace PathCard {
 
   export class Origin extends AbstractSpecial {
     type = "origin";
-    protected _images = ["/assets/saboteur/cards/path/27.png"];
-    protected _roads = [CardinalDirection.All] as const;
+    protected readonly _images = ["/assets/saboteur/cards/path/27.png"];
+    protected readonly _roads = [CardinalDirection.All] as const;
   }
 
   export abstract class AbstractDest extends AbstractSpecial {
     type = "dest";
+    peeked: boolean;
+    bgImage = "/assets/saboteur/cards/bg_playable.png";
+
+    constructor(flipped: boolean = false, peeked: boolean = false) {
+      super(flipped);
+      this.peeked = peeked;
+    }
   }
 
   export class DestHidden extends AbstractDest {
-    protected _images = ["/assets/saboteur/cards/bg_playable.png"];
-    protected _roads = [CardinalDirection.All] as const;
+    protected readonly _images = ["/assets/saboteur/cards/bg_playable.png"];
+    protected readonly _roads = [CardinalDirection.All] as const;
   }
 
   export class DestGold extends AbstractDest {
-    protected _images = ["/assets/saboteur/cards/path/14.png"];
-    protected _roads = [CardinalDirection.All] as const;
+    protected readonly _images = ["/assets/saboteur/cards/path/14.png"];
+    protected readonly _roads = [CardinalDirection.All] as const;
   }
 
   export class DestRockA extends AbstractDest {
-    protected _images = ["/assets/saboteur/cards/path/8.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/8.png"];
+    protected readonly _roads = [
       CardinalDirection.East | CardinalDirection.South,
     ] as const;
   }
 
   export class DestRockB extends AbstractDest {
-    protected _images = ["/assets/saboteur/cards/path/6.png"];
-    protected _roads = [
+    protected readonly _images = ["/assets/saboteur/cards/path/6.png"];
+    protected readonly _roads = [
       CardinalDirection.East | CardinalDirection.North,
     ] as const;
   }

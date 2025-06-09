@@ -1,12 +1,12 @@
+import { CardinalDirection, SaboteurCard } from "../cards";
 import {
   CardAlreadyExistsError,
   CardIndestructibleError,
   CardNotInCoordinatesError,
   PathNotConnectedError,
   PathNotReachableError,
-} from "@/libs/saboteur/board/error";
-import { Grid2d, MapGrid2d } from "@/libs/saboteur/board/grid2d";
-import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
+} from "./error";
+import { Grid2d, MapGrid2d } from "./grid2d";
 
 export class GameBoard {
   private grid: Grid2d<SaboteurCard.Path.Abstract> =
@@ -96,12 +96,18 @@ export class GameBoard {
   }
 
   revealDestination(
-    destId: 0 | 1 | 2,
+    x: number,
+    y: number,
     destCard: SaboteurCard.Path.AbstractDest,
   ): void {
-    const coordinates = GameBoard.destinationCoordinates[destId];
+    if (
+      !GameBoard.destinationCoordinates.find(
+        ([destX, destY]) => destX === x && destY === y,
+      )
+    )
+      throw new CardNotInCoordinatesError(x, y);
 
-    this._setCard(...coordinates, destCard);
+    this._setCard(x, y, destCard);
   }
 
   import(

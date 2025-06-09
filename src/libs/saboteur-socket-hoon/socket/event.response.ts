@@ -75,6 +75,13 @@ export interface ListenEvents {
   game_update: SocketAction.Response.Broadcast.Primitive;
   private_game_update: SocketAction.Response.Private.Primitive;
 
+  turn_timer_started: {
+    /** @description current player id */
+    current_player: "string";
+    duration: number;
+    message: string;
+  };
+
   // error: (data: { id: number;
   // success: false; message: string; requestId?: string }) => void;
 }
