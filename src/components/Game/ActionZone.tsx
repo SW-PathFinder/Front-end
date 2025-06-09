@@ -21,6 +21,7 @@ export function ActionZone({ action, className }: ActionZoneProps) {
         const card = event.active.data.current?.card;
         if (
           action === "rotate" &&
+          // TODO: SaboteurCard.Path.AbstractCommon 아니면 조용히 무시하지 않고 error 보여주기
           card instanceof SaboteurCard.Path.AbstractCommon
         ) {
           gameSession.sendAction(new SaboteurAction.Request.Rotate({ card }));

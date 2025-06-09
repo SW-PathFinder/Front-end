@@ -1,14 +1,10 @@
 export abstract class AbstractCard {
   private static uid_counter = 1;
-  readonly uid: number;
+  readonly uid = `${AbstractCard.uid_counter++}`;
 
   abstract readonly type: string;
   abstract readonly image: string;
   abstract readonly playable: boolean;
-
-  constructor() {
-    this.uid = AbstractCard.uid_counter++;
-  }
 
   // isCloneOf<T extends AbstractCard>(card: T): card is T {
   //   return this.uid === card.uid;

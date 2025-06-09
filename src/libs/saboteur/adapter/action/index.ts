@@ -1,5 +1,3 @@
-import { v7 } from "uuid";
-
 import { SaboteurCard } from "../../cards";
 import { SaboteurSession } from "../../game";
 import {
@@ -10,13 +8,12 @@ import {
 import { PlayerRole, Tools } from "../../types";
 
 interface UpdateAction {
-  _isUpdateAction: true;
+  _isUpdate: true;
   update(gameSession: SaboteurSession): void;
 }
 
 interface FailableAction {
   _isFailable: true;
-  requestId: string;
 
   /**
    * 액션이 확정되었으므로 상태를 업데이트하는 코드를 적는 등의 활용 가능
@@ -35,11 +32,9 @@ interface ConsumeCardAction {
 
 abstract class AbstractAction<T = unknown> {
   readonly data: T;
-  readonly requestId?: string;
 
-  constructor(data: T, requestId?: string) {
+  constructor(data: T) {
     this.data = data;
-    this.requestId = requestId;
   }
 
   get type(): string {
@@ -48,7 +43,7 @@ abstract class AbstractAction<T = unknown> {
   }
 
   isUpdateAction(): this is UpdateAction {
-    return "_isUpdateAction" in this && !!this._isUpdateAction;
+    return "_isUpdate" in this && !!this._isUpdate;
   }
 
   isFailableAction(): this is FailableAction {
@@ -66,7 +61,7 @@ export namespace SaboteurAction {
       readonly eventType = "request";
 
       constructor(data: T) {
-        super(data, v7());
+        super(data);
       }
     }
 
@@ -177,7 +172,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "path";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { x, y, card } = this.data;
           gameSession.board.placeCard(x, y, card);
@@ -190,7 +185,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "destroy";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { x, y } = this.data;
           gameSession.board.removeCard(x, y);
@@ -203,7 +198,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "repair";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { tool, playerId } = this.data;
 
@@ -220,7 +215,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "sabotage";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { tool, playerId } = this.data;
 
@@ -237,9 +232,9 @@ export namespace SaboteurAction {
       {
         static readonly type = "useMap";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          // TODO: Implement map usage logic
+          // TODO: 다른사람이 지도 썼을때 모달같은거 띄우기
           // throw new Error("Method not implemented.");
         }
       }
@@ -250,7 +245,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "discard";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { handIndex } = this.data;
           if (gameSession.currentPlayer.isMe()) {
@@ -269,7 +264,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "revealDestination";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { x, y, card } = this.data;
 
@@ -291,7 +286,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "turnChange";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { playerId } = this.data;
 
@@ -316,7 +311,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "roundEnd";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           // TODO: Implement round end logic
           // throw new Error("Method not implemented.");
@@ -329,7 +324,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "gameEnd";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           // TODO: Implement game end logic
           // const { golds } = this.data;
@@ -370,7 +365,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "roundStart";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { round, hands, role } = this.data;
 
@@ -402,9 +397,10 @@ export namespace SaboteurAction {
       {
         static readonly type = "draw";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const cardInDeck = gameSession.deck.removeByKind(this.data.card);
+          const { card } = this.data;
+          const cardInDeck = gameSession.deck.removeByKind(card);
           if (!cardInDeck) {
             throw new Error(
               `Card ${this.data.card.type} not found in the deck for draw.`,
@@ -424,7 +420,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "peekDestination";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           // throw new Error("Method not implemented.");
           const { x, y, card } = this.data;
@@ -474,7 +470,7 @@ export namespace SaboteurAction {
       {
         static readonly type = "receiveGold";
 
-        readonly _isUpdateAction = true as const;
+        readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           // TODO: Implement receive gold logic
           // throw new Error("Method not implemented.");

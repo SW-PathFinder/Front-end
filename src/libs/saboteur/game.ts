@@ -144,28 +144,9 @@ export class SaboteurSession implements GameSession {
       this._turnTimeLeft = duration;
     });
 
-    this.adapter.onAnyOutgoing((reqAction) => {
-      if (!reqAction.isConsumeCardAction()) return;
-
-      const card = reqAction.data.card;
-      const cardIndex = this.myPlayer.hands.findIndex(
-        (c) => c.uid === card.uid,
-      );
-      if (cardIndex === -1) throw new Error("Card not found in my hands.");
-
-      const unsubscribe = this.adapter.onAny((resAction) => {
-        if (reqAction.requestId !== resAction.requestId) return;
-        if (!(resAction instanceof SaboteurAction.Response.Private.Exception)) {
-          this.myPlayer.removeByIndex(cardIndex);
-        }
-
-        unsubscribe();
-      });
-    });
-
     this.adapter.onOutgoing("rotate", (reqAction) => {
       const card = reqAction.data.card;
-      const originalFlipped = card.flipped;
+      // const originalFlipped = card.flipped;
       card.flipped = !card.flipped;
 
       const cardIndex = this.myPlayer.hands.findIndex(
@@ -173,17 +154,17 @@ export class SaboteurSession implements GameSession {
       );
       if (cardIndex === -1) throw new Error("Card not found in my hands.");
 
-      const unsubscribes = [
-        this.adapter.on("exception", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-          card.flipped = originalFlipped; // Rollback on exception
-        }),
-        this.adapter.on("rotate", (resAction) => {
-          if (reqAction.requestId !== resAction.requestId) return;
-          unsubscribes.forEach((unsubscribe) => unsubscribe());
-        }),
-      ];
+      // const unsubscribes = [
+      //   this.adapter.on("exception", (resAction) => {
+      //     if (reqAction.requestId !== resAction.requestId) return;
+      //     unsubscribes.forEach((unsubscribe) => unsubscribe());
+      //     card.flipped = originalFlipped; // Rollback on exception
+      //   }),
+      //   this.adapter.on("rotate", (resAction) => {
+      //     if (reqAction.requestId !== resAction.requestId) return;
+      //     unsubscribes.forEach((unsubscribe) => unsubscribe());
+      //   }),
+      // ];
     });
   }
 

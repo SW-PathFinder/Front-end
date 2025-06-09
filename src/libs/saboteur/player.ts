@@ -121,6 +121,19 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this;
   }
 
+  /**
+   * @return removed card
+   */
+  removeByCardUid(cardUid: string): SaboteurCard.Abstract.Playable | null {
+    const cardIndex = this._hands.findIndex((card) => card.uid === cardUid);
+    if (cardIndex === -1) return null; // Card not found
+
+    return this.removeByIndex(cardIndex);
+  }
+
+  /**
+   * @return removed card
+   */
   removeByIndex(cardIndex: number): SaboteurCard.Abstract.Playable {
     if (cardIndex < 0 || cardIndex >= this._hands.length) {
       throw new Error("Invalid card index");
