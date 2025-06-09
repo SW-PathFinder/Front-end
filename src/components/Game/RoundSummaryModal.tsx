@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+import { useGameSession } from "@/contexts/GameSessionContext";
 
 export type RoundSummaryModalProps = {
   isOpen: boolean;
@@ -6,8 +8,6 @@ export type RoundSummaryModalProps = {
   currentRound: number;
   winner: "worker" | "saboteur";
   roles: Record<string, "worker" | "saboteur">;
-  currentUser: string;
-  goldEarned?: number;
 };
 
 const RoundSummaryModal = ({
@@ -16,13 +16,16 @@ const RoundSummaryModal = ({
   currentRound,
   winner,
   roles,
-  currentUser,
-  goldEarned = 0,
 }: RoundSummaryModalProps) => {
-  const [remaining, setRemaining] = useState<number>(10);
+  const { gameSession } = useGameSession();
+  const [remaining, setRemaining] = useState<number>(30);
+  const goldEarned = gameSession.myPlayer.golds.at(-1) || 0;
+  const winnerLabel = winner === "worker" ? "광부 승리!" : "방해꾼 승리!";
+  const myName = gameSession.myPlayer.name;
+  const isWinner = roles[myName] === winner;
 
   useEffect(() => {
-    if (isOpen) setRemaining(10);
+    if (isOpen) setRemaining(30);
   }, [isOpen]);
 
   useEffect(() => {
@@ -36,11 +39,6 @@ const RoundSummaryModal = ({
   }, [isOpen, remaining, onClose]);
 
   if (!isOpen) return null;
-
-  const winnerLabel = winner === "worker" ? "광부 승리!" : "방해꾼 승리!";
-
-  const currentRole = roles[currentUser];
-  const isWinner = currentRole === winner;
 
   return (
     <dialog open className="modal-open modal">
@@ -64,7 +62,15 @@ const RoundSummaryModal = ({
           <ul className="space-y-1">
             {Object.entries(roles).map(([name, role]) => (
               <li key={name} className="flex items-center justify-between">
-                <span>{name}</span>
+                <span
+                  className={
+                    role === "saboteur"
+                      ? "font-semibold text-red-500"
+                      : "font-semibold"
+                  }
+                >
+                  {name} {myName === name ? "(나)" : ""}
+                </span>
                 <span
                   className={
                     role === "saboteur"
@@ -81,7 +87,7 @@ const RoundSummaryModal = ({
 
         <div className="mb-2 text-center">
           {isWinner ? (
-            <p className="text-primary">
+            <p className="text-warning">
               획득한 금액: <span className="font-bold">{goldEarned} 골드</span>
             </p>
           ) : (

@@ -13,6 +13,7 @@ interface PlayerStatusProps {
 const PlayerStatus = ({ item }: PlayerStatusProps) => {
   const { gameSession } = useGameSession();
   const isMe = item === gameSession.myPlayer;
+  console.log("PlayerStatus", item, isMe);
 
   const goldDisplay =
     isMe && item instanceof MySaboteurPlayer ? item.gold : "?";

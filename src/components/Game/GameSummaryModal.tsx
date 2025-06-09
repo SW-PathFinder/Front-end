@@ -3,7 +3,7 @@ import { Crown } from "lucide-react";
 export type GameSummaryModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  rank: Array<[string, number]>;
+  rank: Record<string, number>;
 };
 
 const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
@@ -23,24 +23,26 @@ const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
         <p className="mb-4 text-center text-xl font-bold">게임 결과</p>
 
         <ul className="space-y-2">
-          {rank.map(([name, gold], idx) => {
-            let colorClass = "";
-            if (idx === 0) colorClass = "text-yellow-400";
-            else if (idx === 1) colorClass = "text-gray-400";
-            else if (idx === 2) colorClass = "text-amber-600";
-            return (
-              <li
-                key={name}
-                className={`flex justify-between font-semibold ${colorClass} drop-shadow-md`}
-              >
-                <span className="flex items-center gap-1">
-                  {idx === 0 && <Crown className="h-4 w-4 text-yellow-400" />}
-                  {name}
-                </span>
-                <span>{gold} 골드</span>
-              </li>
-            );
-          })}
+          {Object.entries(rank)
+            .sort(([, aGold], [, bGold]) => bGold - aGold)
+            .map(([name, gold], idx) => {
+              let colorClass = "";
+              if (idx === 0) colorClass = "text-yellow-400";
+              else if (idx === 1) colorClass = "text-gray-400";
+              else if (idx === 2) colorClass = "text-amber-600";
+              return (
+                <li
+                  key={name}
+                  className={`flex justify-between font-semibold ${colorClass} drop-shadow-md`}
+                >
+                  <span className="flex items-center gap-1">
+                    {idx === 0 && <Crown className="h-4 w-4 text-yellow-400" />}
+                    {name}
+                  </span>
+                  <span>{gold} 골드</span>
+                </li>
+              );
+            })}
         </ul>
 
         <div className="modal-action mt-4 justify-center">

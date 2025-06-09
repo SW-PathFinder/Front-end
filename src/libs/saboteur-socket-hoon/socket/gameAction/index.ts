@@ -412,20 +412,14 @@ export namespace SocketAction {
       }
 
       export class GameEnd extends AbstractBroadcastResponse<{
-        rank: [playerId: string, gold: number][];
+        rank: { [playerId: string]: number };
       }> {
         static readonly type = "game_end";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.GameEnd] {
           return [
             new SaboteurAction.Response.Public.GameEnd({
-              golds: this.data.rank.reduce(
-                (prev, [playerId, gold]) => {
-                  prev[playerId] = gold;
-                  return prev;
-                },
-                {} as Record<string, number>,
-              ),
+              golds: this.data.rank,
             }),
           ];
         }
