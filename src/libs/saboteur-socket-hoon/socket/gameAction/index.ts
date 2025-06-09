@@ -43,10 +43,6 @@ export namespace SocketAction {
 
     readonly requestId: string = v7();
 
-    constructor(data: T) {
-      super(data);
-    }
-
     toPrimitive(): Request.Primitive {
       return { type: this.type, data: this.data };
     }
@@ -457,19 +453,24 @@ export namespace SocketAction {
       }> {
         static readonly type = "roundStart";
 
-        toSaboteurAction(): [SaboteurAction.Response.Private.RoundStart] {
+        toSaboteurAction(): [
+          SaboteurAction.Response.Private.RoundStart,
+          ...SaboteurAction.Response.Private.Draw[],
+        ] {
           return [
             new SaboteurAction.Response.Private.RoundStart({
-              hands: this.data.hand.map(
-                ([cardId, reverse]) =>
-                  transformIdToCard(
+              round: this.data.currentRound,
+              role: this.data.role,
+            }),
+            ...this.data.hand.map(
+              ([cardId, reverse]) =>
+                new SaboteurAction.Response.Private.Draw({
+                  card: transformIdToCard(
                     cardId,
                     reverse,
                   ) as SaboteurCard.Abstract.Playable,
-              ),
-              role: this.data.role,
-              round: this.data.currentRound,
-            }),
+                }),
+            ),
           ];
         }
       }

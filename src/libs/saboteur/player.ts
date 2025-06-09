@@ -134,15 +134,15 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this;
   }
 
-  /**
-   * @return removed card
-   */
-  removeByCardUid(cardUid: string): SaboteurCard.Abstract.Playable | null {
-    const cardIndex = this._hands.findIndex((card) => card.uid === cardUid);
-    if (cardIndex === -1) return null; // Card not found
+  // /**
+  //  * @return removed card
+  //  */
+  // removeByCardUid(cardUid: string): SaboteurCard.Abstract.Playable | null {
+  //   const cardIndex = this._hands.findIndex((card) => card.uid === cardUid);
+  //   if (cardIndex === -1) return null; // Card not found
 
-    return this.removeByIndex(cardIndex);
-  }
+  //   return this.removeByIndex(cardIndex);
+  // }
 
   /**
    * @return removed card
@@ -154,14 +154,14 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this._hands.splice(cardIndex, 1)[0];
   }
 
-  insert(cardIndex: number, card: SaboteurCard.Abstract.Playable): this {
-    if (cardIndex < 0 || cardIndex > this._hands.length) {
-      throw new Error("Invalid card index");
-    }
-    this._hands.splice(cardIndex, 0, card);
+  // insert(cardIndex: number, card: SaboteurCard.Abstract.Playable): this {
+  //   if (cardIndex < 0 || cardIndex > this._hands.length) {
+  //     throw new Error("Invalid card index");
+  //   }
+  //   this._hands.splice(cardIndex, 0, card);
 
-    return this;
-  }
+  //   return this;
+  // }
 
   resetRoundState(): void {
     super.resetRoundState();

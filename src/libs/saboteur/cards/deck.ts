@@ -29,6 +29,13 @@ export class SaboteurCardPool {
     this.unknownUsedCardCount = 0;
   }
 
+  addUsedCard(card: SaboteurCard.Abstract.Playable): void {
+    this._usedCards.push(card);
+  }
+  addUnknownUsedCardCount(num: number): void {
+    this.unknownUsedCardCount += num;
+  }
+
   // shuffle(): void {
   //   for (let i = this.cards.length - 1; i > 0; i--) {
   //     const j = Math.floor(Math.random() * (i + 1));
@@ -36,9 +43,9 @@ export class SaboteurCardPool {
   //   }
   // }
 
-  findByUid(card: SaboteurCard.Abstract.Playable): number {
-    return this.cards.findIndex((c) => c.uid === card.uid);
-  }
+  // findByUid(card: SaboteurCard.Abstract.Playable): number {
+  //   return this.cards.findIndex((c) => c.uid === card.uid);
+  // }
 
   findByKind(card: SaboteurCard.Abstract.Playable): number {
     return this.cards.findIndex((c) => c.isSame(card));
@@ -55,12 +62,12 @@ export class SaboteurCardPool {
     return card;
   }
 
-  removeByUid(
-    card: SaboteurCard.Abstract.Playable,
-  ): SaboteurCard.Abstract.Playable | undefined {
-    const index = this.findByUid(card);
-    return this.removeByIndex(index);
-  }
+  // removeByUid(
+  //   card: SaboteurCard.Abstract.Playable,
+  // ): SaboteurCard.Abstract.Playable | undefined {
+  //   const index = this.findByUid(card);
+  //   return this.removeByIndex(index);
+  // }
 
   removeByKind(
     card: SaboteurCard.Abstract.Playable,

@@ -176,9 +176,8 @@ export class SaboteurSession implements GameSession {
     return myPlayer;
   }
 
-  // TODO: 소켓 연동
   get remainingCards(): number {
-    return 6;
+    return this.cardPool.getRemainingCount();
   }
 
   get turnRemainingSecond(): number {
