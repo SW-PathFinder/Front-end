@@ -11,7 +11,6 @@ import RevealDestModal from "@/components/Game/RevealDestModal";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
-import { MySaboteurPlayer, OtherSaboteurPlayer } from "@/libs/saboteur/player";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 const Game = () => {
