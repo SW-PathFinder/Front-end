@@ -227,13 +227,13 @@ const saboteurRequestActionMapper: {
   path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
     const { card } = action.data;
     const actions: SocketAction.Actions[] = [];
-    if (card.flipped) {
-      actions.push(
-        new SocketAction.Request.RotatePath({
-          handNum: getHandNumOfCard(gameSession.myPlayer, card),
-        }),
-      );
-    }
+    // if (card.flipped) {
+    //   actions.push(
+    //     new SocketAction.Request.RotatePath({
+    //       handNum: getHandNumOfCard(gameSession.myPlayer, card),
+    //     }),
+    //   );
+    // }
     actions.push(
       new SocketAction.Request.PlacePath({
         x: action.data.x,
@@ -298,9 +298,9 @@ const saboteurRequestActionMapper: {
   rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
     console.log(action, gameSession);
     return [
-      // new SocketAction.Request.RotatePath({
-      //   handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
-      // }),
+      new SocketAction.Request.RotatePath({
+        handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+      }),
     ];
   },
 };

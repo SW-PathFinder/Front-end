@@ -13,6 +13,8 @@ export namespace CardinalDirection {
 
   export const None = 0b0000;
   export const All = 0b1111;
+  export const Some = Symbol("CardinalDirection.Some");
+  export type Some = typeof Some;
 
   export type Defined = Adjacent | typeof All | typeof None;
 
@@ -24,7 +26,17 @@ export namespace CardinalDirection {
     return ((direction << 2) & 0b1100) | ((direction >> 2) & 0b0011);
   }
 
-  export function includes(subset: Any, direction: Any): boolean {
+  export function add(direction: Any, subset: Adjacent | Some): Any | Some {
+    if (subset === Some) return Some;
+    return (direction | subset) as Adjacent;
+  }
+  export function remove(direction: Any, subset: Adjacent | Some): Any {
+    if (subset === Some) return None;
+    return direction & ~subset;
+  }
+
+  export function includes(subset: Any, direction: Any | Some): boolean {
+    if (direction === Some) return subset !== None;
     return (direction & subset) === subset;
   }
 

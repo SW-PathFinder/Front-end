@@ -40,11 +40,11 @@ export namespace PathCard {
     }
 
     isConnected(
-      from: CardinalDirection.Any,
-      to: CardinalDirection.Any,
+      from: CardinalDirection.Adjacent,
+      to: CardinalDirection.Adjacent | CardinalDirection.Some,
     ): boolean {
       return this.roads.some((subset) =>
-        CardinalDirection.includes(subset, from | to),
+        CardinalDirection.includes(CardinalDirection.remove(subset, from), to),
       );
     }
 
@@ -56,6 +56,22 @@ export namespace PathCard {
         this.isOpen(direction) &&
         card.isOpen(CardinalDirection.rotateHalf(direction))
       );
+    }
+
+    get stringForm(): string {
+      return this.toString();
+    }
+
+    toString(): string {
+      return [
+        `-------`,
+        `|  ${this.isOpen(CardinalDirection.North) ? "|" : " "}  |`,
+        `|  ${this.isConnected(CardinalDirection.North, CardinalDirection.Some) ? "|" : " "}  |`,
+        `|${this.isOpen(CardinalDirection.West) ? "-" : " "}${this.isConnected(CardinalDirection.West, CardinalDirection.Some) ? "-" : " "}.${this.isConnected(CardinalDirection.East, CardinalDirection.Some) ? "-" : " "}${this.isOpen(CardinalDirection.East) ? "-" : " "}|`,
+        `|  ${this.isConnected(CardinalDirection.South, CardinalDirection.Some) ? "|" : " "}  |`,
+        `|  ${this.isOpen(CardinalDirection.South) ? "|" : " "}  |`,
+        `-------`,
+      ].join("\n");
     }
   }
 
