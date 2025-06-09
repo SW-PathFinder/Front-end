@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Navigate, Outlet, useLocation, useParams } from "react-router";
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router";
 
 import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { GameRoomProvider } from "@/contexts/GameRoomContext";
@@ -8,6 +14,7 @@ import { useSocketRequest } from "@/contexts/SocketContext";
 
 export const GameRoomLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { userId, gameRoom, setGameRoom } = useAuthenticated();
   const [isLoading, setIsLoading] = useState(true);
   const isFetchingRef = useRef(false);
@@ -51,10 +58,21 @@ export const GameRoomLayout = () => {
 
     const roomId = params.roomId;
 
-    connectExistingRoom(userId, roomId).finally(() => {
-      isFetchingRef.current = false;
-    });
-  }, [userId, gameRoom, params.roomId, connectExistingRoom]);
+    connectExistingRoom(userId, roomId)
+      .catch(() => {
+        navigate("/", { state: { from: location.pathname }, replace: true });
+      })
+      .finally(() => {
+        isFetchingRef.current = false;
+      });
+  }, [
+    userId,
+    gameRoom,
+    params.roomId,
+    connectExistingRoom,
+    navigate,
+    location.pathname,
+  ]);
 
   if (isLoading) {
     return (
