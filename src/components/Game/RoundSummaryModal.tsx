@@ -42,7 +42,7 @@ const RoundSummaryModal = ({
 
   return (
     <dialog open className="modal-open modal">
-      <div className="relative modal-box max-w-md bg-neutral">
+      <div className="relative modal-box max-w-md">
         <button
           className="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
           onClick={onClose}
@@ -62,7 +62,13 @@ const RoundSummaryModal = ({
           <ul className="space-y-1">
             {Object.entries(roles).map(([name, role]) => (
               <li key={name} className="flex items-center justify-between">
-                <span>
+                <span
+                  className={
+                    role === "saboteur"
+                      ? "font-semibold text-red-500"
+                      : "font-semibold"
+                  }
+                >
                   {name} {myName === name ? "(나)" : ""}
                 </span>
                 <span
