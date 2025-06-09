@@ -146,6 +146,7 @@ export namespace SaboteurAction {
 
       readonly _isUpdate = true as const;
       update(gameSession: SaboteurSession): void {
+        console.log(gameSession);
         const { card } = this.data;
         card.flipped = !card.flipped;
       }
@@ -241,6 +242,7 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
+          console.log(gameSession);
           // TODO: 다른사람이 지도 썼을때 모달같은거 띄우기
           // throw new Error("Method not implemented.");
         }
@@ -320,6 +322,7 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
+          console.log(gameSession);
           // TODO: Implement round end logic
           // throw new Error("Method not implemented.");
         }
@@ -333,6 +336,7 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
+          console.log(gameSession);
           // TODO: Implement game end logic
           // const { golds } = this.data;
           // // cleanup game session?
@@ -479,6 +483,7 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
+          console.log(gameSession);
           // TODO: Implement receive gold logic
           // throw new Error("Method not implemented.");
         }

@@ -35,7 +35,7 @@ it("can watch property changes", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("stringProp", (key, value) => {
+  instance.on("stringProp", (_, value) => {
     changedValue = value;
   });
 
@@ -49,7 +49,7 @@ it("shoucan watch unchanged properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("stringProp", (key, value) => {
+  instance.on("stringProp", (_, value) => {
     changedValue = value;
   });
 
@@ -63,7 +63,7 @@ it("shoucan watch unwanted properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("numberProp", (key, value) => {
+  instance.on("numberProp", (_, value) => {
     changedValue = value;
   });
 
@@ -77,7 +77,7 @@ it("can watch property changes by method call", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("numberProp", (key, value) => {
+  instance.on("numberProp", (_, value) => {
     changedValue = value;
   });
 
@@ -91,7 +91,7 @@ it("can watch only not ignored properties", () => {
   const instance = new TestClass();
 
   let changedValue = null;
-  instance.on("booleanProp", (key, value) => {
+  instance.on("booleanProp", (_, value) => {
     changedValue = value;
   });
 
@@ -105,12 +105,12 @@ it("should track deep nested properties", () => {
   const instance = new TestClass();
 
   let changedObject: object | null = null;
-  instance.on("objectProp", (key, value) => {
+  instance.on("objectProp", (_, value) => {
     changedObject = value;
   });
 
   let changedValue = null;
-  instance.on("objectProp.existProp", (key, value) => {
+  instance.on("objectProp.existProp", (_, value) => {
     changedValue = value;
   });
 
@@ -127,7 +127,7 @@ it("should track newly added properties", () => {
   instance.objectProp.newKey = { newVal: "oldValue" };
 
   let changedValue = null;
-  instance.on("objectProp.newKey.newVal", (key, value) => {
+  instance.on("objectProp.newKey.newVal", (_, value) => {
     changedValue = value;
   });
 
@@ -144,12 +144,12 @@ it("should not track removed properties", () => {
   delete instance.objectProp.key;
 
   let changedObject = null;
-  instance.on("objectProp", (key, value) => {
+  instance.on("objectProp", (_, value) => {
     changedObject = value;
   });
 
   let changedValue = null;
-  instance.on("objectProp.key", (key, value) => {
+  instance.on("objectProp.key", (_, value) => {
     changedValue = value;
   });
 
@@ -173,7 +173,7 @@ describe("Reactive array", () => {
     let changedValue = null;
     instance.on(
       "items",
-      (key, value) => {
+      (_, value) => {
         changedValue = value;
       },
       false,
@@ -191,7 +191,7 @@ describe("Reactive array", () => {
     let changedValue = null;
     instance.on(
       "items",
-      (key, value) => {
+      (_, value) => {
         changedValue = value;
       },
       false,
@@ -218,7 +218,7 @@ describe("Reactive array", () => {
     let changedValue = null;
     instance.on(
       "items",
-      (key, value) => {
+      (_, value) => {
         changedValue = value;
       },
       false,

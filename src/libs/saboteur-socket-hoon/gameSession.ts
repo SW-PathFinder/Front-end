@@ -289,6 +289,7 @@ const saboteurRequestActionMapper: {
     ];
   },
   rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
+    console.log(action, gameSession);
     return [
       // new SocketAction.Request.RotatePath({
       //   handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
