@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import onChange from "on-change";
+// import onChange from "on-change";
 import "reflect-metadata";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -43,7 +43,7 @@ const REACTIVITY_PREFIX = "reactivity:";
 const reactiveMetadataKey = Symbol(`${REACTIVITY_PREFIX}reactive`);
 const ignoreKeysMetadataKey = Symbol(`${REACTIVITY_PREFIX}ignoreKeys`);
 const ignoreMetadataKey = Symbol(`${REACTIVITY_PREFIX}ignore`);
-// const storeSymbol = Symbol(`${REACTIVITY_PREFIX}store`);
+const storeSymbol = Symbol(`${REACTIVITY_PREFIX}store`);
 const eventTargetSymbol = Symbol(`${REACTIVITY_PREFIX}eventTarget`);
 
 export const Reactive = ((target: object, propertyKey: string | symbol) => {
@@ -80,6 +80,8 @@ type Class<T = any, TArgs extends unknown[] = any[]> = new (
 
 export const Reactivity = (defaultReactive = true) =>
   ((target: Class) => {
+    // TODO: 이 시점에서 최상위 constructor를 후킹해서 proxy 객체를 반환하도록 변경
+
     return class extends target implements ReactiveObject {
       private [eventTargetSymbol] = new EventTarget();
 
@@ -87,52 +89,52 @@ export const Reactivity = (defaultReactive = true) =>
         super(...args);
         NonReactive(this, eventTargetSymbol);
 
-        const ignoreKeys = (
-          (Reflect.getMetadata(ignoreKeysMetadataKey, this) ?? []) as string[]
-        ).reduce((acc, key) => {
-          if (
-            Reflect.getMetadata(ignoreMetadataKey, this, key) ??
-            defaultReactive
-          )
-            acc.push(key);
-          return acc;
-        }, [] as string[]);
+        // const ignoreKeys = (
+        //   (Reflect.getMetadata(ignoreKeysMetadataKey, this) ?? []) as string[]
+        // ).reduce((acc, key) => {
+        //   if (
+        //     Reflect.getMetadata(ignoreMetadataKey, this, key) ??
+        //     defaultReactive
+        //   )
+        //     acc.push(key);
+        //   return acc;
+        // }, [] as string[]);
 
-        return onChange(
-          this,
-          function (path, value, previousValue, applyData) {
-            // console.log({ path, value, previousValue, applyData });
-
-            this[eventTargetSymbol].dispatchEvent(
-              new CustomEvent(`${REACTIVITY_PREFIX}any`, {
-                detail: { propertyKey: path, value },
-              }),
-            );
-          },
-          { ignoreDetached: true, ignoreKeys: ignoreKeys },
-        );
-
-        // watchProperties(
+        // return onChange(
         //   this,
-        //   (p, v) => {
-        //     console.log(`Property changed: ${p} =`, v);
-        //     this._eventTarget.dispatchEvent(
+        //   function (path, value, previousValue, applyData) {
+        //     console.log({ path, value, previousValue, applyData });
+
+        //     this[eventTargetSymbol].dispatchEvent(
         //       new CustomEvent(`${REACTIVITY_PREFIX}any`, {
-        //         detail: { propertyKey: p, value: v },
+        //         detail: { propertyKey: path, value },
         //       }),
         //     );
         //   },
-        //   (target, targetPropertyKey) => {
-        //     const ignore = Reflect.getMetadata(
-        //       ignoreMetadataKey,
-        //       target,
-        //       targetPropertyKey,
-        //     ) as boolean | undefined;
-
-        //     if (ignore === undefined) return defaultReactive;
-        //     else return !ignore;
-        //   },
+        //   { ignoreDetached: true, ignoreKeys: ignoreKeys },
         // );
+
+        return watchProperties(
+          this,
+          (p, v) => {
+            // console.log(`Property changed: ${p} =`, v);
+            this[eventTargetSymbol].dispatchEvent(
+              new CustomEvent(`${REACTIVITY_PREFIX}any`, {
+                detail: { propertyKey: p, value: v },
+              }),
+            );
+          },
+          (target, targetPropertyKey) => {
+            const ignore = Reflect.getMetadata(
+              ignoreMetadataKey,
+              target,
+              targetPropertyKey,
+            ) as boolean | undefined;
+
+            if (ignore === undefined) return defaultReactive;
+            else return !ignore;
+          },
+        );
       }
 
       on(propertyKey: any, callback: (property: any) => void): void {
@@ -151,109 +153,112 @@ export const Reactivity = (defaultReactive = true) =>
     };
   }) as ClassDecorator;
 
-// function watchProperties(
-//   target: any,
-//   callback: (propertyKey: string | number, nextValue: any) => void,
-//   filter?: (target: any, targetPropertyKey: string) => boolean,
-//   prefix = "",
-// ) {
-//   if (!target || typeof target !== "object") return target;
-//   if (Object.getPrototypeOf(target) === null) return target;
-//   if (isReactive(target)) return target; // Already reactive
-//   Reflect.defineMetadata(reactiveMetadataKey, true, target);
+function watchProperties<T = any>(
+  target: T,
+  callback: (propertyKey: string | number, nextValue: any) => void,
+  filter?: (target: any, targetPropertyKey: string) => boolean,
+  prefix?: string,
+): T;
+function watchProperties(
+  target: any,
+  callback: (propertyKey: string | number, nextValue: any) => void,
+  filter?: (target: any, targetPropertyKey: string) => boolean,
+  prefix = "",
+) {
+  if (!target || typeof target !== "object") return target;
+  if (Object.getPrototypeOf(target) === null) return target;
+  if (isReactive(target)) return target; // Already reactive
+  Reflect.defineMetadata(reactiveMetadataKey, true, target);
 
-//   if (Array.isArray(target)) {
-//     watchArrayChange(target, (methodName, arr) => {
-//       arr.forEach((item, index) => {
-//         watchProperties(item, callback, filter, `${prefix}${index}`);
-//       });
-//       callback(prefix, arr);
-//     });
+  if (Array.isArray(target)) {
+    watchArrayChange(target, (methodName, arr) => {
+      arr.forEach((item, index) => {
+        watchProperties(item, callback, filter, `${prefix}${index}`);
+      });
+      callback(prefix, arr);
+    });
 
-//     return target;
-//   }
+    return target;
+  }
 
-//   let prototype = Object.getPrototypeOf(target);
-//   prototype = new Proxy(prototype, {
-//     set(target, p, newValue, receiver) {
-//       if (typeof p !== "string" && typeof p !== "number") {
-//         return Reflect.set(target, p, newValue, receiver);
-//       }
-//       console.log(
-//         `Proxy: Setting property: ${prefix}${p.toString()} to ${newValue}`,
-//       );
-//       const prevValue = target[p];
-//       if (prevValue === newValue) return true;
+  target = new Proxy(target, {
+    set(target, p, newValue, receiver) {
+      if (typeof p !== "string" && typeof p !== "number") {
+        return Reflect.set(target, p, newValue, receiver);
+      }
+      // console.log(
+      //   `Proxy: Setting property: ${prefix}${p.toString()} to ${newValue}`,
+      // );
+      const prevValue = target[p];
+      if (prevValue === newValue) return true;
 
-//       // unwatch previous value if it was reactive
-//       // TODO: revert reactivity of previous value
+      // unwatch previous value if it was reactive
+      // TODO: revert reactivity of previous value
 
-//       watchProperties(newValue, callback, filter, `${prefix}${p.toString()}.`);
+      watchProperties(newValue, callback, filter, `${prefix}${p.toString()}.`);
 
-//       const result = Reflect.set(target, p, newValue, receiver);
-//       if (result) callback(`${prefix}${p.toString()}`, newValue);
-//       return result;
-//     },
-//   });
-//   Object.setPrototypeOf(target, prototype);
-//   console.log(prototype);
+      const result = Reflect.set(target, p, newValue, receiver);
+      if (result) callback(`${prefix}${p.toString()}`, newValue);
+      return result;
+    },
+  });
 
-//   const allKeys = [...Object.keys(target)];
-//   target[storeSymbol] = target[storeSymbol] || new Map();
+  const allKeys = [...Object.keys(target)];
+  target[storeSymbol] = target[storeSymbol] || new Map();
 
-//   for (const key of allKeys) {
-//     if (filter && !filter(target, key)) continue;
+  for (const key of allKeys) {
+    if (filter && !filter(target, key)) continue;
 
-//     const value = target[key];
-//     target[storeSymbol].set(key, value);
-//     const propertyKey = `${prefix}${key.toString()}`;
+    const value = target[key];
+    target[storeSymbol].set(key, value);
+    const propertyKey = `${prefix}${key.toString()}`;
 
-//     watchProperties(value, callback, filter, `${propertyKey}.`);
+    watchProperties(value, callback, filter, `${propertyKey}.`);
 
-//     Object.defineProperty(target, key, {
-//       get() {
-//         return target[storeSymbol].get(key);
-//       },
-//       set(next) {
-//         console.log(
-//           `defineProperty: Setting property: ${propertyKey} to ${next}`,
-//         );
-//         const prev = target[storeSymbol].get(key);
-//         if (prev === next) return; // No change, do not trigger callback
+    Object.defineProperty(target, key, {
+      get() {
+        return target[storeSymbol].get(key);
+      },
+      set(next) {
+        // console.log(
+        //   `defineProperty: Setting property: ${propertyKey} to ${next}`,
+        // );
+        const prev = target[storeSymbol].get(key);
+        if (prev === next) return; // No change, do not trigger callback
 
-//         watchProperties(next, callback, filter, `${propertyKey}.`);
+        watchProperties(next, callback, filter, `${propertyKey}.`);
 
-//         target[storeSymbol].set(key, next);
-//         callback(propertyKey, next);
-//       },
-//     });
-//   }
+        target[storeSymbol].set(key, next);
+        callback(propertyKey, next);
+      },
+    });
+  }
 
-//   return target;
-// }
+  return target;
+}
 
-// const arrayMutableMethods = [
-//   "push",
-//   "pop",
-//   "shift",
-//   "unshift",
-//   "splice",
-//   "sort",
-//   "reverse",
-// ];
-// function watchArrayChange(
-//   arr: any[],
-//   callback: (methodName: string, arr: any[]) => void,
-// ) {
-//   for (const method of arrayMutableMethods) {
-//     const originalMethod = arr[method as any];
-//     if (typeof originalMethod !== "function") continue;
+const arrayMutableMethods = [
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "splice",
+  "sort",
+  "reverse",
+];
+function watchArrayChange(
+  arr: any[],
+  callback: (methodName: string, arr: any[]) => void,
+) {
+  for (const method of arrayMutableMethods) {
+    const originalMethod = arr[method as any];
+    if (typeof originalMethod !== "function") continue;
 
-//     arr[method as any] = function (...args: any[]) {
-//       const result = originalMethod.apply(this, args);
+    arr[method as any] = function (...args: any[]) {
+      const result = originalMethod.apply(this, args);
 
-//       callback(method, this);
-//       return result;
-//     };
-//   }
-// }
+      callback(method, this);
+      return result;
+    };
+  }
+}
