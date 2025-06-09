@@ -3,7 +3,7 @@ import { Crown } from "lucide-react";
 export type GameSummaryModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  rank: Array<[string, number]>;
+  rank: Record<string, number>;
 };
 
 const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
@@ -23,7 +23,7 @@ const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
         <p className="mb-4 text-center text-xl font-bold">게임 결과</p>
 
         <ul className="space-y-2">
-          {rank.map(([name, gold], idx) => {
+          {Object.entries(rank).map(([name, gold], idx) => {
             let colorClass = "";
             if (idx === 0) colorClass = "text-yellow-400";
             else if (idx === 1) colorClass = "text-gray-400";

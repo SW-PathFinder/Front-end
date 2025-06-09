@@ -311,21 +311,11 @@ export namespace SaboteurAction {
         }
       }
 
-      export class RoundEnd
-        extends Response.Primitive<{
-          winner: PlayerRole;
-          roles: { [playerId: string]: PlayerRole };
-        }>
-        implements UpdateAction
-      {
+      export class RoundEnd extends Response.Primitive<{
+        winner: PlayerRole;
+        roles: { [playerId: string]: PlayerRole };
+      }> {
         static readonly type = "roundEnd";
-
-        readonly _isUpdate = true as const;
-        update(gameSession: SaboteurSession): void {
-          console.log(gameSession);
-          // TODO: Implement round end logic
-          // throw new Error("Method not implemented.");
-        }
       }
 
       export class GameEnd
@@ -382,6 +372,9 @@ export namespace SaboteurAction {
 
           gameSession.round = round;
 
+          gameSession.board.startNewRound();
+          gameSession.deck.reset();
+          gameSession.myPlayer.resetRoundState();
           hands.forEach((card) => {
             const cardInDeck = gameSession.deck.removeByKind(card);
             if (!cardInDeck) {
@@ -484,8 +477,8 @@ export namespace SaboteurAction {
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           console.log(gameSession);
-          // TODO: Implement receive gold logic
-          // throw new Error("Method not implemented.");
+          const { gold } = this.data;
+          gameSession.myPlayer.gold += gold;
         }
       }
 

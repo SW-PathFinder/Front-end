@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+import { useGameSession } from "@/contexts/GameSessionContext";
 
 export type RoundSummaryModalProps = {
   isOpen: boolean;
@@ -6,8 +8,6 @@ export type RoundSummaryModalProps = {
   currentRound: number;
   winner: "worker" | "saboteur";
   roles: Record<string, "worker" | "saboteur">;
-  currentUser: string;
-  goldEarned?: number;
 };
 
 const RoundSummaryModal = ({
@@ -16,13 +16,14 @@ const RoundSummaryModal = ({
   currentRound,
   winner,
   roles,
-  currentUser,
-  goldEarned = 0,
 }: RoundSummaryModalProps) => {
-  const [remaining, setRemaining] = useState<number>(10);
+  const { gameSession } = useGameSession();
+  const [remaining, setRemaining] = useState<number>(30);
+  const [goldEarned, setGoldEarned] = useState<number>(0); // Placeholder for gold earned, should be set based on game logic
+  const currentUser = gameSession.myPlayer.name;
 
   useEffect(() => {
-    if (isOpen) setRemaining(10);
+    if (isOpen) setRemaining(30);
   }, [isOpen]);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ const RoundSummaryModal = ({
 
   return (
     <dialog open className="modal-open modal">
-      <div className="relative modal-box max-w-md">
+      <div className="relative modal-box max-w-md bg-neutral">
         <button
           className="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
           onClick={onClose}
@@ -64,7 +65,9 @@ const RoundSummaryModal = ({
           <ul className="space-y-1">
             {Object.entries(roles).map(([name, role]) => (
               <li key={name} className="flex items-center justify-between">
-                <span>{name}</span>
+                <span>
+                  {name} {gameSession.myPlayer.name === name ? "(나)" : ""}
+                </span>
                 <span
                   className={
                     role === "saboteur"

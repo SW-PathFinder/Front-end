@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, use } from "react";
 
 import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
 import { Board } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { EquipmentModal } from "@/components/Game/EquipmentModal";
+import GameSummaryModal from "@/components/Game/GameSummaryModal";
 import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import RevealDestModal from "@/components/Game/RevealDestModal";
+import RoundSummaryModal from "@/components/Game/RoundSummaryModal";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
@@ -16,18 +18,24 @@ import { PlayerRole } from "@/libs/saboteur/types";
 import lobby_bg from "/bg/game_bg.png";
 import emoji_icon from "/buttons/emoji_icon.png";
 
+type RoundResult = {
+  currentRound: number;
+  winner: "worker" | "saboteur";
+  roles: Record<string, "worker" | "saboteur">;
+};
+
+type GameResult = { rank: Record<string, number> };
+
 const Game = () => {
   const { gameSession } = useGameSession();
+
+  // 목적지 정보
   const [destInfo, setDestInfo] = useState(
     null as null | { x: number; y: number },
   );
   const [destModalOpen, setDestModalOpen] = useState(false);
   const [destCard, setDestCard] = useState(
     null as null | SaboteurCard.Path.Abstract,
-  );
-  const [equipModalOpen, setEquipModalOpen] = useState(false);
-  const [equipCard, setEquipCard] = useState(
-    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
   );
 
   useEffect(() => {
@@ -36,6 +44,49 @@ const Game = () => {
     setDestCard(revealedCard);
     setDestModalOpen(true);
   }, [gameSession.board, destInfo]);
+
+  // 라운드 종료 모달
+  const [isRoundEnd, setIsRoundEnd] = useState(false);
+  const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
+
+  useEffect(() => {
+    // 라운드 종료 시
+    gameSession.adapter.on("roundEnd", (action) => {
+      setIsRoundEnd(true);
+      setDestInfo(null);
+      setDestCard(null);
+      setDestModalOpen(false);
+      setEquipModalOpen(false);
+      setEquipCard(null);
+      setRoundResult({
+        currentRound: gameSession.round,
+        winner: action.data.winner,
+        roles: action.data.roles,
+      });
+    });
+  }, [gameSession.round, gameSession.adapter]);
+
+  // 게임 종료 모달
+  const [isGameEnd, setIsGameEnd] = useState(false);
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
+
+  useEffect(() => {
+    // 게임 종료 시
+    gameSession.adapter.on("gameEnd", (action) => {
+      setIsGameEnd(true);
+      setDestInfo(null);
+      setDestCard(null);
+      setDestModalOpen(false);
+      setEquipModalOpen(false);
+      setGameResult({ rank: action.data.golds });
+    });
+  }, [gameSession.round, gameSession.adapter]);
+
+  // 장비 카드 모달
+  const [equipModalOpen, setEquipModalOpen] = useState(false);
+  const [equipCard, setEquipCard] = useState(
+    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
+  );
 
   const onDropCard = useCallback(
     (
@@ -146,6 +197,22 @@ const Game = () => {
               playerlist={gameSession.players}
               equipCard={equipCard}
               onClose={() => setEquipModalOpen(false)}
+            />
+          )}
+          {isRoundEnd && (
+            <RoundSummaryModal
+              isOpen={isRoundEnd}
+              onClose={() => setIsRoundEnd(false)}
+              currentRound={roundResult?.currentRound ?? 0}
+              winner={roundResult?.winner ?? "worker"}
+              roles={roundResult?.roles ?? {}}
+            />
+          )}
+          {isGameEnd && isRoundEnd === false && (
+            <GameSummaryModal
+              isOpen={isGameEnd}
+              onClose={() => setIsGameEnd(false)}
+              rank={gameResult?.rank ?? {}}
             />
           )}
         </main>
