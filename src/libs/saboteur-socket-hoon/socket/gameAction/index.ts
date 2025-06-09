@@ -347,8 +347,12 @@ export namespace SocketAction {
         }
       }
 
-      export class FoundRock extends AbstractBroadcastResponse<// [absoluteY: number, absoluteX: number]
-      { x: number; y: number; card: number; reverse?: boolean }> {
+      export class FoundRock extends AbstractBroadcastResponse<{
+        x: number;
+        y: number;
+        card: number;
+        reverse?: boolean;
+      }> {
         static readonly type = "rock_found";
 
         toSaboteurAction(): [SaboteurAction.Response.Public.RevealDestination] {

@@ -4,7 +4,7 @@ import {
   GameRoomAdapter,
   GameSession,
 } from "@/libs/gameSession";
-import { NonReactive, ReactiveObject, Reactivity } from "@/libs/reactivity";
+import { Reactivity, NonReactive, ReactiveObject } from "@/libs/reactivity";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
 import { SaboteurSessionAdapter } from "./adapter";
@@ -118,10 +118,12 @@ export class SaboteurSession implements GameSession {
     this.players = players;
 
     this.adapter.onAny((action) => {
+      console.log("action received:", action);
       if (action.isUpdateAction()) action.update(this);
     });
 
     this.adapter.onAnyOutgoing((action) => {
+      console.log("action sent:", action);
       if (action.isUpdateAction()) action.update(this);
     });
 
