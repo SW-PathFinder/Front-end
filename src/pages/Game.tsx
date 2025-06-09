@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
+import { useNavigate } from "react-router";
+
 import { RulebookButton } from "@/components/Common/RulebookButton";
 import { ActionZone } from "@/components/Game/ActionZone";
 import { Board } from "@/components/Game/Board";
@@ -28,6 +30,7 @@ type GameResult = { rank: Record<string, number> };
 
 const Game = () => {
   const { gameSession } = useGameSession();
+  const navigate = useNavigate();
 
   // 목적지 정보
   const [destInfo, setDestInfo] = useState(
@@ -36,6 +39,12 @@ const Game = () => {
   const [destModalOpen, setDestModalOpen] = useState(false);
   const [destCard, setDestCard] = useState(
     null as null | SaboteurCard.Path.Abstract,
+  );
+
+  // 장비 카드 모달
+  const [equipModalOpen, setEquipModalOpen] = useState(false);
+  const [equipCard, setEquipCard] = useState(
+    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
   );
 
   useEffect(() => {
@@ -80,12 +89,6 @@ const Game = () => {
       setGameResult({ rank: action.data.golds });
     });
   }, [gameSession.round, gameSession.adapter]);
-
-  // 장비 카드 모달
-  const [equipModalOpen, setEquipModalOpen] = useState(false);
-  const [equipCard, setEquipCard] = useState(
-    null as null | SaboteurCard.Action.Repair | SaboteurCard.Action.Sabotage,
-  );
 
   const onDropCard = useCallback(
     (
@@ -210,7 +213,11 @@ const Game = () => {
           {isGameEnd && isRoundEnd === false && (
             <GameSummaryModal
               isOpen={isGameEnd}
-              onClose={() => setIsGameEnd(false)}
+              onClose={() => {
+                setIsGameEnd(false);
+                setGameResult(null);
+                navigate("/saboteur");
+              }}
               rank={gameResult?.rank ?? {}}
             />
           )}

@@ -58,7 +58,11 @@ export class GameBoard {
 
   placeCard(x: number, y: number, card: SaboteurCard.Path.Abstract): void {
     const [canPlace, error] = this.canPlaceCard(x, y, card);
-    if (!canPlace) throw error;
+    // if (!canPlace) throw error;
+    console.log(
+      `XXX Placing card at (${x}, ${y}): ${canPlace ? "Success" : "Failed"} ${card.image}, ${card.flipped} , card
+      error,`,
+    );
     this._setCard(x, y, card);
   }
 
@@ -68,6 +72,10 @@ export class GameBoard {
   ): [removed: true] | [removed: false, error: Error];
   canRemoveCard(x: number, y: number): [removed: boolean, error?: Error] {
     const existingCard = this.getCard(x, y);
+    console.log(
+      `XXX Checking if can remove card at (${x}, ${y}): ${existingCard}`,
+      existingCard,
+    );
     if (existingCard === null)
       return [false, new CardNotInCoordinatesError(x, y)];
     if (!existingCard.destructible)
@@ -78,7 +86,11 @@ export class GameBoard {
 
   removeCard(x: number, y: number): void {
     const [canRemove, error] = this.canRemoveCard(x, y);
-    if (!canRemove) throw error;
+    // if (!canRemove) throw error;
+    console.log(
+      `XXX Removing card at (${x}, ${y}): ${canRemove ? "Success" : "Failed"}`,
+      error,
+    );
 
     this.grid.delete(x, y);
   }

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { defaultRotatedList } from "@/libs/saboteur-socket-hoon/card";
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
@@ -221,10 +220,7 @@ const saboteurRequestActionMapper: {
   [T in SaboteurAction.Request.ActionType]: ActionMapper<T>;
 } = {
   path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
-    const defaultRotated = defaultRotatedList.includes(
-      action.data.card.constructor as any,
-    );
-    const isRotated = action.data.card.flipped === defaultRotated;
+    const isRotated = action.data.card.flipped;
     const actions: SocketAction.Actions[] = [];
     if (isRotated) {
       actions.push(

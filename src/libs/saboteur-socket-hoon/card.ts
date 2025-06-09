@@ -40,14 +40,6 @@ const cardIdToClassMap = {
   27: [SaboteurCard.Action.Destroy],
 } as const;
 
-export const defaultRotatedList = [
-  SaboteurCard.Path.Way3A,
-  SaboteurCard.Path.Way2A,
-  SaboteurCard.Path.Block1B,
-  SaboteurCard.Path.Block3A,
-  SaboteurCard.Path.Block2A,
-];
-
 export type CardId = keyof typeof cardIdToClassMap;
 export type PlayableCardId = Exclude<
   CardId,
