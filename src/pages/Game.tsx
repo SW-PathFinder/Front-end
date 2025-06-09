@@ -14,6 +14,7 @@ import { SaboteurCard } from "@/libs/saboteur/cards";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 import lobby_bg from "/bg/game_bg.png";
+import emoji_icon from "/buttons/emoji_icon.png";
 
 const Game = () => {
   const { gameSession } = useGameSession();
@@ -103,7 +104,7 @@ const Game = () => {
             <RulebookButton />
             <img
               className="h-16 w-16 cursor-pointer"
-              src="/buttons/emoji_button.svg"
+              src={emoji_icon}
               alt="emoji chat"
             />
           </div>
