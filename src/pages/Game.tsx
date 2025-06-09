@@ -170,7 +170,7 @@ const Game = () => {
               onDropCard={onDropCard}
               className="mb-[100px] h-1/2 w-full"
             />
-            <div className="absolute bottom-0 flex h-[150px] w-full max-w-[540px] items-center justify-between px-4">
+            <div className="absolute -bottom-8 flex h-[150px] w-full max-w-[540px] items-center justify-between px-4">
               <ActionZone
                 action="discard"
                 className="aspect-square w-36 rounded-full"

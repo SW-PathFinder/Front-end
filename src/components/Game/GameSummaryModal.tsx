@@ -1,5 +1,7 @@
 import { Crown } from "lucide-react";
 
+import { useGameSession } from "@/contexts/GameSessionContext";
+
 export type GameSummaryModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -7,6 +9,7 @@ export type GameSummaryModalProps = {
 };
 
 const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
+  const { gameSession } = useGameSession();
   if (!isOpen) return null;
 
   return (
@@ -37,7 +40,7 @@ const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
                 >
                   <span className="flex items-center gap-1">
                     {idx === 0 && <Crown className="h-4 w-4 text-yellow-400" />}
-                    {name}
+                    {name} {name === gameSession.myPlayer.name && "(나)"}
                   </span>
                   <span>{gold} 골드</span>
                 </li>
