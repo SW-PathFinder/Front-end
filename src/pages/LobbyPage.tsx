@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router";
 
+import { useAuthenticated } from "@/contexts/AuthenticatedContext";
+
 import { RulebookButton } from "../components/Common/RulebookButton";
 import { SettingsButton } from "../components/Common/SettingsButton";
 import LogoutModal from "../components/Lobby/LogoutModal";
@@ -19,7 +21,8 @@ const LobbyPage = () => {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [logoutOpen, setLogoutOpen] = useState<boolean>(false);
 
-  const { userId, logout } = useAuth();
+  const { logout } = useAuth();
+  const { userId } = useAuthenticated();
   const navigate = useNavigate();
 
   return (

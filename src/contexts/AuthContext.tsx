@@ -1,64 +1,88 @@
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
-import { useSocketRequest } from "@/contexts/SocketContext";
+import { useSocket, useSocketRequest } from "@/contexts/SocketContext";
 
 interface AuthContextType {
   userId: string | null;
-  login: (userId: string) => void;
+  isLoading: boolean;
+  login: (userId: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
+  const socket = useSocket();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const isFetchingRef = useRef(false);
+
   const setUserName = useSocketRequest("set_username", "username_result");
 
-  const [userId, setUserId] = useState<string | null>(
-    localStorage.getItem("userId"),
+  const logout = useCallback(() => {
+    socket.disconnect();
+    socket.connect();
+    localStorage.removeItem("userId");
+    setUserId(null);
+  }, [socket]);
+
+  const login = useCallback(
+    async (userId: string) => {
+      setIsLoading(true);
+
+      try {
+        await setUserName({ username: userId });
+        localStorage.setItem("userId", userId);
+        setUserId(userId);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setUserName],
   );
 
   useEffect(() => {
-    const stored = localStorage.getItem("userId");
-    if (!stored) return;
+    const storedId = localStorage.getItem("userId");
+    if (userId || !storedId) {
+      setIsLoading(false);
+      return;
+    }
 
-    (async () => {
-      try {
-        await setUserName({ username: stored });
-        setUserId(stored);
-      } catch (err: unknown) {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+    console.log("Attempting to login with stored userId:", storedId);
+
+    login(storedId)
+      .catch((error) => {
+        console.error("Login error:", error);
         if (
-          typeof err === "object" &&
-          err !== null &&
-          "message" in err &&
-          typeof (err as { message?: unknown }).message === "string" &&
-          (err as { message: string }).message !==
+          typeof error === "object" &&
+          error !== null &&
+          "message" in error &&
+          typeof (error as { message?: unknown }).message === "string" &&
+          (error as { message: string }).message !==
             "이미 사용 중인 사용자 이름입니다."
         ) {
-          localStorage.removeItem("userId");
-          setUserId(null);
+          logout();
         }
-      }
-    })();
-  }, [setUserName]);
-
-  const login = (id: string) => {
-    localStorage.setItem("userId", id);
-    setUserId(id);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("userId");
-    setUserId(null);
-  };
+      })
+      .finally(() => {
+        isFetchingRef.current = false;
+      });
+  }, [userId, login, logout]);
 
   return (
-    <AuthContext value={{ userId, login, logout }}>{children}</AuthContext>
+    <AuthContext value={{ userId, isLoading, login, logout }}>
+      {children}
+    </AuthContext>
   );
 };
 

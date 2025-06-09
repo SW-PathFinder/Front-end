@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -34,29 +34,26 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
-  const setUserName = useSocketRequest("set_username", "username_result");
-
   const { login, userId } = useAuth();
   if (userId) {
     return <Navigate to="/" replace />;
   }
 
-  const onSubmit = async (data: LoginFormValues): Promise<void> => {
-    setServerError(null);
-    try {
-      await setUserName({ username: data.nickname });
-      alert("닉네임 사용 가능");
-      login(data.nickname);
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      setServerError(message);
-    }
-  };
+  const onSubmit = handleSubmit(
+    async (data: LoginFormValues): Promise<void> => {
+      setServerError(null);
+      try {
+        await login(data.nickname);
+        navigate("/");
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        setServerError(message);
+      }
+    },
+  );
 
   return (
     <div
@@ -67,10 +64,7 @@ const LoginPage = () => {
         <img src="/logo.png" alt="Logo" className="w-4xl" />
       </div>
       <div className="absolute bottom-18 w-full max-w-sm">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-y-4"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col gap-y-2">
             {(errors.nickname?.message || serverError) && (
               <div role="alert" className="alert alert-warning">
