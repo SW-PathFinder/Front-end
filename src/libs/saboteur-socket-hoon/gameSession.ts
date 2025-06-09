@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SaboteurSessionAdapter } from "@/libs/saboteur/adapter";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
+import { SaboteurCard } from "@/libs/saboteur/cards";
 import { SaboteurSession } from "@/libs/saboteur/game";
 import { MySaboteurPlayer } from "@/libs/saboteur/player";
 import { UnsubscribeCallback } from "@/libs/socket-io";
@@ -9,11 +10,11 @@ import { HSSaboteurSocket, SocketAction } from "./socket";
 
 type RequestActionEvent = CustomEvent<{
   action: SaboteurAction.Request.Actions;
-  primitive: SocketAction.Request.Actions;
+  socketAction: SocketAction.Request.Actions;
 }>;
 type ResponseActionEvent = CustomEvent<{
   action: SaboteurAction.Response.Actions;
-  primitive: SocketAction.Response.Actions;
+  socketAction: SocketAction.Response.Actions;
 }>;
 
 export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
@@ -34,12 +35,12 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.player = player;
 
     this.outTarget.addEventListener("any", ((event: RequestActionEvent) => {
-      const { action, primitive } = event.detail;
+      const { action, socketAction } = event.detail;
 
       this.socket.emit("game_action", {
         room: this.roomId,
         player: this.player.id,
-        action: primitive,
+        action: socketAction.toPrimitive(),
         requestId: action.requestId,
       });
     }) as any);
@@ -47,28 +48,45 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     this.socket.onAny((type, data) => {
       if (type !== "game_update" && type !== "private_game_update") return;
 
-      const primitive = SocketAction.AbstractResponse.fromPrimitive(data);
-
-      const actions =
-        SocketAction.AbstractResponse.fromPrimitive(data).toSaboteurAction();
-
-      for (const action of actions) {
-        this.inTarget.dispatchEvent(
-          new CustomEvent("any", { detail: { action, primitive } }),
-        );
-      }
+      const socketAction = SocketAction.AbstractResponse.fromPrimitive(data);
+      this.performIn(socketAction);
     });
+  }
+
+  private performIn(socketAction: SocketAction.AbstractResponse) {
+    const actions = socketAction.toSaboteurAction();
+
+    for (const action of actions) {
+      this.inTarget.dispatchEvent(
+        new CustomEvent("any", { detail: { action, socketAction } }),
+      );
+    }
+  }
+
+  private toSocketActions(
+    action: SaboteurAction.Request.Actions,
+    gameSession: SaboteurSession,
+  ): SocketAction.Actions[] {
+    return saboteurRequestActionMapper[
+      action.type as SaboteurAction.Request.ActionType
+    ](action as any, gameSession);
   }
 
   sendAction<TAction extends SaboteurAction.Request.Actions>(
     action: TAction,
     gameSession: SaboteurSession,
   ) {
-    const primitive = action.toSocketAction(gameSession).toPrimitive();
+    const socketActions = this.toSocketActions(action, gameSession);
 
-    this.outTarget.dispatchEvent(
-      new CustomEvent("any", { detail: { action, primitive } }),
-    );
+    for (const socketAction of socketActions) {
+      if (socketAction.isRequestActionType()) {
+        this.outTarget.dispatchEvent(
+          new CustomEvent("any", { detail: { action, socketAction } }),
+        );
+      } else {
+        this.performIn(socketAction);
+      }
+    }
   }
 
   onAny(
@@ -76,7 +94,7 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     options: { once?: boolean } = {},
   ) {
     const listener = (event: ResponseActionEvent) => {
-      callback(event.detail.action as any);
+      callback(event.detail.action);
     };
 
     this.inTarget.addEventListener("any", listener as any, {
@@ -153,3 +171,110 @@ export class HSSaboteurSessionAdapter implements SaboteurSessionAdapter {
     };
   }
 }
+
+function getHandNumOfCard(
+  myPlayer: MySaboteurPlayer,
+  card: SaboteurCard.Abstract,
+) {
+  return myPlayer.hands.findIndex((c) => c.id === card.id);
+}
+
+const saboteurRequestActionMapper: {
+  [T in SaboteurAction.Request.ActionType]: ActionMapper<T>;
+} = {
+  path(action: SaboteurAction.Request.Path, gameSession: SaboteurSession) {
+    return [
+      new SocketAction.Request.PlacePath(
+        {
+          x: action.data.x,
+          y: action.data.y,
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        },
+        action.requestId,
+      ),
+    ];
+  },
+  destroy(
+    action: SaboteurAction.Request.Destroy,
+    gameSession: SaboteurSession,
+  ) {
+    return [
+      new SocketAction.Request.DestroyPath(
+        {
+          x: action.data.x,
+          y: action.data.y,
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        },
+        action.requestId,
+      ),
+    ];
+  },
+  repair(action: SaboteurAction.Request.Repair, gameSession: SaboteurSession) {
+    return [
+      new SocketAction.Request.Repair(
+        {
+          target: action.data.player.id,
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+          tool: action.data.tool,
+        },
+        action.requestId,
+      ),
+    ];
+  },
+  sabotage(
+    action: SaboteurAction.Request.Sabotage,
+    gameSession: SaboteurSession,
+  ) {
+    return [
+      new SocketAction.Request.Sabotage(
+        {
+          target: action.data.player.id,
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        },
+        action.requestId,
+      ),
+    ];
+  },
+  useMap(action: SaboteurAction.Request.UseMap, gameSession: SaboteurSession) {
+    return [
+      new SocketAction.Request.UseMap(
+        {
+          x: action.data.x,
+          y: action.data.y,
+          handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card),
+        },
+        action.requestId,
+      ),
+    ];
+  },
+  discard(
+    action: SaboteurAction.Request.Discard,
+    gameSession: SaboteurSession,
+  ) {
+    return [
+      new SocketAction.Request.Discard(
+        { handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card) },
+        action.requestId,
+      ),
+    ];
+  },
+  rotate(action: SaboteurAction.Request.Rotate, gameSession: SaboteurSession) {
+    return [
+      new SocketAction.Request.RotatePath(
+        { handNum: getHandNumOfCard(gameSession.myPlayer, action.data.card) },
+        action.requestId,
+      ),
+    ];
+  },
+};
+
+type ActionMapper<
+  T extends SaboteurAction.Request.ActionType,
+  TClass extends
+    SaboteurAction.Request.ActionClass = SaboteurAction.Request.ActionClass & {
+    type: T;
+  },
+> = (
+  action: InstanceType<TClass>,
+  gameSession: SaboteurSession,
+) => SocketAction.Actions[];

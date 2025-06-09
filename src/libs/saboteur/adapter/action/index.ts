@@ -1,4 +1,3 @@
-import { SocketAction } from "@/libs/saboteur-socket-hoon";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 import { SaboteurSession } from "@/libs/saboteur/game";
 import {
@@ -53,200 +52,63 @@ abstract class AbstractAction<T = unknown> {
 
 export namespace SaboteurAction {
   export namespace Request {
-    interface SocketTransformable {
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions;
-    }
-
     export abstract class Primitive<T> extends AbstractAction<T> {
       readonly eventType = "request";
 
       constructor(data: T) {
         super(data, crypto.randomUUID());
       }
-
-      protected getHandNumOfCard(
-        myPlayer: MySaboteurPlayer,
-        card: SaboteurCard.Abstract,
-      ) {
-        return myPlayer.hands.findIndex((c) => c.id === card.id);
-      }
     }
 
-    export class Path
-      extends Request.Primitive<{
-        x: number;
-        y: number;
-        card: SaboteurCard.Path.AbstractCommon;
-      }>
-      implements SocketTransformable
-    {
+    export class Path extends Request.Primitive<{
+      x: number;
+      y: number;
+      card: SaboteurCard.Path.AbstractCommon;
+    }> {
       static readonly type = "path";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.PlacePath(
-          {
-            x: this.data.x,
-            y: this.data.y,
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class Destroy
-      extends Request.Primitive<{
-        x: number;
-        y: number;
-        card: SaboteurCard.Action.Destroy;
-      }>
-      implements SocketTransformable
-    {
+    export class Destroy extends Request.Primitive<{
+      x: number;
+      y: number;
+      card: SaboteurCard.Action.Destroy;
+    }> {
       static readonly type = "destroy";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.DestroyPath(
-          {
-            x: this.data.x,
-            y: this.data.y,
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class Repair
-      extends Request.Primitive<{
-        player: AbstractSaboteurPlayer;
-        card: SaboteurCard.Action.Repair;
-        tool: Tools;
-      }>
-      implements SocketTransformable
-    {
+    export class Repair extends Request.Primitive<{
+      player: AbstractSaboteurPlayer;
+      card: SaboteurCard.Action.Repair;
+      tool: Tools;
+    }> {
       static readonly type = "repair";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Repair(
-          {
-            target: this.data.player.id,
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-            tool: this.data.tool,
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class Sabotage
-      extends Request.Primitive<{
-        player: AbstractSaboteurPlayer;
-        card: SaboteurCard.Action.Sabotage;
-      }>
-      implements SocketTransformable
-    {
+    export class Sabotage extends Request.Primitive<{
+      player: AbstractSaboteurPlayer;
+      card: SaboteurCard.Action.Sabotage;
+    }> {
       static readonly type = "sabotage";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Sabotage(
-          {
-            target: this.data.player.id,
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class UseMap
-      extends Request.Primitive<{
-        x: number;
-        y: number;
-        card: SaboteurCard.Action.Map;
-      }>
-      implements SocketTransformable
-    {
+    export class UseMap extends Request.Primitive<{
+      x: number;
+      y: number;
+      card: SaboteurCard.Action.Map;
+    }> {
       static readonly type = "useMap";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.UseMap(
-          {
-            x: this.data.x,
-            y: this.data.y,
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class Discard
-      extends Request.Primitive<{ card: SaboteurCard.Abstract.Playable }>
-      implements SocketTransformable
-    {
+    export class Discard extends Request.Primitive<{
+      card: SaboteurCard.Abstract.Playable;
+    }> {
       static readonly type = "discard";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.Discard(
-          {
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
-    export class Rotate
-      extends Request.Primitive<{ card: SaboteurCard.Path.AbstractCommon }>
-      implements SocketTransformable
-    {
+    export class Rotate extends Request.Primitive<{
+      card: SaboteurCard.Path.AbstractCommon;
+    }> {
       static readonly type = "rotate";
-
-      toSocketAction(
-        gameSession: SaboteurSession,
-      ): SocketAction.Request.Actions {
-        return new SocketAction.Request.RotatePath(
-          {
-            handNum: this.getHandNumOfCard(
-              gameSession.myPlayer,
-              this.data.card,
-            ),
-          },
-          this.requestId,
-        );
-      }
     }
 
     export type ActionClass =

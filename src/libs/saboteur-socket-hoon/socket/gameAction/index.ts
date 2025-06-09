@@ -7,6 +7,8 @@ import { PlayerRole, Tools } from "@/libs/saboteur/types";
 abstract class AbstractSocketAction<T extends string | object = string | object>
   implements SocketAction.Primitive
 {
+  abstract readonly _actionType: "request" | "response";
+
   readonly data: T;
   requestId?: string;
 
@@ -17,6 +19,10 @@ abstract class AbstractSocketAction<T extends string | object = string | object>
   get type(): string {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.constructor as any).type;
+  }
+
+  isRequestActionType(): this is SocketAction.Request.Actions {
+    return this._actionType === "request";
   }
 }
 
@@ -32,6 +38,8 @@ export namespace SocketAction {
     extends AbstractSocketAction<T>
     implements Request.Primitive
   {
+    readonly _actionType = "request" as const;
+
     readonly requestId?: string;
 
     constructor(data: T, requestId?: string) {
@@ -139,6 +147,8 @@ export namespace SocketAction {
     extends AbstractSocketAction<T>
     implements Response.Primitive
   {
+    readonly _actionType = "response" as const;
+
     id: number;
     readonly target: "all" | (string & {});
     readonly requestId?: string;
