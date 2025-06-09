@@ -8,22 +8,19 @@ import { useSocketRequest } from "@/contexts/SocketContext";
 
 export const GameRoomLayout = () => {
   const location = useLocation();
-  const { gameRoom, setGameRoom } = useAuthenticated();
+  const { userId, gameRoom, setGameRoom } = useAuthenticated();
   const [isLoading, setIsLoading] = useState(true);
   const isFetchingRef = useRef(false);
 
   // reconnect previous game room if exists
   const params = useParams<{ roomId?: string }>();
-  const searchRoomById = useSocketRequest(
-    "search_room_by_code",
-    "room_search_result",
-  );
+  const joinExistRoom = useSocketRequest("join_game", "join_game_result");
 
   const connectExistingRoom = useCallback(
-    async (roomId: string) => {
+    async (userId: string, roomId: string) => {
       try {
         setIsLoading(true);
-        const result = await searchRoomById({ room_code: roomId });
+        const result = await joinExistRoom({ player: userId, room: roomId });
         setGameRoom({
           id: result.data.room.room_id,
           players: result.data.room.players.map((pid) => ({
@@ -34,12 +31,13 @@ export const GameRoomLayout = () => {
           capacity: result.data.room.max_players,
           isPublic: result.data.room.is_public,
           cardHelper: result.data.room.card_helper,
+          sessionExists: result.data.room.is_started,
         });
       } finally {
         setIsLoading(false);
       }
     },
-    [searchRoomById, setGameRoom],
+    [joinExistRoom, setGameRoom],
   );
 
   useEffect(() => {
@@ -52,10 +50,10 @@ export const GameRoomLayout = () => {
 
     const roomId = params.roomId;
 
-    connectExistingRoom(roomId).finally(() => {
+    connectExistingRoom(userId, roomId).finally(() => {
       isFetchingRef.current = false;
     });
-  }, [gameRoom, params.roomId, connectExistingRoom]);
+  }, [userId, gameRoom, params.roomId, connectExistingRoom]);
 
   if (isLoading) {
     return (

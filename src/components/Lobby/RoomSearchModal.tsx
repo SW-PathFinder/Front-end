@@ -31,6 +31,7 @@ const RoomSearchModal = ({ isOpen, onClose }: RoomSearchModalProps) => {
         capacity: data.room.max_players,
         isPublic: data.room.is_public,
         cardHelper: data.room.card_helper,
+        sessionExists: data.room.is_started,
       });
 
       navigate(`/saboteur/${data.room.room_id}/waiting`);

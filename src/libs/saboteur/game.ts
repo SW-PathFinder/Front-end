@@ -17,6 +17,8 @@ export interface SaboteurRoomAdapter extends GameRoomAdapter {
   onGameSessionStart(
     callback: (gameSession: SaboteurSession) => void,
   ): UnsubscribeCallback;
+
+  createGameSession(players: GameRoomPlayer[]): SaboteurSession;
 }
 
 export interface SaboteurRoomOption {
@@ -26,6 +28,7 @@ export interface SaboteurRoomOption {
   capacity: number;
   isPublic: boolean;
   cardHelper: boolean;
+  sessionExists?: boolean;
 }
 
 @Reactivity()
@@ -43,10 +46,19 @@ export class SaboteurRoom implements GameRoom {
 
   private _remainingSecond: number | null = null;
   private _isReady: boolean = false;
+  private _gameSession: SaboteurSession | null = null;
 
   constructor(
     adapter: SaboteurRoomAdapter,
-    { id, players, host, capacity, isPublic, cardHelper }: SaboteurRoomOption,
+    {
+      id,
+      players,
+      host,
+      capacity,
+      isPublic,
+      cardHelper,
+      sessionExists,
+    }: SaboteurRoomOption,
   ) {
     this.adapter = adapter;
     this.id = id;
@@ -76,6 +88,13 @@ export class SaboteurRoom implements GameRoom {
         this._remainingSecond -= 1;
       }, 1000);
     });
+
+    this.adapter.onGameSessionStart((gameSession) => {
+      this._gameSession = gameSession;
+    });
+
+    if (sessionExists)
+      this._gameSession = this.adapter.createGameSession(this.players);
   }
 
   get host(): GameRoomPlayer {
@@ -88,6 +107,10 @@ export class SaboteurRoom implements GameRoom {
 
   get remainingSecond(): number | null {
     return this._remainingSecond;
+  }
+
+  get gameSession(): SaboteurSession | null {
+    return this._gameSession;
   }
 }
 export interface SaboteurRoom extends ReactiveObject {}
