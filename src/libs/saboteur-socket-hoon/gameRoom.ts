@@ -16,8 +16,6 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
   private roomId: string;
   private player: GameRoomPlayer;
 
-  private gameSession: SaboteurSession | null = null;
-
   constructor(socket: HSSaboteurSocket, roomId: string, playerId: string) {
     this.socket = socket;
     this.roomId = roomId;
@@ -73,21 +71,9 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
     }: SocketAction.Response.Broadcast.GameStart) => {
       if (type !== "game_started") return;
 
-      const myPlayer = new MySaboteurPlayer({ id: this.player.id });
-      const players: AbstractSaboteurPlayer[] = data.players.map((playerId) => {
-        if (playerId === this.player.id) return myPlayer;
-        return new OtherSaboteurPlayer({ id: playerId });
-      });
-
-      const adapter = new HSSaboteurSessionAdapter(
-        this.socket,
-        this.roomId,
-        myPlayer,
+      const session = this.createGameSession(
+        data.players.map((playerId) => ({ id: playerId, name: playerId })),
       );
-      const session = new SaboteurSession(adapter, { players });
-
-      this.gameSession = session;
-
       callback(session);
     };
 
@@ -98,7 +84,19 @@ export class HSSaboteurRoomAdapter implements SaboteurRoomAdapter {
     };
   }
 
-  getGameSession(): SaboteurSession | null {
-    return this.gameSession;
+  createGameSession(roomPlayers: GameRoomPlayer[]): SaboteurSession {
+    const myPlayer = new MySaboteurPlayer({ id: this.player.id });
+    const players: AbstractSaboteurPlayer[] = roomPlayers.map((roomPlayer) => {
+      if (roomPlayer.id === this.player.id) return myPlayer;
+      return new OtherSaboteurPlayer({ id: roomPlayer.id });
+    });
+
+    const adapter = new HSSaboteurSessionAdapter(
+      this.socket,
+      this.roomId,
+      myPlayer,
+    );
+    const session = new SaboteurSession(adapter, { players });
+    return session;
   }
 }

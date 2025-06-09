@@ -51,6 +51,11 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
   resetRoundState(): void {
     this._status = { lantern: true, pickaxe: true, mineCart: true };
   }
+
+  sync(data: { status?: Partial<Record<Tools, boolean>> }): void {
+    if (data.status !== undefined)
+      this._status = { ...this._status, ...data.status };
+  }
 }
 
 export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
@@ -67,6 +72,14 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
   resetRoundState(): void {
     super.resetRoundState();
     this.handCount = 0;
+  }
+
+  sync(data: {
+    status?: Partial<Record<Tools, boolean>>;
+    handCount?: number;
+  }): void {
+    super.sync(data);
+    if (data.handCount !== undefined) this.handCount = data.handCount;
   }
 
   static readonly handCountPerPlayersMap: Record<number, number> = {
@@ -86,7 +99,8 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
 }
 
 export class MySaboteurPlayer extends AbstractSaboteurPlayer {
-  golds: number[] = [];
+  private _gold: number = 0;
+  private _lastRoundGold: number = 0;
 
   role: PlayerRole | null;
   private _hands: SaboteurCard.Abstract.Playable[];
@@ -94,21 +108,30 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   constructor({
     role,
     hands = [],
-    golds = [],
+    gold = 0,
     ...options
   }: AbstractPlayerOption & {
     role?: PlayerRole;
     hands?: SaboteurCard.Abstract.Playable[];
-    golds?: number[];
+    gold?: number;
   }) {
     super(options);
-    this.golds = golds;
+    this._gold = gold;
     this.role = role ?? null;
     this._hands = hands;
   }
 
   get gold(): number {
-    return this.golds.reduce((total, gold) => total + gold, 0);
+    return this._gold;
+  }
+
+  get lastRoundGold(): number {
+    return this._lastRoundGold;
+  }
+
+  set lastRoundGold(gold: number) {
+    this._lastRoundGold = gold;
+    this._gold += this._lastRoundGold;
   }
 
   get hands(): ReadonlyArray<SaboteurCard.Abstract.Playable> {
@@ -125,15 +148,15 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this;
   }
 
-  /**
-   * @return removed card
-   */
-  removeByCardUid(cardUid: string): SaboteurCard.Abstract.Playable | null {
-    const cardIndex = this._hands.findIndex((card) => card.uid === cardUid);
-    if (cardIndex === -1) return null; // Card not found
+  // /**
+  //  * @return removed card
+  //  */
+  // removeByCardUid(cardUid: string): SaboteurCard.Abstract.Playable | null {
+  //   const cardIndex = this._hands.findIndex((card) => card.uid === cardUid);
+  //   if (cardIndex === -1) return null; // Card not found
 
-    return this.removeByIndex(cardIndex);
-  }
+  //   return this.removeByIndex(cardIndex);
+  // }
 
   /**
    * @return removed card
@@ -145,18 +168,31 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
     return this._hands.splice(cardIndex, 1)[0];
   }
 
-  insert(cardIndex: number, card: SaboteurCard.Abstract.Playable): this {
-    if (cardIndex < 0 || cardIndex > this._hands.length) {
-      throw new Error("Invalid card index");
-    }
-    this._hands.splice(cardIndex, 0, card);
+  // insert(cardIndex: number, card: SaboteurCard.Abstract.Playable): this {
+  //   if (cardIndex < 0 || cardIndex > this._hands.length) {
+  //     throw new Error("Invalid card index");
+  //   }
+  //   this._hands.splice(cardIndex, 0, card);
 
-    return this;
-  }
+  //   return this;
+  // }
 
   resetRoundState(): void {
     super.resetRoundState();
-    this._hands = [];
     this.role = null;
+    this._hands = [];
+  }
+
+  sync(data: {
+    status?: Partial<Record<Tools, boolean>>;
+    gold?: number;
+    role?: PlayerRole | null;
+    hands?: SaboteurCard.Abstract.Playable[];
+  }): void {
+    super.sync(data);
+
+    if (data.gold !== undefined) this._gold = data.gold;
+    if (data.role !== undefined) this.role = data.role;
+    if (data.hands !== undefined) this._hands = data.hands;
   }
 }

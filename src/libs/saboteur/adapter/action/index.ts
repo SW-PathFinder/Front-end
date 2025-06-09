@@ -258,7 +258,15 @@ export namespace SaboteurAction {
         update(gameSession: SaboteurSession): void {
           const { handIndex } = this.data;
           if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handIndex);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
           }
         }
       }
@@ -357,40 +365,29 @@ export namespace SaboteurAction {
 
     export namespace Private {
       export class RoundStart
-        extends Response.Primitive<{
-          round: number;
-          hands: SaboteurCard.Abstract.Playable[];
-          role: PlayerRole;
-        }>
+        extends Response.Primitive<{ round: number; role: PlayerRole }>
         implements UpdateAction
       {
         static readonly type = "roundStart";
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { round, hands, role } = this.data;
+          const { round, role } = this.data;
 
           gameSession.round = round;
 
           gameSession.board.startNewRound();
-          gameSession.deck.reset();
+          gameSession.cardPool.reset();
           gameSession.myPlayer.resetRoundState();
-          hands.forEach((card) => {
-            const cardInDeck = gameSession.deck.removeByKind(card);
-            if (!cardInDeck) {
-              throw new Error(
-                `Card ${card.type} not found in the deck for round start.`,
-              );
-            }
-            gameSession.myPlayer.append(cardInDeck);
-          });
           gameSession.myPlayer.role = role;
 
           gameSession.players.forEach((player) => {
-            if (player instanceof OtherSaboteurPlayer)
+            if (player instanceof OtherSaboteurPlayer) {
               player.handCount = OtherSaboteurPlayer.getInitialHandCount(
                 gameSession.players.length,
               );
+              gameSession.cardPool.addUnknownUsedCardCount(player.handCount);
+            }
           });
         }
       }
@@ -404,7 +401,7 @@ export namespace SaboteurAction {
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
           const { card } = this.data;
-          const cardInDeck = gameSession.deck.removeByKind(card);
+          const cardInDeck = gameSession.cardPool.removeByKind(card);
           if (!cardInDeck) {
             throw new Error(
               `Card ${this.data.card.type} not found in the deck for draw.`,
@@ -447,6 +444,7 @@ export namespace SaboteurAction {
 
       export class PlayerState extends Response.Primitive<{
         round: number;
+        cardUsed: SaboteurCard.Abstract.Playable[];
         myPlayer: {
           gold: number;
           role: PlayerRole | null;
@@ -462,10 +460,6 @@ export namespace SaboteurAction {
         board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
       }> {
         static readonly type = "playerState";
-
-        // update(gameSession: SaboteurSession): void {
-        //   // throw new Error("Method not implemented.");
-        // }
       }
 
       export class ReceiveGold
@@ -478,7 +472,7 @@ export namespace SaboteurAction {
         update(gameSession: SaboteurSession): void {
           console.log(gameSession);
           const { gold } = this.data;
-          gameSession.myPlayer.golds.push(gold);
+          gameSession.myPlayer.lastRoundGold = gold;
         }
       }
 

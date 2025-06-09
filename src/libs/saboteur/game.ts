@@ -10,13 +10,15 @@ import { UnsubscribeCallback } from "@/libs/socket-io";
 import { SaboteurSessionAdapter } from "./adapter";
 import { SaboteurAction } from "./adapter/action";
 import { GameBoard } from "./board";
-import { SaboteurDeck } from "./cards/deck";
+import { SaboteurCardPool } from "./cards/deck";
 import { AbstractSaboteurPlayer, MySaboteurPlayer } from "./player";
 
 export interface SaboteurRoomAdapter extends GameRoomAdapter {
   onGameSessionStart(
     callback: (gameSession: SaboteurSession) => void,
   ): UnsubscribeCallback;
+
+  createGameSession(players: GameRoomPlayer[]): SaboteurSession;
 }
 
 export interface SaboteurRoomOption {
@@ -26,6 +28,7 @@ export interface SaboteurRoomOption {
   capacity: number;
   isPublic: boolean;
   cardHelper: boolean;
+  sessionExists?: boolean;
 }
 
 @Reactivity()
@@ -43,10 +46,19 @@ export class SaboteurRoom implements GameRoom {
 
   private _remainingSecond: number | null = null;
   private _isReady: boolean = false;
+  private _gameSession: SaboteurSession | null = null;
 
   constructor(
     adapter: SaboteurRoomAdapter,
-    { id, players, host, capacity, isPublic, cardHelper }: SaboteurRoomOption,
+    {
+      id,
+      players,
+      host,
+      capacity,
+      isPublic,
+      cardHelper,
+      sessionExists,
+    }: SaboteurRoomOption,
   ) {
     this.adapter = adapter;
     this.id = id;
@@ -76,6 +88,13 @@ export class SaboteurRoom implements GameRoom {
         this._remainingSecond -= 1;
       }, 1000);
     });
+
+    this.adapter.onGameSessionStart((gameSession) => {
+      this._gameSession = gameSession;
+    });
+
+    if (sessionExists)
+      this._gameSession = this.adapter.createGameSession(this.players);
   }
 
   get host(): GameRoomPlayer {
@@ -88,6 +107,10 @@ export class SaboteurRoom implements GameRoom {
 
   get remainingSecond(): number | null {
     return this._remainingSecond;
+  }
+
+  get gameSession(): SaboteurSession | null {
+    return this._gameSession;
   }
 }
 export interface SaboteurRoom extends ReactiveObject {}
@@ -105,7 +128,7 @@ export class SaboteurSession implements GameSession {
   // turn: number = 0;
   readonly players: AbstractSaboteurPlayer[];
   readonly board = new GameBoard();
-  readonly deck = new SaboteurDeck();
+  readonly cardPool = new SaboteurCardPool();
 
   private _currentPlayerIndex: number = 0;
   private _turnTimeLeft: number;
@@ -153,9 +176,8 @@ export class SaboteurSession implements GameSession {
     return myPlayer;
   }
 
-  // TODO: 소켓 연동
   get remainingCards(): number {
-    return 6;
+    return this.cardPool.getRemainingCount();
   }
 
   get turnRemainingSecond(): number {
@@ -166,6 +188,30 @@ export class SaboteurSession implements GameSession {
     action: TAction,
   ): void {
     this.adapter.sendAction(action, this);
+  }
+
+  sync({
+    round,
+    myPlayer,
+    players,
+    currentPlayerId,
+    board,
+    cardUsed,
+  }: SaboteurAction.Response.Private.PlayerState["data"]) {
+    this.round = round;
+
+    // sync players
+    this.myPlayer.sync(myPlayer);
+    this.players.forEach((player) => {
+      const playerData = players.find((p) => p.id === player.id);
+      if (playerData) player.sync(playerData);
+    });
+    this._currentPlayerIndex = this.players.findIndex(
+      (player) => player.id === currentPlayerId,
+    );
+
+    this.board.sync(board);
+    this.cardPool.sync(cardUsed, this.players);
   }
 }
 export interface SaboteurSession extends ReactiveObject {}

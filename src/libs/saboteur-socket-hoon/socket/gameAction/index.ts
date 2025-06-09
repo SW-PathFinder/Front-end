@@ -43,10 +43,6 @@ export namespace SocketAction {
 
     readonly requestId: string = v7();
 
-    constructor(data: T) {
-      super(data);
-    }
-
     toPrimitive(): Request.Primitive {
       return { type: this.type, data: this.data };
     }
@@ -140,14 +136,14 @@ export namespace SocketAction {
   {
     readonly _actionType = "response" as const;
 
-    id: number;
+    id?: number;
     readonly target: "all" | (string & {});
     readonly requestId?: string;
 
     constructor(
       data: T,
       target: "all" | (string & {}),
-      id: number,
+      id?: number,
       requestId?: string,
     ) {
       super(data);
@@ -175,7 +171,7 @@ export namespace SocketAction {
 
   export namespace Response {
     export interface Primitive extends SocketAction.Primitive {
-      id: number;
+      id?: number;
       requestId?: string;
       target: "all" | (string & {});
     }
@@ -451,19 +447,24 @@ export namespace SocketAction {
       }> {
         static readonly type = "roundStart";
 
-        toSaboteurAction(): [SaboteurAction.Response.Private.RoundStart] {
+        toSaboteurAction(): [
+          SaboteurAction.Response.Private.RoundStart,
+          ...SaboteurAction.Response.Private.Draw[],
+        ] {
           return [
             new SaboteurAction.Response.Private.RoundStart({
-              hands: this.data.hand.map(
-                ([cardId, reverse]) =>
-                  transformIdToCard(
+              round: this.data.currentRound,
+              role: this.data.role,
+            }),
+            ...this.data.hand.map(
+              ([cardId, reverse]) =>
+                new SaboteurAction.Response.Private.Draw({
+                  card: transformIdToCard(
                     cardId,
                     reverse,
                   ) as SaboteurCard.Abstract.Playable,
-              ),
-              role: this.data.role,
-              round: this.data.currentRound,
-            }),
+                }),
+            ),
           ];
         }
       }
@@ -541,6 +542,8 @@ export namespace SocketAction {
 
         // game round state
         role: PlayerRole;
+        // card id list
+        cardUsed: number[];
 
         // personal turn state
         hands: { cardId: number; reverse?: boolean }[];
@@ -562,6 +565,10 @@ export namespace SocketAction {
           return [
             new SaboteurAction.Response.Private.PlayerState({
               round: this.data.round,
+              cardUsed: this.data.cardUsed.map(
+                (cardId) =>
+                  transformIdToCard(cardId) as SaboteurCard.Abstract.Playable,
+              ),
               myPlayer: {
                 gold: this.data.gold,
                 role: this.data.role,
