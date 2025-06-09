@@ -53,7 +53,7 @@ VITE_SOCKET_URL=
 
 ## 📁 Project Structure
 
-```bash
+```
 src/
 ├── components/     # 공통 UI 컴포넌트
 ├── contexts/       # 전역 상태 관리 (예: React Context)
