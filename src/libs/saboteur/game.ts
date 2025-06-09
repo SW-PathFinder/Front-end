@@ -4,7 +4,7 @@ import {
   GameRoomAdapter,
   GameSession,
 } from "@/libs/gameSession";
-import { NonReactive, Reactive, Reactivity } from "@/libs/reactivity";
+import { NonReactive, ReactiveObject, Reactivity } from "@/libs/reactivity";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
 import { SaboteurSessionAdapter } from "./adapter";
@@ -90,7 +90,7 @@ export class SaboteurRoom implements GameRoom {
     return this._remainingSecond;
   }
 }
-export interface SaboteurRoom extends Reactive {}
+export interface SaboteurRoom extends ReactiveObject {}
 
 export interface SaboteurSessionOptions {
   players: AbstractSaboteurPlayer[];
@@ -215,4 +215,4 @@ export class SaboteurSession implements GameSession {
     this.adapter.sendAction(action, this);
   }
 }
-export interface SaboteurSession extends Reactive {}
+export interface SaboteurSession extends ReactiveObject {}
