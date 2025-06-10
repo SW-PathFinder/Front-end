@@ -21,6 +21,8 @@ interface AuthenticatedContext {
   userId: string;
   gameRoom: SaboteurRoom | null;
   setGameRoom: React.Dispatch<SetGameRoomOption>;
+  volume: number;
+  setVolume: (volume: number) => void;
 }
 
 const AuthenticatedContext = createContext<AuthenticatedContext | null>(null);
@@ -31,6 +33,7 @@ export const AuthenticatedProvider = ({
 }: PropsWithChildren<{ userId: string }>) => {
   const socket = useSocket();
   const [gameRoom, setGameRoomRaw] = useState<SaboteurRoom | null>(null);
+  const [volume, setVolume] = useState(50);
 
   const setGameRoom = useCallback(
     ({ playerState, ...roomOption }: SetGameRoomOption) => {
@@ -52,7 +55,9 @@ export const AuthenticatedProvider = ({
   );
 
   return (
-    <AuthenticatedContext value={{ userId, gameRoom, setGameRoom }}>
+    <AuthenticatedContext
+      value={{ userId, gameRoom, setGameRoom, volume, setVolume }}
+    >
       {children}
     </AuthenticatedContext>
   );
