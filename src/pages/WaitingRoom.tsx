@@ -5,6 +5,8 @@ import { useNavigate } from "react-router";
 
 import { useGameRoom } from "@/contexts/GameRoomContext";
 
+import { RulebookButton } from "../components/Common/RulebookButton";
+import { SettingsButton } from "../components/Common/SettingsButton";
 import lobby_bg from "/bg/lobby_bg.png";
 
 const palette = [
@@ -71,6 +73,11 @@ const WaitingRoom = () => {
           게임이 {gameRoom.remainingSecond}초 후에 자동으로 시작됩니다...
         </div>
       )}
+
+      <div className="absolute top-8 right-8 flex gap-4">
+        <RulebookButton />
+        <SettingsButton />
+      </div>
 
       {/* 참가자 목록 */}
       <div className="flex w-full max-w-md flex-1 items-center justify-center sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
