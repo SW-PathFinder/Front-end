@@ -216,3 +216,39 @@ export const useOpenViduSession = (mySessionId: string, myUserName: string) => {
     setSelectedAudioDevice,
   };
 };
+
+export const OpenViduVoiceSession = ({
+  mySessionId,
+  myUserName,
+}: {
+  mySessionId: string;
+  myUserName: string;
+}) => {
+  const { remotes, mainVideoRef, videoContainerRef } = useOpenViduSession(
+    mySessionId,
+    myUserName,
+  );
+
+  return (
+    <section className="invisible">
+      <video ref={mainVideoRef} autoPlay playsInline />
+
+      <div ref={videoContainerRef}>
+        {remotes.map((remote, idx) => (
+          <div key={idx} className="video-container">
+            <video
+              autoPlay
+              playsInline
+              ref={(el) => {
+                if (el) {
+                  el.srcObject = remote.element.srcObject;
+                }
+              }}
+            />
+            <p>{remote.uid}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};

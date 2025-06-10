@@ -11,6 +11,7 @@ import {
 import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { GameRoomProvider } from "@/contexts/GameRoomContext";
 import { useSocketRequest } from "@/contexts/SocketContext";
+import { OpenViduVoiceSession } from "@/libs/openvidu";
 
 export const GameRoomLayout = () => {
   const location = useLocation();
@@ -98,6 +99,7 @@ export const GameRoomLayout = () => {
   return (
     <GameRoomProvider gameRoom={gameRoom}>
       <Outlet />
+      <OpenViduVoiceSession mySessionId={gameRoom.id} myUserName={userId} />
     </GameRoomProvider>
   );
 };

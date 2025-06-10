@@ -3,10 +3,7 @@ import { useEffect, useMemo } from "react";
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router";
 
-// import { OpenViduComp } from "@/components/Voice/OpenVidu";
-import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { useGameRoom } from "@/contexts/GameRoomContext";
-import { useOpenViduSession } from "@/libs/openvidu";
 
 import lobby_bg from "/bg/lobby_bg.png";
 
@@ -25,7 +22,6 @@ const palette = [
 
 const WaitingRoom = () => {
   const navigate = useNavigate();
-  const { userId } = useAuthenticated();
   const { gameRoom } = useGameRoom();
 
   const gridColClass = useMemo(() => {
@@ -42,11 +38,6 @@ const WaitingRoom = () => {
     };
     return colMap[count] || "grid-cols-4";
   }, [gameRoom.capacity]);
-
-  const { remotes, mainVideoRef, videoContainerRef } = useOpenViduSession(
-    gameRoom.id,
-    userId,
-  );
 
   useEffect(() => {
     // 카운트 종료 시 게임 페이지로 이동
@@ -113,27 +104,6 @@ const WaitingRoom = () => {
           ))}
         </div>
       </div>
-
-      <section>
-        <video ref={mainVideoRef} autoPlay playsInline />
-
-        <div ref={videoContainerRef}>
-          {remotes.map((remote, idx) => (
-            <div key={idx} className="video-container">
-              <video
-                autoPlay
-                playsInline
-                ref={(el) => {
-                  if (el) {
-                    el.srcObject = remote.element.srcObject;
-                  }
-                }}
-              />
-              <p>{remote.uid}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* 매칭 취소 버튼 */}
       <button
