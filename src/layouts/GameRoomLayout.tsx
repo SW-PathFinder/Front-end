@@ -136,8 +136,14 @@ export const OpenViduVoiceSessionContainer = ({
 }) => {
   const { volume } = useAuthenticated();
 
+  useEffect(() => {
+    if (mainVideoRef.current) {
+      mainVideoRef.current.volume = volume / 100;
+    }
+  }, [volume, mainVideoRef]);
+
   return (
-    <section className="invisible">
+    <section className="invisible h-0 w-0">
       <video
         ref={(el) => {
           if (el) {
