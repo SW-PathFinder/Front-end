@@ -131,7 +131,7 @@ const BoardSlot = ({
       style={{ ...style, width: CARD_WIDTH, aspectRatio: CARD_RATIO }}
       className={twMerge(
         `relative flex snap-center items-center justify-center border border-gray-300`,
-        (x + y) % 2 === 0 ? "bg-base-300/50" : "bg-base-300/80",
+        (x + y) % 2 === 0 ? "bg-base-300/10" : "bg-base-300/30",
         className,
       )}
     >

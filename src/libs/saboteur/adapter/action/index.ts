@@ -182,8 +182,19 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { x, y, card } = this.data;
+          const { x, y, card, handNum } = this.data;
           gameSession.board.placeCard(x, y, card);
+          if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
+            gameSession.currentPlayer.removeByIndex(handNum);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
+          }
         }
       }
 
@@ -195,8 +206,19 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { x, y } = this.data;
+          const { x, y, handNum } = this.data;
           gameSession.board.removeCard(x, y);
+          if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
+            gameSession.currentPlayer.removeByIndex(handNum);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
+          }
         }
       }
 
@@ -212,12 +234,23 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { tool, playerId } = this.data;
+          const { tool, playerId, handNum } = this.data;
 
           const player = gameSession.players.find((p) => p.id === playerId);
           if (!player) throw new Error(`Player with ID ${playerId} not found.`);
 
           player.repair(tool);
+          if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
+            gameSession.currentPlayer.removeByIndex(handNum);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
+          }
         }
       }
 
@@ -233,12 +266,23 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { tool, playerId } = this.data;
+          const { tool, playerId, handNum } = this.data;
 
           const player = gameSession.players.find((p) => p.id === playerId);
           if (!player) throw new Error(`Player with ID ${playerId} not found.`);
-
           player.sabotage(tool);
+
+          if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
+            gameSession.currentPlayer.removeByIndex(handNum);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
+          }
         }
       }
 
@@ -249,9 +293,19 @@ export namespace SaboteurAction {
         static readonly type = "useMap";
 
         readonly _isUpdate = true as const;
-        update(): void {
-          // TODO: 다른사람이 지도 썼을때 모달같은거 띄우기
-          // throw new Error("Method not implemented.");
+        update(gameSession: SaboteurSession): void {
+          const { handNum } = this.data;
+          if (gameSession.currentPlayer.isMe()) {
+            // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
+            gameSession.currentPlayer.removeByIndex(handNum);
+          } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
+            gameSession.cardPool.addUnknownUsedCardCount(1);
+            if (
+              gameSession.remainingCards <= 0 &&
+              gameSession.currentPlayer.handCount > 0
+            )
+              gameSession.currentPlayer.handCount -= 1;
+          }
         }
       }
 

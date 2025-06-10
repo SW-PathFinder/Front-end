@@ -248,9 +248,9 @@ export namespace SocketAction {
               y,
               card,
             }),
-            new SaboteurAction.Response.Public.Discard({
-              handNum: this.data.handNum,
-            }),
+            // new SaboteurAction.Response.Public.Discard({
+            //   handNum: this.data.handNum,
+            // }),
           ];
         }
       }
@@ -273,9 +273,9 @@ export namespace SocketAction {
               x,
               y,
             }),
-            new SaboteurAction.Response.Public.Discard({
-              handNum: this.data.handNum,
-            }),
+            // new SaboteurAction.Response.Public.Discard({
+            //   handNum: this.data.handNum,
+            // }),
           ];
         }
       }
@@ -295,9 +295,9 @@ export namespace SocketAction {
               tool: this.data.cardType,
               playerId: this.data.target,
             }),
-            new SaboteurAction.Response.Public.Discard({
-              handNum: this.data.handNum,
-            }),
+            // new SaboteurAction.Response.Public.Discard({
+            //   handNum: this.data.handNum,
+            // }),
           ];
         }
       }
@@ -317,9 +317,9 @@ export namespace SocketAction {
               tool: this.data.cardType,
               playerId: this.data.target,
             }),
-            new SaboteurAction.Response.Public.Discard({
-              handNum: this.data.handNum,
-            }),
+            // new SaboteurAction.Response.Public.Discard({
+            //   handNum: this.data.handNum,
+            // }),
           ];
         }
       }
@@ -342,9 +342,9 @@ export namespace SocketAction {
               x,
               y,
             }),
-            new SaboteurAction.Response.Public.Discard({
-              handNum: this.data.handNum,
-            }),
+            // new SaboteurAction.Response.Public.Discard({
+            //   handNum: this.data.handNum,
+            // }),
           ];
         }
       }
