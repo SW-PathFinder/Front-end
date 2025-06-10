@@ -11,7 +11,7 @@ import {
 import { useAuthenticated } from "@/contexts/AuthenticatedContext";
 import { GameRoomProvider } from "@/contexts/GameRoomContext";
 import { useSocketRequest } from "@/contexts/SocketContext";
-import { OpenViduVoiceSession } from "@/libs/openvidu";
+import { useOpenViduSession } from "@/libs/openvidu";
 
 export const GameRoomLayout = () => {
   const location = useLocation();
@@ -101,5 +101,70 @@ export const GameRoomLayout = () => {
       <Outlet />
       <OpenViduVoiceSession mySessionId={gameRoom.id} myUserName={userId} />
     </GameRoomProvider>
+  );
+};
+
+const OpenViduVoiceSession = ({
+  mySessionId,
+  myUserName,
+}: {
+  mySessionId: string;
+  myUserName: string;
+}) => {
+  const { remotes, mainVideoRef, videoContainerRef } = useOpenViduSession(
+    mySessionId,
+    myUserName,
+  );
+
+  return (
+    <OpenViduVoiceSessionContainer
+      mainVideoRef={mainVideoRef}
+      videoContainerRef={videoContainerRef}
+      remotes={remotes}
+    />
+  );
+};
+
+export const OpenViduVoiceSessionContainer = ({
+  mainVideoRef,
+  videoContainerRef,
+  remotes,
+}: {
+  mainVideoRef: React.RefObject<HTMLVideoElement | null>;
+  videoContainerRef: React.RefObject<HTMLDivElement | null>;
+  remotes: { uid: string; element: HTMLVideoElement }[];
+}) => {
+  const { volume } = useAuthenticated();
+
+  return (
+    <section className="invisible">
+      <video
+        ref={(el) => {
+          if (el) {
+            el.volume = volume / 100;
+          }
+        }}
+        autoPlay
+        playsInline
+      />
+
+      <div ref={videoContainerRef}>
+        {remotes.map((remote, idx) => (
+          <div key={idx} className="video-container">
+            <video
+              autoPlay
+              playsInline
+              ref={(el) => {
+                if (el) {
+                  el.srcObject = remote.element.srcObject;
+                  el.volume = volume / 100;
+                }
+              }}
+            />
+            <p>{remote.uid}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
