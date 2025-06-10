@@ -147,6 +147,7 @@ export const OpenViduVoiceSessionContainer = ({
       <video
         ref={(el) => {
           if (el) {
+            mainVideoRef.current = el;
             el.volume = volume / 100;
           }
         }}
