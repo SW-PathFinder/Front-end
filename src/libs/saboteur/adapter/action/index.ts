@@ -510,24 +510,32 @@ export namespace SaboteurAction {
         }
       }
 
-      export class PlayerState extends Response.Primitive<{
-        round: number;
-        cardUsed: SaboteurCard.Abstract.Playable[];
-        myPlayer: {
-          gold: number;
-          role: PlayerRole | null;
-          hands: SaboteurCard.Abstract.Playable[];
-        };
-        players: {
-          id: string;
-          handCount: number;
-          status: Record<Tools, boolean>;
-        }[];
-        currentPlayerId: string;
-        deckCount: number;
-        board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
-      }> {
+      export class PlayerState
+        extends Response.Primitive<{
+          round: number;
+          cardUsed: SaboteurCard.Abstract.Playable[];
+          myPlayer: {
+            gold: number;
+            role: PlayerRole | null;
+            hands: SaboteurCard.Abstract.Playable[];
+          };
+          players: {
+            id: string;
+            handCount: number;
+            status: Record<Tools, boolean>;
+          }[];
+          currentPlayerId: string;
+          deckCount: number;
+          board: { x: number; y: number; card: SaboteurCard.Path.Abstract }[];
+        }>
+        implements UpdateAction
+      {
         static readonly type = "playerState";
+
+        readonly _isUpdate = true as const;
+        update(gameSession: SaboteurSession): void {
+          gameSession.sync(this.data);
+        }
       }
 
       export class ReceiveGold
