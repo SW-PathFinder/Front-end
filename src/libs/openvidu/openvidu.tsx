@@ -1,10 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import OV from "openvidu-browser";
+import {
+  OpenVidu,
+  Device as OpenViduDevice,
+  Session as OpenViduSession,
+} from "openvidu-browser";
 
 const createSession = async (sessionId: string) => {
   const response = await fetch(
-    `${import.meta.env.VITE_OPENVIDU_URL}/api/sessions`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/sessions`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -14,17 +25,17 @@ const createSession = async (sessionId: string) => {
   if (!response.ok) {
     throw new Error("Failed to create session");
   }
-  return await response.json(); // The sessionId
+  return await response.text(); // The sessionId
 };
 const createToken = async (sessionId: string) => {
   const response = await fetch(
-    `${import.meta.env.VITE_OPENVIDU_URL}/api/sessions/${sessionId}/connections`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/sessions/${sessionId}/connections`,
     { method: "POST", headers: { "Content-Type": "application/json" } },
   );
   if (!response.ok) {
     throw new Error("Failed to create token");
   }
-  return await response.json(); // The token
+  return await response.text(); // The token
 };
 
 const getToken = async (mySessionId: string) => {
@@ -33,14 +44,33 @@ const getToken = async (mySessionId: string) => {
   return token;
 };
 
+const OpenViduContext = createContext<OpenVidu | null>(null);
+
+export const OpenViduProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const ovRef = useRef<OpenVidu>(new OpenVidu());
+
+  return (
+    <OpenViduContext.Provider value={ovRef.current}>
+      {children}
+    </OpenViduContext.Provider>
+  );
+};
+
 export const useOpenVidu = () => {
-  const ovRef = useRef<OV.OpenVidu>(new OV.OpenVidu());
-  return ovRef.current;
+  const context = useContext(OpenViduContext);
+  if (!context) {
+    throw new Error("useOpenVidu must be used within an OpenViduProvider");
+  }
+  return context;
 };
 
 const useOpenViduDevices = () => {
   const ov = useOpenVidu();
-  const [devices, setDevices] = useState<OV.Device[] | null>(null);
+  const [devices, setDevices] = useState<OpenViduDevice[] | null>(null);
 
   useEffect(() => {
     ov.getDevices().then((devices) => {
@@ -57,7 +87,7 @@ const useOpenViduDevices = () => {
 
 export const useOpenViduSession = (mySessionId: string, myUserName: string) => {
   const ov = useOpenVidu();
-  const [session, setSession] = useState<OV.Session | null>(null);
+  const [session, setSession] = useState<OpenViduSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const mainVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -71,7 +101,8 @@ export const useOpenViduSession = (mySessionId: string, myUserName: string) => {
   const audioDevices = useMemo(() => {
     return devices ? devices.filter((d) => d.kind === "audioinput") : [];
   }, [devices]);
-  const [selectedAudioDevice, setSelectedAudioDevice] = useState<OV.Device>();
+  const [selectedAudioDevice, setSelectedAudioDevice] =
+    useState<OpenViduDevice>();
 
   useEffect(() => {
     const videoContainer = videoContainerRef.current;
