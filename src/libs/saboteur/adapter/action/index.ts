@@ -188,7 +188,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -212,7 +212,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -244,7 +244,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -276,7 +276,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -299,7 +299,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -322,7 +322,7 @@ export namespace SaboteurAction {
             // 이미 뽑을때 덱에서 지워지기 때문에 덱에 뭔 짓을 더 할 필요는 없음
             gameSession.currentPlayer.removeByIndex(handNum);
           } else if (gameSession.currentPlayer instanceof OtherSaboteurPlayer) {
-            gameSession.cardPool.addUnknownUsedCardCount(1);
+            gameSession.cardPool.decreaseRemainingCard(1);
             if (
               gameSession.remainingCards <= 0 &&
               gameSession.currentPlayer.handCount > 0
@@ -446,7 +446,7 @@ export namespace SaboteurAction {
               player.handCount = OtherSaboteurPlayer.getInitialHandCount(
                 gameSession.players.length,
               );
-              gameSession.cardPool.addUnknownUsedCardCount(player.handCount);
+              gameSession.cardPool.decreaseRemainingCard(player.handCount);
             }
           });
         }
@@ -469,6 +469,7 @@ export namespace SaboteurAction {
           //     `Card ${this.data.card.type} not found in the deck for draw.`,
           //   );
           // }
+          gameSession.cardPool.decreaseRemainingCard(1);
           gameSession.myPlayer.append(card);
         }
       }

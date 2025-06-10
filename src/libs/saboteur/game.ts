@@ -197,7 +197,7 @@ export class SaboteurSession implements GameSession {
     players,
     currentPlayerId,
     board,
-    cardUsed,
+    deckCount,
   }: SaboteurAction.Response.Private.PlayerState["data"]) {
     this.round = round;
 
@@ -212,7 +212,7 @@ export class SaboteurSession implements GameSession {
     );
 
     this.board.sync(board);
-    this.cardPool.sync(cardUsed, this.players);
+    this.cardPool.sync(deckCount);
   }
 }
 export interface SaboteurSession extends ReactiveObject {}
