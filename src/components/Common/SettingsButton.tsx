@@ -1,8 +1,10 @@
 import { useState } from "react";
 
+import { useAuthenticated } from "@/contexts/AuthenticatedContext";
+
 export const SettingsButton = () => {
   const [open, setOpen] = useState(false);
-  const [volume, setVolume] = useState(50);
+  const { volume, setVolume } = useAuthenticated();
 
   return (
     <>

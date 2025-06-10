@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { useNavigate } from "react-router";
 
 import { RulebookButton } from "@/components/Common/RulebookButton";
+import { SettingsButton } from "@/components/Common/SettingsButton";
 import { ActionZone } from "@/components/Game/ActionZone";
 import { Board } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
@@ -18,7 +19,8 @@ import { SaboteurCard } from "@/libs/saboteur/cards";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 import lobby_bg from "/bg/game_bg.png";
-import emoji_icon from "/buttons/emoji_icon.png";
+
+// import emoji_icon from "/buttons/emoji_icon.png";
 
 type RoundResult = {
   currentRound: number;
@@ -205,11 +207,7 @@ const Game = () => {
           <PlayerList list={gameSession.players} />
           <div className="flex w-full items-center justify-evenly">
             <RulebookButton />
-            <img
-              className="h-16 w-16 cursor-pointer"
-              src={emoji_icon}
-              alt="emoji chat"
-            />
+            <SettingsButton />
           </div>
         </aside>
         {/* 중앙 보드 & 핸드 */}
