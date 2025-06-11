@@ -148,7 +148,7 @@ pnpm run storybook
 
 ### 🧩 In Game Page
 
-![인게임 페이지](media/In_game_page.png)
+![In_game_page](https://github.com/user-attachments/assets/a1efde9d-4ba5-4531-802a-3760edd50287)
 
 ---
 
