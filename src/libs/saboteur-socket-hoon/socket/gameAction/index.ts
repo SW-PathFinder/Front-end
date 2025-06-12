@@ -201,9 +201,14 @@ export namespace SocketAction {
          * only for raw socket response definition
          */
         toSaboteurAction(): [SaboteurAction.Response.Public.GameStart] {
-          throw new Error(
-            "GameStart action should not be used directly. Use GameSession to handle game start.",
-          );
+          // throw new Error(
+          //   "GameStart action should not be used directly. Use GameSession to handle game start.",
+          // );
+          return [
+            new SaboteurAction.Response.Public.GameStart({
+              playerIds: this.data.players,
+            }),
+          ];
         }
       }
 

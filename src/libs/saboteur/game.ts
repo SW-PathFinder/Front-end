@@ -5,13 +5,18 @@ import {
   GameSession,
 } from "@/libs/gameSession";
 import { Reactivity, NonReactive, ReactiveObject } from "@/libs/reactivity";
+import { PlayerRole } from "@/libs/saboteur/types";
 import { UnsubscribeCallback } from "@/libs/socket-io";
 
 import { SaboteurSessionAdapter } from "./adapter";
 import { SaboteurAction } from "./adapter/action";
 import { GameBoard } from "./board";
 import { SaboteurCardPool } from "./cards/deck";
-import { AbstractSaboteurPlayer, MySaboteurPlayer } from "./player";
+import {
+  AbstractSaboteurPlayer,
+  MySaboteurPlayer,
+  OtherSaboteurPlayer,
+} from "./player";
 
 export interface SaboteurRoomAdapter extends GameRoomAdapter {
   onGameSessionStart(
@@ -189,6 +194,25 @@ export class SaboteurSession implements GameSession {
     action: TAction,
   ): void {
     this.adapter.sendAction(action, this);
+  }
+
+  resetGameState(): void {}
+
+  resetRoundState({ round, role }: { round: number; role: PlayerRole }): void {
+    this.round = round;
+
+    this.board.resetRoundState();
+    this.cardPool.resetRoundState();
+    this.myPlayer.resetRoundState(role);
+
+    this.players.forEach((player) => {
+      if (player instanceof OtherSaboteurPlayer) {
+        player.handCount = OtherSaboteurPlayer.getInitialHandCount(
+          this.players.length,
+        );
+        this.cardPool.decreaseRemainingCard(player.handCount);
+      }
+    });
   }
 
   sync({

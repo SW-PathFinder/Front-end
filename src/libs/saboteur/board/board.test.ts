@@ -23,7 +23,7 @@ describe("초기화", () => {
     board.placeCard(1, 0, new SaboteurCard.Path.Way4());
     board.placeCard(0, 1, new SaboteurCard.Path.Way4());
 
-    board.startNewRound();
+    board.resetRoundState();
 
     expect(board.export().length).toBe(4);
     expect(board.getCard(...GameBoard.originCoordinates)).toBeInstanceOf(
