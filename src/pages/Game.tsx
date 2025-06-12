@@ -283,7 +283,7 @@ const Game = () => {
                 setIsGameEnd(false);
                 setGameResult(null);
                 gameRoom.adapter.leaveRoom();
-                navigate("/lobby");
+                navigate("/saboteur");
               }}
               rank={gameResult?.rank ?? {}}
             />
