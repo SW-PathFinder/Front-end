@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  CardAlreadyExistsError,
-  CardPlacementError,
-  GameBoard,
-  PathNotConnectedError,
-} from "@/libs/saboteur/board";
+import { GameBoard } from "@/libs/saboteur/board";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 
 describe("초기화", () => {
