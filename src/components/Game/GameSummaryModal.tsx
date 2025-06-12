@@ -1,15 +1,35 @@
-import { Crown } from "lucide-react";
+import { useEffect } from "react";
 
+import { Crown } from "lucide-react";
+import { useNavigate } from "react-router";
+
+import { useGameRoom } from "@/contexts/GameRoomContext";
 import { useGameSession } from "@/contexts/GameSessionContext";
 
 export type GameSummaryModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onLobbyExit?: () => void;
   rank: Record<string, number>;
 };
 
-const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
+const GameSummaryModal = ({
+  isOpen,
+  onClose,
+  onLobbyExit,
+  rank,
+}: GameSummaryModalProps) => {
   const { gameSession } = useGameSession();
+  const { gameRoom } = useGameRoom();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 카운트 종료 시 게임 페이지로 이동
+    if (gameRoom.remainingSecond === 0) {
+      navigate(`/saboteur/${gameRoom.id}/game/`);
+    }
+  }, [navigate, gameRoom.remainingSecond, gameRoom.id]);
+
   if (!isOpen) return null;
 
   return (
@@ -48,9 +68,18 @@ const GameSummaryModal = ({ isOpen, onClose, rank }: GameSummaryModalProps) => {
             })}
         </ul>
 
-        <div className="modal-action mt-4 justify-center">
+        {gameRoom.remainingSecond !== null && (
+          <div className="text-center text-xl font-bold text-white sm:mb-4 sm:text-2xl">
+            게임이 {gameRoom.remainingSecond}초 후에 자동으로 시작됩니다...
+          </div>
+        )}
+
+        <div className="modal-action mt-4 justify-center gap-4">
           <button className="btn btn-primary" onClick={onClose}>
             확인
+          </button>
+          <button className="btn btn-secondary" onClick={onLobbyExit}>
+            로비로 나가기
           </button>
         </div>
       </div>
