@@ -13,6 +13,7 @@ import { Hand } from "@/components/Game/Hand";
 import PlayerList from "@/components/Game/PlayerList";
 import RevealDestModal from "@/components/Game/RevealDestModal";
 import RoundSummaryModal from "@/components/Game/RoundSummaryModal";
+import { useGameRoom } from "@/contexts/GameRoomContext";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
 import { SaboteurCard } from "@/libs/saboteur/cards";
@@ -33,7 +34,9 @@ type GameResult = { rank: Record<string, number> };
 type Loglist = { text: string };
 
 const Game = () => {
+  const { gameRoom } = useGameRoom();
   const { gameSession } = useGameSession();
+  const { gameRoom } = useGameRoom();
   const navigate = useNavigate();
 
   // 목적지 정보
@@ -96,6 +99,18 @@ const Game = () => {
       setGameResult({ rank: action.data.golds });
     });
   }, [gameSession.round, gameSession.adapter]);
+
+  useEffect(() => {
+    return gameRoom.adapter.onPlayerLeave(() => {
+      navigate(`/saboteur/${gameRoom.id}/waiting`);
+    });
+  }, [gameRoom, navigate]);
+
+  useEffect(() => {
+    return gameSession.adapter.on("gameStart", () => {
+      navigate(0);
+    });
+  }, [gameSession, navigate]);
 
   useEffect(() => {
     return gameSession.adapter.onAny((data) => {
@@ -264,7 +279,12 @@ const Game = () => {
               onClose={() => {
                 setIsGameEnd(false);
                 setGameResult(null);
-                navigate("/saboteur");
+              }}
+              onLobbyExit={() => {
+                setIsGameEnd(false);
+                setGameResult(null);
+                gameRoom.adapter.leaveRoom();
+                navigate("/lobby");
               }}
               rank={gameResult?.rank ?? {}}
             />

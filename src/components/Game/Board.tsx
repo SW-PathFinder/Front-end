@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 
+import { useGameRoom } from "@/contexts/GameRoomContext";
 import { GameBoard } from "@/libs/saboteur/board";
 import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 
@@ -36,6 +37,7 @@ const BOARD_VISIBLE_COLS = 7;
 // TODO: 카드 드래그할때 불필요한 스크롤링 방지
 // 바깥 영역에서만 스크롤 한칸씩 되도록?
 export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
+  const { gameRoom } = useGameRoom();
   const boardRef = useRef<HTMLDivElement>(null);
   /**
    * 보드 좌상단 슬롯의 좌표
@@ -44,9 +46,29 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
   const [anchorCoord, _] = useState<[number, number]>(() =>
     CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
   );
+  const [selectedCard, setSelectedCard] =
+    useState<SaboteurCard.Abstract.Playable | null>(null);
+
+  const possibleSlots = useMemo(() => {
+    if (
+      !selectedCard ||
+      !(selectedCard instanceof SaboteurCard.Path.Abstract) ||
+      !gameRoom.cardHelper
+    )
+      return [];
+    return board.getPossiblePositions(selectedCard);
+  }, [gameRoom, board, selectedCard]);
 
   useDndMonitor({
+    onDragStart: (event) => {
+      if (!event.active.data.current || !("card" in event.active.data.current))
+        return;
+      const { card } = event.active.data.current as DraggableCardData;
+      setSelectedCard(card);
+    },
     onDragEnd: (event) => {
+      setSelectedCard(null);
+
       if (
         !onDropCard ||
         !event.over ||
@@ -84,11 +106,16 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
           ]);
           const card = board.getCard(x, y);
 
+          const isPossibleSlot = possibleSlots.some(
+            ([slotX, slotY]) => slotX === x && slotY === y,
+          );
+
           return (
             <BoardSlot
               x={x}
               y={y}
               card={card}
+              isPossibleSlot={isPossibleSlot}
               style={{ gridRow: deltaY + 1, gridColumn: deltaX + 1 }}
               key={`${x}:${y}`}
             />
@@ -109,12 +136,14 @@ const BoardSlot = ({
   x,
   y,
   card,
+  isPossibleSlot,
   style,
   className,
 }: {
   x: number;
   y: number;
   card: SaboteurCard.Path.Abstract | null;
+  isPossibleSlot?: boolean;
   style?: React.CSSProperties;
   className?: string;
 }) => {
@@ -137,6 +166,12 @@ const BoardSlot = ({
     >
       {/* {`${x},${y}`} */}
       {card && <Card card={card} size={CARD_WIDTH} fixed />}
+      {isPossibleSlot && (
+        <div
+          className="absolute inset-0 border-2 border-dashed border-yellow-300"
+          style={{ pointerEvents: "none" }}
+        />
+      )}
     </div>
   );
 };

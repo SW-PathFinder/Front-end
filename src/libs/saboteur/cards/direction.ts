@@ -37,7 +37,7 @@ export namespace CardinalDirection {
 
   export function includes(subset: Any, direction: Any | Some): boolean {
     if (direction === Some) return subset !== None;
-    return (direction & subset) === subset;
+    return (subset & direction) === direction;
   }
 
   export function toCoordinateDiff(direction: Adjacent): [number, number] {
@@ -86,23 +86,28 @@ export namespace CardinalDirection {
     );
   }
 
-  export function toString(direction: Defined): string {
-    switch (direction) {
-      case East:
-        return "동쪽";
-      case South:
-        return "남쪽";
-      case West:
-        return "서쪽";
-      case North:
-        return "북쪽";
-      case All:
-        return "모든 방향";
-      case None:
-        return "연결되지 않음";
-      default:
-        return `방향(${direction})`;
+  export function toString(direction: Any | Some): string {
+    if (direction === Some) return "임의의 방향";
+    if (direction === None) return "연결되지 않음";
+    if (direction === All) return "모든 방향";
+    let text = "";
+    for (const extracted of extractDirections(direction)) {
+      switch (extracted) {
+        case East:
+          text += "동쪽";
+          break;
+        case South:
+          text += "남쪽";
+          break;
+        case West:
+          text += "서쪽";
+          break;
+        case North:
+          text += "북쪽";
+          break;
+      }
     }
+    return text || "연결되지 않음";
   }
 }
 export type CardinalDirection = CardinalDirection.Any;

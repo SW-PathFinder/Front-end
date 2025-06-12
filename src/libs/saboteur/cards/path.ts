@@ -41,10 +41,17 @@ export namespace PathCard {
 
     isConnected(
       from: CardinalDirection.Adjacent,
-      to: CardinalDirection.Adjacent | CardinalDirection.Some,
+      to: CardinalDirection.Any | CardinalDirection.Some,
     ): boolean {
+      if (to === CardinalDirection.Some) {
+        return this.roads.some(
+          (subset) =>
+            CardinalDirection.includes(subset, from) &&
+            CardinalDirection.remove(subset, from),
+        );
+      }
       return this.roads.some((subset) =>
-        CardinalDirection.includes(CardinalDirection.remove(subset, from), to),
+        CardinalDirection.includes(subset, from | to),
       );
     }
 
@@ -64,13 +71,13 @@ export namespace PathCard {
 
     toString(): string {
       return [
-        `-------`,
-        `|  ${this.isOpen(CardinalDirection.North) ? "|" : " "}  |`,
-        `|  ${this.isConnected(CardinalDirection.North, CardinalDirection.Some) ? "|" : " "}  |`,
-        `|${this.isOpen(CardinalDirection.West) ? "-" : " "}${this.isConnected(CardinalDirection.West, CardinalDirection.Some) ? "-" : " "}.${this.isConnected(CardinalDirection.East, CardinalDirection.Some) ? "-" : " "}${this.isOpen(CardinalDirection.East) ? "-" : " "}|`,
-        `|  ${this.isConnected(CardinalDirection.South, CardinalDirection.Some) ? "|" : " "}  |`,
-        `|  ${this.isOpen(CardinalDirection.South) ? "|" : " "}  |`,
-        `-------`,
+        `-----------`,
+        `|    ${this.isOpen(CardinalDirection.North) ? "|" : " "}    |`,
+        `|    ${this.isOpen(CardinalDirection.North) && this.isConnected(CardinalDirection.North, CardinalDirection.Some) ? "|" : " "}    |`,
+        `|${this.isOpen(CardinalDirection.West) ? "--" : "  "}${this.isOpen(CardinalDirection.West) && this.isConnected(CardinalDirection.West, CardinalDirection.Some) ? "--" : "  "}.${this.isOpen(CardinalDirection.East) && this.isConnected(CardinalDirection.East, CardinalDirection.Some) ? "--" : "  "}${this.isOpen(CardinalDirection.East) ? "--" : "  "}|`,
+        `|    ${this.isOpen(CardinalDirection.South) && this.isConnected(CardinalDirection.South, CardinalDirection.Some) ? "|" : " "}    |`,
+        `|    ${this.isOpen(CardinalDirection.South) ? "|" : " "}    |`,
+        `-----------`,
       ].join("\n");
     }
   }

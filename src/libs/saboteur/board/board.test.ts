@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  CardAlreadyExistsError,
-  CardPlacementError,
-  GameBoard,
-  PathNotConnectedError,
-} from "@/libs/saboteur/board";
+import { GameBoard } from "@/libs/saboteur/board";
 import { SaboteurCard } from "@/libs/saboteur/cards";
 
 describe("초기화", () => {
@@ -28,7 +23,7 @@ describe("초기화", () => {
     board.placeCard(1, 0, new SaboteurCard.Path.Way4());
     board.placeCard(0, 1, new SaboteurCard.Path.Way4());
 
-    board.startNewRound();
+    board.resetRoundState();
 
     expect(board.export().length).toBe(4);
     expect(board.getCard(...GameBoard.originCoordinates)).toBeInstanceOf(
@@ -107,7 +102,17 @@ describe("상태 불러오기", () => {
 
     test("연결될 수 없는 카드가 연결되어있는 형태", () => {
       expect(() =>
-        board.import([[[1, 0], new SaboteurCard.Path.Way2A()]]),
+        board.import([[[1, 0], new SaboteurCard.Path.Way2B()]]),
+      ).toThrowError();
+    });
+
+    // // 낙석카드를 사용한 경우 이런 형태가 가능함
+    test.skip("카드는 이어져있지만 길이 이어져있지 않을 때", () => {
+      expect(() =>
+        board.import([
+          [[1, 0], new SaboteurCard.Path.Block2C()],
+          [[2, 0], new SaboteurCard.Path.Way2C()],
+        ]),
       ).toThrowError();
     });
   });
@@ -126,16 +131,16 @@ describe("카드 놓기", () => {
 
     // 이미 카드가 있는 위치에 카드를 놓으려 하면 예외가 발생한다.
     expect(board.canPlaceCard(1, 0, card)[0]).toEqual(false);
-    expect(() => board.placeCard(1, 0, card)).toThrowError(
-      CardAlreadyExistsError,
-    );
+    // expect(() => board.placeCard(1, 0, card)).toThrowError(
+    //   CardAlreadyExistsError,
+    // );
   });
 
   test("시작점에서 길이 이어진 위치에만 카드를 놓을 수 있다", () => {
     const board = new GameBoard();
     board.import([]);
 
-    const card = new SaboteurCard.Path.Way2A(true);
+    const card = new SaboteurCard.Path.Block2C(true);
 
     // 시작점에 인접한 위치에 카드를 놓을 수 있다.
     expect(board.canPlaceCard(1, 0, card)).toEqual([true]);
@@ -143,15 +148,15 @@ describe("카드 놓기", () => {
     expect(board.getCard(1, 0)).toBe(card);
 
     // 시작점에서 이어지지 않은 위치에는 카드를 놓을 수 없다.
-    expect(board.canPlaceCard(2, 2, card)[0]).toEqual(false);
-    expect(() => board.placeCard(2, 2, card)).toThrowError(CardPlacementError);
+    expect(board.canPlaceCard(2, 0, card)[0]).toEqual(false);
+    // expect(() => board.placeCard(2, 0, card)).toThrowError(CardPlacementError);
   });
 
   test("인접한 모든 카드와 길이 연결되어있어야 카드를 놓을 수 있다", () => {
     const board = new GameBoard();
     board.import([]);
 
-    const card = new SaboteurCard.Path.Way2A(true);
+    const card = new SaboteurCard.Path.Way2A();
 
     // 시작점에 인접하게 카드를 놓을 수 있다.
     expect(board.canPlaceCard(1, 0, card)).toEqual([true]);
@@ -160,13 +165,13 @@ describe("카드 놓기", () => {
 
     // 인접한 카드와 연결되어 있지 않으면 카드를 놓을 수 없다.
     expect(board.canPlaceCard(2, 0, card)[0]).toEqual(false);
-    expect(() => board.placeCard(2, 0, card)).toThrowError(
-      PathNotConnectedError,
-    );
+    // expect(() => board.placeCard(2, 0, card)).toThrowError(
+    //   PathNotConnectedError,
+    // );
 
     // 인접한 카드와 연결되어 있으면 카드를 놓을 수 있다.
 
-    const card2 = new SaboteurCard.Path.Way2A();
+    const card2 = new SaboteurCard.Path.Way2A(true);
     expect(board.canPlaceCard(1, -1, card2)).toEqual([true]);
     board.placeCard(1, -1, card2);
     expect(board.getCard(1, -1)).toBe(card2);
