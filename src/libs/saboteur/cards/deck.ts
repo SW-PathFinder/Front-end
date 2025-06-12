@@ -30,6 +30,9 @@ export class SaboteurCardPool {
 
   decreaseRemainingCard(num: number): void {
     this._remainingCount -= num;
+    if (this._remainingCount < 0) {
+      this._remainingCount = 0;
+    }
   }
 
   // shuffle(): void {
