@@ -36,7 +36,6 @@ type Loglist = { text: string };
 const Game = () => {
   const { gameRoom } = useGameRoom();
   const { gameSession } = useGameSession();
-  const { gameRoom } = useGameRoom();
   const navigate = useNavigate();
 
   // 목적지 정보
