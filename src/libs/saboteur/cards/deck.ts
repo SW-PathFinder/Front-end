@@ -9,14 +9,19 @@ export class SaboteurCardPool {
   private _remainingCount: number = this._cards.length;
 
   constructor() {
-    this.reset();
+    this.resetGameState();
   }
 
   getRemainingCount(): number {
     return this._remainingCount;
   }
 
-  reset(): void {
+  resetGameState(): void {
+    // this._cards = SaboteurCardPool.init();
+    this.resetRoundState();
+  }
+
+  resetRoundState(): void {
     // this.shuffle();
     // this._usedCards = [];
     // this.unknownUsedCardCount = 0;
@@ -78,7 +83,7 @@ export class SaboteurCardPool {
     // cardsUsed: SaboteurCard.Abstract.Playable[],
     // players: AbstractSaboteurPlayer[],
   ) {
-    this.reset();
+    this.resetRoundState();
     this._remainingCount = deckCount;
     // this._usedCards.push(...cardsUsed);
 

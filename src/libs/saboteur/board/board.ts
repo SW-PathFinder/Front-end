@@ -13,7 +13,7 @@ export class GameBoard {
     new MapGrid2d<SaboteurCard.Path.Abstract>();
 
   constructor() {
-    this.startNewRound();
+    this.resetGameState();
   }
 
   static readonly originCoordinates = [0, 0] satisfies readonly [
@@ -95,7 +95,11 @@ export class GameBoard {
     this.grid.delete(x, y);
   }
 
-  startNewRound(): void {
+  resetGameState(): void {
+    this.resetRoundState();
+  }
+
+  resetRoundState(): void {
     this._clear();
 
     this._setCard(
@@ -126,7 +130,7 @@ export class GameBoard {
     cards: [[x: number, y: number], card: SaboteurCard.Path.Abstract][],
     checkConditions = true,
   ): GameBoard {
-    this.startNewRound();
+    this.resetRoundState();
 
     for (const [[x, y], card] of cards) {
       if (card instanceof SaboteurCard.Path.AbstractDest) {
@@ -177,28 +181,14 @@ export class GameBoard {
     while (stack.length > 0) {
       const [currentX, currentY, connectedFrom] = stack.pop()!;
       const key = `${currentX},${currentY}`;
-      // console.log(
-      //   `Checking position (${currentX}, ${currentY}) from direction ${CardinalDirection.toString(
-      //     connectedFrom,
-      //   )}`,
-      // );
 
       if (checked.has(key)) continue;
       checked.add(key);
 
       const currentCard = this.getCard(currentX, currentY);
       if (currentCard) {
-        // console.log(
-        //   `Found card at (${currentX}, ${currentY}):\n${currentCard.stringForm}`,
-        // );
-
         // 시작점과 연결되어있는지 확인
         if (!currentCard.isOpen(connectedFrom)) {
-          // console.log(
-          //   `Card at (${currentX}, ${currentY}) is not open in direction ${CardinalDirection.toString(
-          //     connectedFrom,
-          //   )}, skipping.`,
-          // );
           continue;
         }
 
@@ -223,19 +213,6 @@ export class GameBoard {
         ) {
           positions.push([currentX, currentY]);
         }
-        // else {
-        //   for (const {
-        //     card: adjacentCard,
-        //     coord,
-        //     direction,
-        //   } of adjacentCards) {
-        //     console.log(
-        //       `Card ${card._roads}\n${card.stringForm}\ncannot connect with adjacent card\n${adjacentCard.stringForm}\nat (${coord[0]}, ${coord[1]}) in direction ${CardinalDirection.toString(
-        //         direction,
-        //       )}.\n`,
-        //     );
-        //   }
-        // }
       }
     }
 
@@ -246,66 +223,6 @@ export class GameBoard {
     const possiblePositions = this.getPossiblePositions(card);
     // 해당 좌표가 가능한 위치 중 하나인지 확인
     return possiblePositions.some(([posX, posY]) => posX === x && posY === y);
-
-    // // 시작점에서부터 해당 좌표까지 경로가 연결되어 있는지 확인
-    // const visited = new Set<string>();
-    // const stack: [
-    //   x: number,
-    //   y: number,
-    //   card: SaboteurCard.Path.Abstract,
-    //   connectedFrom: CardinalDirection.Any,
-    // ][] = [
-    //   [
-    //     ...GameBoard.originCoordinates,
-    //     this.getCard(...GameBoard.originCoordinates)!,
-    //     CardinalDirection.All,
-    //   ],
-    // ];
-
-    // while (stack.length > 0) {
-    //   const [currentX, currentY, currentCard, connectedFrom] = stack.pop()!;
-    //   const key = `${currentX},${currentY}`;
-
-    //   if (visited.has(key)) continue;
-    //   visited.add(key);
-
-    //   for (const direction of CardinalDirection.adjacentList) {
-    //     const [nextX, nextY] = CardinalDirection.moveTo(
-    //       [currentX, currentY],
-    //       direction,
-    //     );
-    //     if (
-    //       !currentCard.isOpen(direction) ||
-    //       !currentCard.isConnected(connectedFrom, direction)
-    //     )
-    //       continue;
-
-    //     if (
-    //       nextX === x &&
-    //       nextY === y &&
-    //       card.isOpen(CardinalDirection.rotateHalf(direction))
-    //     )
-    //       return true;
-
-    //     const adjacentCard = this.getCard(nextX, nextY);
-    //     if (
-    //       adjacentCard &&
-    //       adjacentCard.canConnectWith(
-    //         currentCard,
-    //         CardinalDirection.rotateHalf(direction),
-    //       )
-    //     ) {
-    //       stack.push([
-    //         nextX,
-    //         nextY,
-    //         adjacentCard,
-    //         CardinalDirection.rotateHalf(direction),
-    //       ]);
-    //     }
-    //   }
-    // }
-
-    // return false;
   }
 
   sync(

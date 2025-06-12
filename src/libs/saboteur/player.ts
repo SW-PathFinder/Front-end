@@ -48,6 +48,10 @@ export abstract class AbstractSaboteurPlayer implements GameSessionPlayer {
     this._status[tool] = true;
   }
 
+  resetGameState(): void {
+    this.resetRoundState();
+  }
+
   resetRoundState(): void {
     this._status = { lantern: true, pickaxe: true, mineCart: true };
   }
@@ -67,6 +71,10 @@ export class OtherSaboteurPlayer extends AbstractSaboteurPlayer {
   }: AbstractPlayerOption & { handCount?: number }) {
     super(options);
     this.handCount = handCount;
+  }
+
+  resetGameState(): void {
+    this.resetRoundState();
   }
 
   resetRoundState(): void {
@@ -177,9 +185,15 @@ export class MySaboteurPlayer extends AbstractSaboteurPlayer {
   //   return this;
   // }
 
-  resetRoundState(): void {
+  resetGameState(): void {
+    this._gold = 0;
+    this._lastRoundGold = 0;
+    this.resetRoundState();
+  }
+
+  resetRoundState(role: PlayerRole | null = null): void {
     super.resetRoundState();
-    this.role = null;
+    this.role = role;
     this._hands = [];
   }
 

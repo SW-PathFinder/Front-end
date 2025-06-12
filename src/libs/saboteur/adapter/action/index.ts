@@ -432,23 +432,7 @@ export namespace SaboteurAction {
 
         readonly _isUpdate = true as const;
         update(gameSession: SaboteurSession): void {
-          const { round, role } = this.data;
-
-          gameSession.round = round;
-
-          gameSession.board.startNewRound();
-          gameSession.cardPool.reset();
-          gameSession.myPlayer.resetRoundState();
-          gameSession.myPlayer.role = role;
-
-          gameSession.players.forEach((player) => {
-            if (player instanceof OtherSaboteurPlayer) {
-              player.handCount = OtherSaboteurPlayer.getInitialHandCount(
-                gameSession.players.length,
-              );
-              gameSession.cardPool.decreaseRemainingCard(player.handCount);
-            }
-          });
+          gameSession.resetRoundState(this.data);
         }
       }
 
