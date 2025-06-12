@@ -66,7 +66,9 @@ export const AuthenticatedProvider = ({
 export const useAuthenticated = () => {
   const context = useContext(AuthenticatedContext);
   if (!context) {
-    throw new Error("useGameSession must be used within a GameSessionProvider");
+    throw new Error(
+      "useGameSession must be used within a AuthenticatedProvider",
+    );
   }
 
   return context;
