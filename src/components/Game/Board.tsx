@@ -26,6 +26,7 @@ interface BoardProps {
   ) => void;
   style?: React.CSSProperties;
   className?: string;
+  hoveredCoord?: { x: number; y: number } | null; // 추가
 }
 
 export const BOARD_ROWS = 23;
@@ -36,7 +37,13 @@ const BOARD_VISIBLE_COLS = 7;
 
 // TODO: 카드 드래그할때 불필요한 스크롤링 방지
 // 바깥 영역에서만 스크롤 한칸씩 되도록?
-export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
+export const Board = ({
+  board,
+  onDropCard,
+  style,
+  className,
+  hoveredCoord,
+}: BoardProps) => {
   const { gameRoom } = useGameRoom();
   const boardRef = useRef<HTMLDivElement>(null);
   /**
@@ -110,12 +117,16 @@ export const Board = ({ board, onDropCard, style, className }: BoardProps) => {
             ([slotX, slotY]) => slotX === x && slotY === y,
           );
 
+          const isHovered =
+            hoveredCoord && hoveredCoord.x === x && hoveredCoord.y === y;
+
           return (
             <BoardSlot
               x={x}
               y={y}
               card={card}
               isPossibleSlot={isPossibleSlot}
+              isHovered={!!isHovered} // 추가
               style={{ gridRow: deltaY + 1, gridColumn: deltaX + 1 }}
               key={`${x}:${y}`}
             />
@@ -137,6 +148,7 @@ const BoardSlot = ({
   y,
   card,
   isPossibleSlot,
+  isHovered,
   style,
   className,
 }: {
@@ -144,6 +156,7 @@ const BoardSlot = ({
   y: number;
   card: SaboteurCard.Path.Abstract | null;
   isPossibleSlot?: boolean;
+  isHovered?: boolean; // 추가
   style?: React.CSSProperties;
   className?: string;
 }) => {
@@ -152,23 +165,31 @@ const BoardSlot = ({
     id,
     data: { x, y, card } as BoardSlotData,
   });
-
   return (
     <div
       id={id}
       ref={setNodeRef}
       style={{ ...style, width: CARD_WIDTH, aspectRatio: CARD_RATIO }}
       className={twMerge(
-        `relative flex snap-center items-center justify-center border border-gray-300`,
+        "relative flex snap-center items-center justify-center",
         (x + y) % 2 === 0 ? "bg-base-300/10" : "bg-base-300/30",
+        !isHovered && "border border-gray-300",
         className,
       )}
     >
-      {/* {`${x},${y}`} */}
+      {/* 카드 */}
       {card && <Card card={card} size={CARD_WIDTH} fixed />}
+      {/* 호버 오버레이 */}
+      {isHovered && (
+        <div
+          className="pointer-events-none absolute inset-0 z-20 rounded border-4 border-yellow-400"
+          style={{ boxSizing: "border-box" }}
+        />
+      )}
+      {/* 가능한 슬롯 표시 */}
       {isPossibleSlot && (
         <div
-          className="absolute inset-0 border-2 border-dashed border-yellow-300"
+          className="absolute inset-0 border-2 border-dashed border-yellow-300 bg-gray-800"
           style={{ pointerEvents: "none" }}
         />
       )}

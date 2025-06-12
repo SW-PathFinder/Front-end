@@ -52,6 +52,10 @@ const Game = () => {
 
   //로그 텍스트
   const [logText, setLogText] = useState("");
+  const [hoveredCoord, setHoveredCoord] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   // 라운드 종료 모달
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
@@ -102,6 +106,14 @@ const Game = () => {
   useEffect(() => {
     return gameSession.adapter.onAny((data) => {
       // 게임 세션의 상태가 변경될 때마다 리렌더링
+      console.log(
+        "onAny data:",
+        data,
+        "constructor.name:",
+        data.constructor?.name,
+        "type:",
+        data.type,
+      );
       setLogText((prev) => {
         // 로그 텍스트 업데이트
         const newLog: Loglist = { text: "" };
@@ -137,8 +149,11 @@ const Game = () => {
           }
         } else if (data.constructor.name === "Discard") {
           newLog.text = `${gameSession.currentPlayer.name}님이 카드를 버렸습니다.`;
+        } else if (data.constructor.name === "RoundEnd") {
+          newLog.text = `[라운드 종료] 라운드가 종료되었습니다.`;
+        } else if (data.constructor.name === "GameEnd") {
+          newLog.text = `[게임 종료] 게임이 종료되었습니다.`;
         }
-
         return prev + "\n" + newLog.text;
       });
     });
@@ -189,7 +204,50 @@ const Game = () => {
     },
     [gameSession],
   );
+  // (X,Y) 패턴을 "위치"로 바꾸고, hover 이벤트 추가
+  const renderLogLine = (log: string, index: number) => {
+    const coordRegex = /\((-?\d+),\s*(-?\d+)\)/g;
+    let lastIndex = 0;
+    const elements: React.ReactNode[] = [];
+    let match: RegExpExecArray | null;
+    let key = 0;
+    let firstCoord: { x: number; y: number } | null = null;
 
+    while ((match = coordRegex.exec(log)) !== null) {
+      const [full, x, y] = match;
+      if (!firstCoord) {
+        firstCoord = { x: Number(x), y: Number(y) };
+      }
+      if (match.index > lastIndex) {
+        elements.push(log.slice(lastIndex, match.index));
+      }
+      elements.push(
+        <span
+          key={key++}
+          style={{ textDecoration: "underline", cursor: "pointer" }}
+        >
+          위치
+        </span>,
+      );
+      lastIndex = match.index + full.length;
+    }
+    if (lastIndex < log.length) {
+      elements.push(log.slice(lastIndex));
+    }
+    return (
+      <p
+        key={index}
+        className="text-sm"
+        onMouseEnter={
+          firstCoord ? () => setHoveredCoord(firstCoord) : undefined
+        }
+        onMouseLeave={firstCoord ? () => setHoveredCoord(null) : undefined}
+        style={firstCoord ? { background: "rgba(255,255,0,0.05)" } : undefined}
+      >
+        {elements}
+      </p>
+    );
+  };
   return (
     <div
       className="flex h-screen w-full flex-col overflow-hidden bg-cover bg-center px-4 md:px-8"
@@ -220,6 +278,7 @@ const Game = () => {
               board={gameSession.board}
               onDropCard={onDropCard}
               className="mb-[100px] h-1/2 w-full"
+              hoveredCoord={hoveredCoord}
             />
             <div className="absolute -bottom-8 flex h-[150px] w-full max-w-[540px] items-center justify-between px-4">
               <ActionZone
@@ -312,11 +371,12 @@ const Game = () => {
           <p className="text-center text-3xl">게임 로그</p>
           <aside className="h-full w-full overflow-auto rounded">
             <div className="break-words whitespace-pre-wrap">
-              {logText.split("\n").map((log, index) => (
+              {/* {logText.split("\n").map((log, index) => (
                 <p key={index} className="text-sm">
                   {log}
                 </p>
-              ))}
+              ))} */}
+              {logText.split("\n").map(renderLogLine)}
             </div>
           </aside>
         </div>
