@@ -124,6 +124,7 @@ export class GameBoard {
 
   import(
     cards: [[x: number, y: number], card: SaboteurCard.Path.Abstract][],
+    checkConditions = true,
   ): GameBoard {
     this.startNewRound();
 
@@ -134,7 +135,12 @@ export class GameBoard {
       }
 
       const [canPlace, error] = this.canPlaceCard(x, y, card);
-      if (!canPlace && !(error instanceof PathNotReachableError)) throw error;
+      if (
+        checkConditions &&
+        !canPlace &&
+        !(error instanceof PathNotReachableError)
+      )
+        throw error;
 
       this._setCard(x, y, card);
     }
@@ -146,45 +152,160 @@ export class GameBoard {
     return this.grid.entries();
   }
 
-  isReachable(x: number, y: number, card: SaboteurCard.Path.Abstract): boolean {
-    // 시작점에서부터 해당 좌표까지 경로가 연결되어 있는지 확인
-    const visited = new Set<string>();
-    const stack: [number, number][] = [GameBoard.originCoordinates]; // 시작점에서 시작
+  getPossiblePositions(
+    card: SaboteurCard.Path.Abstract,
+  ): [x: number, y: number][] {
+    const positions: [number, number][] = [];
+
+    const checked = new Set<string>([
+      `${GameBoard.originCoordinates[0]},${GameBoard.originCoordinates[1]}`,
+    ]);
+    const stack: (readonly [
+      x: number,
+      y: number,
+      connectedFrom: CardinalDirection.Adjacent,
+    ])[] = [];
+
+    for (const direction of CardinalDirection.adjacentList) {
+      const [nextX, nextY] = CardinalDirection.moveTo(
+        GameBoard.originCoordinates,
+        direction,
+      );
+      stack.push([nextX, nextY, CardinalDirection.rotateHalf(direction)]);
+    }
 
     while (stack.length > 0) {
-      const [currentX, currentY] = stack.pop()!;
+      const [currentX, currentY, connectedFrom] = stack.pop()!;
       const key = `${currentX},${currentY}`;
+      // console.log(
+      //   `Checking position (${currentX}, ${currentY}) from direction ${CardinalDirection.toString(
+      //     connectedFrom,
+      //   )}`,
+      // );
 
-      if (visited.has(key)) continue;
-      visited.add(key);
+      if (checked.has(key)) continue;
+      checked.add(key);
 
-      for (const direction of CardinalDirection.adjacentList) {
-        const [nextX, nextY] = CardinalDirection.moveTo(
-          [currentX, currentY],
-          direction,
-        );
+      const currentCard = this.getCard(currentX, currentY);
+      if (currentCard) {
+        // console.log(
+        //   `Found card at (${currentX}, ${currentY}):\n${currentCard.stringForm}`,
+        // );
 
+        // 시작점과 연결되어있는지 확인
+        if (!currentCard.isOpen(connectedFrom)) {
+          // console.log(
+          //   `Card at (${currentX}, ${currentY}) is not open in direction ${CardinalDirection.toString(
+          //     connectedFrom,
+          //   )}, skipping.`,
+          // );
+          continue;
+        }
+
+        for (const direction of CardinalDirection.adjacentList) {
+          if (direction === connectedFrom) continue;
+
+          const [nextX, nextY] = CardinalDirection.moveTo(
+            [currentX, currentY],
+            direction,
+          );
+          if (currentCard.isConnected(connectedFrom, direction)) {
+            stack.push([nextX, nextY, CardinalDirection.rotateHalf(direction)]);
+          }
+        }
+      } else {
+        // 현재 위치에 카드를 놓을 수 있는지 확인
+        const adjacentCards = this.getAdjacentCards(currentX, currentY);
         if (
-          nextX === x &&
-          nextY === y &&
-          card.isOpen(CardinalDirection.rotateHalf(direction))
-        )
-          return true;
-
-        const adjacentCard = this.getCard(nextX, nextY);
-        if (
-          adjacentCard &&
-          adjacentCard.canConnectWith(
-            this.getCard(currentX, currentY)!,
-            CardinalDirection.rotateHalf(direction),
+          adjacentCards.every(({ card: adjacentCard, direction }) =>
+            card.canConnectWith(adjacentCard, direction),
           )
         ) {
-          stack.push([nextX, nextY]);
+          positions.push([currentX, currentY]);
         }
+        // else {
+        //   for (const {
+        //     card: adjacentCard,
+        //     coord,
+        //     direction,
+        //   } of adjacentCards) {
+        //     console.log(
+        //       `Card ${card._roads}\n${card.stringForm}\ncannot connect with adjacent card\n${adjacentCard.stringForm}\nat (${coord[0]}, ${coord[1]}) in direction ${CardinalDirection.toString(
+        //         direction,
+        //       )}.\n`,
+        //     );
+        //   }
+        // }
       }
     }
 
-    return false;
+    return positions;
+  }
+
+  isReachable(x: number, y: number, card: SaboteurCard.Path.Abstract): boolean {
+    const possiblePositions = this.getPossiblePositions(card);
+    // 해당 좌표가 가능한 위치 중 하나인지 확인
+    return possiblePositions.some(([posX, posY]) => posX === x && posY === y);
+
+    // // 시작점에서부터 해당 좌표까지 경로가 연결되어 있는지 확인
+    // const visited = new Set<string>();
+    // const stack: [
+    //   x: number,
+    //   y: number,
+    //   card: SaboteurCard.Path.Abstract,
+    //   connectedFrom: CardinalDirection.Any,
+    // ][] = [
+    //   [
+    //     ...GameBoard.originCoordinates,
+    //     this.getCard(...GameBoard.originCoordinates)!,
+    //     CardinalDirection.All,
+    //   ],
+    // ];
+
+    // while (stack.length > 0) {
+    //   const [currentX, currentY, currentCard, connectedFrom] = stack.pop()!;
+    //   const key = `${currentX},${currentY}`;
+
+    //   if (visited.has(key)) continue;
+    //   visited.add(key);
+
+    //   for (const direction of CardinalDirection.adjacentList) {
+    //     const [nextX, nextY] = CardinalDirection.moveTo(
+    //       [currentX, currentY],
+    //       direction,
+    //     );
+    //     if (
+    //       !currentCard.isOpen(direction) ||
+    //       !currentCard.isConnected(connectedFrom, direction)
+    //     )
+    //       continue;
+
+    //     if (
+    //       nextX === x &&
+    //       nextY === y &&
+    //       card.isOpen(CardinalDirection.rotateHalf(direction))
+    //     )
+    //       return true;
+
+    //     const adjacentCard = this.getCard(nextX, nextY);
+    //     if (
+    //       adjacentCard &&
+    //       adjacentCard.canConnectWith(
+    //         currentCard,
+    //         CardinalDirection.rotateHalf(direction),
+    //       )
+    //     ) {
+    //       stack.push([
+    //         nextX,
+    //         nextY,
+    //         adjacentCard,
+    //         CardinalDirection.rotateHalf(direction),
+    //       ]);
+    //     }
+    //   }
+    // }
+
+    // return false;
   }
 
   sync(
