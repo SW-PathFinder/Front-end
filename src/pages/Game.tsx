@@ -98,6 +98,12 @@ const Game = () => {
   }, [gameSession.round, gameSession.adapter]);
 
   useEffect(() => {
+    return gameSession.adapter.on("gameStart", () => {
+      navigate(0);
+    });
+  }, [gameSession, navigate]);
+
+  useEffect(() => {
     return gameSession.adapter.onAny((data) => {
       // 게임 세션의 상태가 변경될 때마다 리렌더링
       setLogText((prev) => {

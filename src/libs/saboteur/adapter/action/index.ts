@@ -1,10 +1,6 @@
 import { SaboteurCard } from "../../cards";
 import { SaboteurSession } from "../../game";
-import {
-  AbstractSaboteurPlayer,
-  MySaboteurPlayer,
-  OtherSaboteurPlayer,
-} from "../../player";
+import { AbstractSaboteurPlayer, OtherSaboteurPlayer } from "../../player";
 import { PlayerRole, Tools } from "../../types";
 
 interface UpdateAction {
@@ -352,8 +348,9 @@ export namespace SaboteurAction {
       }
 
       export class GameStart extends Response.Primitive<{
-        players: AbstractSaboteurPlayer[];
-        myPlayer: MySaboteurPlayer;
+        // players: AbstractSaboteurPlayer[];
+        // myPlayer: MySaboteurPlayer;
+        playerIds: string[];
       }> {
         static readonly type = "gameStart";
       }
