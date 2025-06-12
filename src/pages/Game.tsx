@@ -40,12 +40,9 @@ const Game = () => {
 
   // 목적지 정보
   const [destInfo, setDestInfo] = useState(
-    null as null | { x: number; y: number },
+    null as null | { x: number; y: number; card: SaboteurCard.Path.Abstract },
   );
   const [destModalOpen, setDestModalOpen] = useState(false);
-  const [destCard, setDestCard] = useState(
-    null as null | SaboteurCard.Path.Abstract,
-  );
 
   // 장비 카드 모달
   const [equipModalOpen, setEquipModalOpen] = useState(false);
@@ -56,13 +53,6 @@ const Game = () => {
   //로그 텍스트
   const [logText, setLogText] = useState("");
 
-  useEffect(() => {
-    if (destInfo === null) return;
-    const revealedCard = gameSession.board.getCard(destInfo.x, destInfo.y);
-    setDestCard(revealedCard);
-    setDestModalOpen(true);
-  }, [gameSession.board, destInfo]);
-
   // 라운드 종료 모달
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
   const isRoundEnd = roundResult !== null;
@@ -71,7 +61,6 @@ const Game = () => {
     // 라운드 종료 시
     gameSession.adapter.on("roundEnd", (action) => {
       setDestInfo(null);
-      setDestCard(null);
       setDestModalOpen(false);
       setEquipModalOpen(false);
       setEquipCard(null);
@@ -92,7 +81,6 @@ const Game = () => {
     gameSession.adapter.on("gameEnd", (action) => {
       setIsGameEnd(true);
       setDestInfo(null);
-      setDestCard(null);
       setDestModalOpen(false);
       setEquipModalOpen(false);
       setGameResult({ rank: action.data.golds });
@@ -185,6 +173,7 @@ const Game = () => {
         gameSession.adapter.on("peekDestination", (data) => {
           console.log("지도 카드 사용 결과:", data);
           setDestInfo(data.data);
+          setDestModalOpen(true);
         });
         gameSession.sendAction(
           new SaboteurAction.Request.UseMap({ x, y, card }),
@@ -249,11 +238,11 @@ const Game = () => {
               />
             </div>
           </DndZone>
-          {destCard && (
+          {destInfo && (
             <RevealDestModal
               isOpen={destModalOpen}
               onClose={() => setDestModalOpen(false)}
-              revealedCard={destCard}
+              revealedCard={destInfo.card}
             />
           )}
           {gameSession.currentPlayer.isMe() && equipModalOpen && (
