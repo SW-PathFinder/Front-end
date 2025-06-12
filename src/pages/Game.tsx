@@ -36,6 +36,7 @@ type Loglist = { text: string };
 const Game = () => {
   const { gameRoom } = useGameRoom();
   const { gameSession } = useGameSession();
+  const { gameRoom } = useGameRoom();
   const navigate = useNavigate();
 
   // 목적지 정보
@@ -278,7 +279,12 @@ const Game = () => {
               onClose={() => {
                 setIsGameEnd(false);
                 setGameResult(null);
-                navigate("/saboteur");
+              }}
+              onLobbyExit={() => {
+                setIsGameEnd(false);
+                setGameResult(null);
+                gameRoom.adapter.leaveRoom();
+                navigate("/lobby");
               }}
               rank={gameResult?.rank ?? {}}
             />
