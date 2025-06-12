@@ -128,7 +128,7 @@ export class GameBoard {
 
   import(
     cards: [[x: number, y: number], card: SaboteurCard.Path.Abstract][],
-    checkConditions = true,
+    checkConditions = false,
   ): GameBoard {
     this.resetRoundState();
 
@@ -207,8 +207,10 @@ export class GameBoard {
         // 현재 위치에 카드를 놓을 수 있는지 확인
         const adjacentCards = this.getAdjacentCards(currentX, currentY);
         if (
-          adjacentCards.every(({ card: adjacentCard, direction }) =>
-            card.canConnectWith(adjacentCard, direction),
+          adjacentCards.every(
+            ({ card: adjacentCard, direction }) =>
+              card.isOpen(direction) ===
+              adjacentCard.isOpen(CardinalDirection.rotateHalf(direction)),
           )
         ) {
           positions.push([currentX, currentY]);

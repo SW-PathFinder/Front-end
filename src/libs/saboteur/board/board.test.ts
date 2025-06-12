@@ -176,6 +176,22 @@ describe("카드 놓기", () => {
     board.placeCard(1, -1, card2);
     expect(board.getCard(1, -1)).toBe(card2);
   });
+
+  test("테스트 케이스 1", () => {
+    const board = new GameBoard();
+    board.import([
+      [[-1, 0], new SaboteurCard.Path.Block3A()],
+      [[1, 0], new SaboteurCard.Path.Way3B(true)],
+      [[1, 1], new SaboteurCard.Path.Way3B(true)],
+      [[0, 1], new SaboteurCard.Path.Way3B()],
+      [[1, 2], new SaboteurCard.Path.Way2B()],
+      [[2, 2], new SaboteurCard.Path.Way3A()],
+      [[3, 2], new SaboteurCard.Path.Way2A()],
+      [[3, 1], new SaboteurCard.Path.Way3A(true)],
+    ]);
+
+    console.log(board.getPossiblePositions(new SaboteurCard.Path.Way2D()));
+  });
 });
 
 describe("카드 제거", () => {
