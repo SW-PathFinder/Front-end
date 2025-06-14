@@ -209,8 +209,10 @@ export class GameBoard {
         if (
           adjacentCards.every(
             ({ card: adjacentCard, direction }) =>
+              (adjacentCard instanceof SaboteurCard.Path.AbstractDest &&
+                adjacentCard.hidden) ||
               card.isOpen(direction) ===
-              adjacentCard.isOpen(CardinalDirection.rotateHalf(direction)),
+                adjacentCard.isOpen(CardinalDirection.rotateHalf(direction)),
           )
         ) {
           positions.push([currentX, currentY]);

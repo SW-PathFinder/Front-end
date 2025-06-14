@@ -464,7 +464,7 @@ export namespace SaboteurAction {
           // throw new Error("Method not implemented.");
           const { x, y, card } = this.data;
 
-          card.peeked = true;
+          card.hidden = true;
           gameSession.board.revealDestination(x, y, card);
         }
       }

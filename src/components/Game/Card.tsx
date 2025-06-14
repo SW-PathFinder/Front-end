@@ -110,7 +110,7 @@ export const Card = ({
         className,
       )}
     >
-      {card instanceof SaboteurCard.Path.AbstractDest && card.peeked && (
+      {card instanceof SaboteurCard.Path.AbstractDest && card.hidden && (
         <div
           style={{ backgroundImage: `url(${card.bgImage})` }}
           className={twMerge(
