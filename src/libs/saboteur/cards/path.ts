@@ -261,18 +261,22 @@ export namespace PathCard {
 
   export abstract class AbstractDest extends AbstractSpecial {
     type = "dest";
-    peeked: boolean;
+    hidden: boolean;
     bgImage = "/assets/saboteur/cards/bg_playable.png";
 
-    constructor(flipped: boolean = false, peeked: boolean = false) {
+    constructor(flipped: boolean = false, hidden: boolean = false) {
       super(flipped);
-      this.peeked = peeked;
+      this.hidden = hidden;
     }
   }
 
   export class DestHidden extends AbstractDest {
     protected readonly _images = ["/assets/saboteur/cards/bg_playable.png"];
     protected readonly _roads = [CardinalDirection.All] as const;
+
+    constructor(flipped: boolean = false) {
+      super(flipped, true);
+    }
   }
 
   export class DestGold extends AbstractDest {
