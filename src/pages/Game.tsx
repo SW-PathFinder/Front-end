@@ -272,24 +272,21 @@ const Game = () => {
           </div>
         </aside>
         {/* 중앙 보드 & 핸드 */}
-        <main className="relative flex flex-1 flex-col items-center justify-center">
+        <main className="relative flex flex-1 flex-col items-center justify-start">
           <DndZone>
             <Board
               board={gameSession.board}
               onDropCard={onDropCard}
-              className="mb-[100px] h-1/2 w-full"
               hoveredCoord={hoveredCoord}
+              className="mb-4"
             />
-            <div className="absolute -bottom-8 flex h-[150px] w-full max-w-[540px] items-center justify-between px-4">
+            <div className="flex w-full max-w-[540px] items-center justify-between px-4">
               <ActionZone
                 action="discard"
                 className="aspect-square w-36 rounded-full"
               />
-              <div className="relative flex h-full w-full items-center justify-center">
-                <Hand
-                  cards={gameSession.myPlayer.hands}
-                  className="absolute top-0"
-                />
+              <div className="flex h-full w-full items-center justify-center">
+                <Hand cards={gameSession.myPlayer.hands} />
               </div>
               <ActionZone
                 action="rotate"

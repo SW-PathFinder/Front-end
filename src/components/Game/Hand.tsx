@@ -15,7 +15,11 @@ export const Hand = ({ cards, className }: HandProps) => {
   const id = useUniqueId("hand");
 
   return (
-    <Droppable id={id} className={twMerge("relative w-16", className)}>
+    <Droppable
+      id={id}
+      style={{}}
+      className={twMerge("relative flex justify-center", className)}
+    >
       {cards.map((card, index) => {
         const handTransform = getHandCardTransform(index, cards.length, {
           width: CARD_WIDTH,
@@ -23,12 +27,13 @@ export const Hand = ({ cards, className }: HandProps) => {
         });
 
         return (
-          <Card
-            card={card}
-            size={CARD_WIDTH}
-            transform={handTransform}
-            key={index}
-          />
+          <div
+            style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+            className="relative"
+            key={card.uid}
+          >
+            <Card card={card} size={CARD_WIDTH} transform={handTransform} />
+          </div>
         );
       })}
     </Droppable>
@@ -55,7 +60,7 @@ function getHandCardTransform(
   const theta = (degree * Math.PI) / 180;
   const radius = height * 2;
   // const x = radius * Math.sin(theta) - relativeIndex * width;
-  const x = radius * Math.sin(theta);
+  const x = radius * Math.sin(theta) - relativeIndex * CARD_WIDTH;
   const y = radius - radius * Math.cos(theta);
 
   return { x, y, rotate: degree };

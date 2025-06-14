@@ -20,9 +20,11 @@ interface CardProps {
   className?: string;
 }
 
-export const CARD_WIDTH = 60;
-export const CARD_HEIGHT = 97;
-export const CARD_RATIO = CARD_WIDTH / CARD_HEIGHT;
+const CARD_ASSET_WIDTH = 60;
+const CARD_ASSET_HEIGHT = 97;
+export const CARD_RATIO = CARD_ASSET_WIDTH / CARD_ASSET_HEIGHT;
+export const CARD_WIDTH = CARD_ASSET_WIDTH * 0.85;
+export const CARD_HEIGHT = CARD_WIDTH / CARD_RATIO;
 
 export interface DraggableCardData {
   card: SaboteurCard.Abstract.Playable;
