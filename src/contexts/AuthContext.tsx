@@ -37,11 +37,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const login = useCallback(
     async (userId: string) => {
       setIsLoading(true);
-      console.log("Attempting to login with userId:", userId);
+      // console.log("Attempting to login with userId:", userId);
 
       try {
         await setUserName({ username: userId });
-        console.log("Login successful with userId:", userId);
+        // console.log("Login successful with userId:", userId);
         setUserId(userId);
       } finally {
         setIsLoading(false);
@@ -56,7 +56,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const storedId = localStorage.getItem("userId");
-    console.log(userId, storedId);
     if (userId || !storedId) {
       setIsLoading(false);
       return;

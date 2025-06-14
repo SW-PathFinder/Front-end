@@ -1,11 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
+import {
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  HomeIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { RulebookButton } from "@/components/Common/RulebookButton";
 import { SettingsButton } from "@/components/Common/SettingsButton";
 import { ActionZone } from "@/components/Game/ActionZone";
-import { Board } from "@/components/Game/Board";
+import { Board, BoardRef } from "@/components/Game/Board";
 import { DndZone } from "@/components/Game/Dnd";
 import { EquipmentModal } from "@/components/Game/EquipmentModal";
 import GameSummaryModal from "@/components/Game/GameSummaryModal";
@@ -16,7 +23,7 @@ import RoundSummaryModal from "@/components/Game/RoundSummaryModal";
 import { useGameRoom } from "@/contexts/GameRoomContext";
 import { useGameSession } from "@/contexts/GameSessionContext";
 import { SaboteurAction } from "@/libs/saboteur/adapter/action";
-import { SaboteurCard } from "@/libs/saboteur/cards";
+import { CardinalDirection, SaboteurCard } from "@/libs/saboteur/cards";
 import { PlayerRole } from "@/libs/saboteur/types";
 
 import lobby_bg from "/bg/game_bg.png";
@@ -37,6 +44,7 @@ const Game = () => {
   const { gameRoom } = useGameRoom();
   const { gameSession } = useGameSession();
   const navigate = useNavigate();
+  const boardRef = useRef<BoardRef>(null);
 
   // 목적지 정보
   const [destInfo, setDestInfo] = useState(
@@ -105,15 +113,15 @@ const Game = () => {
 
   useEffect(() => {
     return gameSession.adapter.onAny((data) => {
-      // 게임 세션의 상태가 변경될 때마다 리렌더링
-      console.log(
-        "onAny data:",
-        data,
-        "constructor.name:",
-        data.constructor?.name,
-        "type:",
-        data.type,
-      );
+      // // 게임 세션의 상태가 변경될 때마다 리렌더링
+      // console.log(
+      //   "onAny data:",
+      //   data,
+      //   "constructor.name:",
+      //   data.constructor?.name,
+      //   "type:",
+      //   data.type,
+      // );
       setLogText((prev) => {
         // 로그 텍스트 업데이트
         const newLog: Loglist = { text: "" };
@@ -279,6 +287,7 @@ const Game = () => {
               onDropCard={onDropCard}
               hoveredCoord={hoveredCoord}
               className="mb-4"
+              ref={boardRef}
             />
             <div className="flex w-full max-w-[540px] items-center justify-between px-4">
               <ActionZone
@@ -335,48 +344,95 @@ const Game = () => {
           )}
         </main>
         {/* 우측 사이드: 남은 카드 수 + 로그 */}
-        <div className="p-x-4 mb-8 ml-6 flex w-96 flex-shrink-0 flex-col items-center gap-2 overflow-auto rounded border-2 bg-base-300/50 p-4 shadow-lg">
-          <div className="flex w-full flex-col items-center">
-            <p
-              className={`${gameSession.myPlayer.role === PlayerRole.Saboteur ? "text-error" : "text-info"} text-2xl font-semibold`}
+        <aside className="flex flex-col items-center justify-start">
+          {/* 보드 이동 버튼 */}
+          <section>
+            <div
+              className="btn"
+              onClick={() => {
+                boardRef.current?.resetBoardPosition();
+              }}
             >
-              나의 역할 :{" "}
-              {gameSession.myPlayer.role === PlayerRole.Saboteur
-                ? "방해꾼"
-                : "광부"}
-            </p>
-          </div>
-          <div className="flex w-full flex-row justify-center gap-12">
-            <div className="flex flex-col items-center">
-              <div className="badge-outline badge badge-xl text-lg badge-secondary">
-                남은시간
-              </div>
-              <p className="text-center text-2xl text-secondary">
-                {gameSession.turnRemainingSecond}초
+              <HomeIcon />
+            </div>
+            <div
+              className="btn"
+              onClick={() => {
+                console.log(boardRef);
+                boardRef.current?.moveBoardPosition(CardinalDirection.West);
+              }}
+            >
+              <ArrowLeftIcon />
+            </div>
+            <div
+              className="btn"
+              onClick={() => {
+                boardRef.current?.moveBoardPosition(CardinalDirection.North);
+              }}
+            >
+              <ArrowUpIcon />
+            </div>
+            <div
+              className="btn"
+              onClick={() => {
+                boardRef.current?.moveBoardPosition(CardinalDirection.South);
+              }}
+            >
+              <ArrowDownIcon />
+            </div>
+            <div
+              className="btn"
+              onClick={() => {
+                boardRef.current?.moveBoardPosition(CardinalDirection.East);
+              }}
+            >
+              <ArrowRightIcon />
+            </div>
+          </section>
+
+          <div className="p-x-4 mb-8 ml-6 flex w-96 flex-shrink-0 flex-col items-center gap-2 overflow-auto rounded border-2 bg-base-300/50 p-4 shadow-lg">
+            <div className="flex w-full flex-col items-center">
+              <p
+                className={`${gameSession.myPlayer.role === PlayerRole.Saboteur ? "text-error" : "text-info"} text-2xl font-semibold`}
+              >
+                나의 역할 :{" "}
+                {gameSession.myPlayer.role === PlayerRole.Saboteur
+                  ? "방해꾼"
+                  : "광부"}
               </p>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="badge-outline badge badge-xl text-lg badge-accent">
-                남은 카드
+            <div className="flex w-full flex-row justify-center gap-12">
+              <div className="flex flex-col items-center">
+                <div className="badge-outline badge badge-xl text-lg badge-secondary">
+                  남은시간
+                </div>
+                <p className="text-center text-2xl text-secondary">
+                  {gameSession.turnRemainingSecond}초
+                </p>
               </div>
-              <p className="text-center text-2xl text-accent">
-                {gameSession.remainingCards}장
-              </p>
+              <div className="flex flex-col items-center">
+                <div className="badge-outline badge badge-xl text-lg badge-accent">
+                  남은 카드
+                </div>
+                <p className="text-center text-2xl text-accent">
+                  {gameSession.remainingCards}장
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="divider m-0 p-0"></div>
-          <p className="text-center text-3xl">게임 로그</p>
-          <aside className="h-full w-full overflow-auto rounded">
-            <div className="break-words whitespace-pre-wrap">
-              {/* {logText.split("\n").map((log, index) => (
+            <div className="divider m-0 p-0"></div>
+            <p className="text-center text-3xl">게임 로그</p>
+            <aside className="h-full w-full overflow-auto rounded">
+              <div className="break-words whitespace-pre-wrap">
+                {/* {logText.split("\n").map((log, index) => (
                 <p key={index} className="text-sm">
                   {log}
                 </p>
               ))} */}
-              {logText.split("\n").map(renderLogLine)}
-            </div>
-          </aside>
-        </div>
+                {logText.split("\n").map(renderLogLine)}
+              </div>
+            </aside>
+          </div>
+        </aside>
       </div>
     </div>
   );

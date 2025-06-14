@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Dispatch,
+  RefObject,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
@@ -15,6 +23,11 @@ import {
   DraggableCardData,
 } from "./Card";
 
+export interface BoardRef {
+  resetBoardPosition: () => void;
+  moveBoardPosition: Dispatch<CardinalDirection.Adjacent>;
+}
+
 interface BoardProps {
   board: GameBoard;
   // cards: (SaboteurCard.Path.Abstract | null)[][];
@@ -27,6 +40,7 @@ interface BoardProps {
   style?: React.CSSProperties;
   className?: string;
   hoveredCoord?: { x: number; y: number } | null; // 추가
+  ref?: RefObject<BoardRef | null>;
 }
 
 const BOARD_VISIBLE_ROWS = 7;
@@ -40,6 +54,7 @@ export const Board = ({
   style,
   className,
   hoveredCoord,
+  ref,
 }: BoardProps) => {
   const { gameRoom } = useGameRoom();
   const boardRef = useRef<HTMLDivElement>(null);
@@ -91,7 +106,6 @@ export const Board = ({
     if (!window) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      console.log("key down", event.key);
       if (event.key === "Escape") {
         setAnchorCoord(
           CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
@@ -120,6 +134,17 @@ export const Board = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    moveBoardPosition: (direction: CardinalDirection.Adjacent) => {
+      setAnchorCoord((prev) => CardinalDirection.moveTo(prev, direction));
+    },
+    resetBoardPosition: () => {
+      setAnchorCoord(
+        CardinalDirection.moveTo(GameBoard.originCoordinates, [-1, -3]),
+      );
+    },
+  }));
 
   return (
     <section style={style} className={twMerge("relative", className)}>
